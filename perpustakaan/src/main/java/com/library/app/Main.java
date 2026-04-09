@@ -1,10 +1,13 @@
 package com.library.app;
 
 import com.library.app.bootstrap.DatabaseInitializer;
+import com.library.app.ui.LoginFrame;
+
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
         DatabaseInitializer.initialize();
-        System.out.println("Inisialisasi database selesai. Aplikasi siap digunakan.");
+        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }
 }
