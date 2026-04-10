@@ -1,18 +1,41 @@
-## Getting Started
+## Perpustakaan (Java + Maven)
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Proyek ini adalah aplikasi manajemen perpustakaan berbasis Java dengan database MySQL.
 
-## Folder Structure
+Struktur proyek mengikuti standar Maven:
 
-The workspace contains two folders by default, where:
+- src/main/java untuk source code Java
+- src/main/resources untuk file resource seperti db.properties
+- database untuk schema dan seed SQL
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Prasyarat
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+- JDK 17+
+- Maven 3.8+
+- MySQL server aktif
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## Konfigurasi Database
 
-## Dependency Management
+Atur kredensial database di file src/main/resources/db.properties.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## Build
+
+Jalankan dari root folder proyek:
+
+	mvn clean compile
+
+Untuk build artefak:
+
+	mvn clean package
+
+## Menjalankan Aplikasi
+
+Entry point aplikasi ada di class com.library.app.Application.
+
+Jalankan dengan Maven:
+
+	mvn exec:java
+
+Jika ingin override konfigurasi database langsung dari command line:
+
+	mvn exec:java -Ddb.host=127.0.0.1 -Ddb.port=3306 -Ddb.name=library_management_native_maven -Ddb.username=root -Ddb.password=PASSWORD
