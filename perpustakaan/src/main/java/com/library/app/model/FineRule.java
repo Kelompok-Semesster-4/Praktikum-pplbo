@@ -2,12 +2,12 @@ package com.library.app.model;
 
 public class FineRule {
     private static FineRule instance;
-    private int maximumBorrowDays;
-    private long finePerDay;
+    private int defaultLoanDays;
+    private long dailyFine;
 
     private FineRule() {
-        this.maximumBorrowDays = 7;
-        this.finePerDay = 5000;
+        this.defaultLoanDays = 7;
+        this.dailyFine = 1000;
     }
 
     public static FineRule getInstance() {
@@ -19,18 +19,18 @@ public class FineRule {
     }
 
     public void setMaximumDueDays(int maximumDueDays) {
-        this.maximumBorrowDays = maximumDueDays;
+        this.defaultLoanDays = maximumDueDays;
     }
 
     public void setFinePerDay(long finePerDay) {
-        this.finePerDay = finePerDay;
+        this.dailyFine = finePerDay;
     }
 
     public int getMaximumDueDays() {
-        return maximumBorrowDays;
+        return defaultLoanDays;
     }
 
     public long getFinePerDay() {
-        return finePerDay;
+        return dailyFine;
     }
 }
