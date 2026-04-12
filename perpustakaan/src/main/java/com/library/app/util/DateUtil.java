@@ -36,7 +36,7 @@ public final class DateUtil {
         return startDate.until(endDate, ChronoUnit.DAYS);
     }
 
-    public static LocalDate calculateDueDate(LocalDate borrowDate, FineRule rule) {
-        return borrowDate.plusDays(rule.getMaximumDueDays());
+    public static LocalDate calculateDueDate(LocalDate borrowDate) {
+        return borrowDate.plusDays(FineRule.getInstance().getMaximumDueDays());
     }
 }
