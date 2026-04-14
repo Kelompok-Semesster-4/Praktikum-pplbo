@@ -1,5 +1,6 @@
 package com.library.app.ui.panel;
 
+import com.library.app.dao.LoanDAO;
 import com.library.app.model.Loan;
 import com.library.app.service.LoanService;
 import com.library.app.util.DateUtil;
@@ -55,12 +56,14 @@ public class LoanPanel extends JPanel implements RefreshablePanel {
     public void refreshData() {
         tableModel.setRowCount(0);
         List<Loan> loans = loanService.getActiveLoans();
+        LoanDAO access = new LoanDAO();
         for (Loan loan : loans) {
+            Object[] loanIdentity = access.getLoanIdentity(loan.getId());
             tableModel.addRow(new Object[]{
-                    loan.getMemberCode(),
-                    loan.getMemberName(),
-                    loan.getCopyCode(),
-                    loan.getBookTitle(),
+                    loanIdentity[0],
+                    loanIdentity[1],
+                    loanIdentity[2],
+                    loanIdentity[3],
                     DateUtil.format(loan.getLoanDate()),
                     DateUtil.format(loan.getDueDate())
             });

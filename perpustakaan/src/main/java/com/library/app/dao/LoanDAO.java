@@ -125,6 +125,32 @@ public class LoanDAO {
         }
     }
 
+    public Object[] getLoanIdentity(long loanId) {
+        String loanIdString = String.valueOf(loanId);
+        Object[] loanIdentity = new Object[4];
+        String sql = "SELECT m.member_code, m.name AS member_name, c.copy_code, b.title AS book_title " +
+                     "FROM loans l " + 
+                     "JOIN members m ON m.id = l.member_id " + 
+                     "JOIN book_copies c ON c.id = l.copy_id " + 
+                     "JOIN books b ON c.book_id = b.id " + 
+                     "WHERE l.id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, loanIdString);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    loanIdentity[0] = resultSet.getString("member_code");
+                    loanIdentity[1] = resultSet.getString("member_name");
+                    loanIdentity[2] = resultSet.getString("copy_code");
+                    loanIdentity[3] = resultSet.getString("book_title");
+                }
+            }
+            return loanIdentity;
+        } catch (Exception e) {
+            throw new RuntimeException("Gagal mengambil identitas peminjaman: ", e);
+        }
+    }
+
     private Loan map(ResultSet resultSet) throws SQLException {
         Loan loan = new Loan();
         loan.setId(resultSet.getLong("id"));
