@@ -11,7 +11,7 @@ public class FeedbackDAO {
     public long save(Feedback feedback) {
         String sql = "INSERT INTO feedbacks(member_id, sender_name, message) VALUES (?, ?, ?)";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (feedback.getMemberId() == null) {
                 statement.setNull(1, Types.BIGINT);
             } else {
@@ -36,8 +36,8 @@ public class FeedbackDAO {
         List<Feedback> feedbacks = new ArrayList<>();
         String sql = "SELECT id, member_id, sender_name, message, created_at FROM feedbacks ORDER BY id DESC";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 Feedback feedback = new Feedback();
                 feedback.setId(resultSet.getLong("id"));

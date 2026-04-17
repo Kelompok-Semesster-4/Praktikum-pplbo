@@ -21,7 +21,7 @@ public final class DatabaseInitializer {
 
     private static void createTables() {
         try (Connection connection = DBConnection.getConnection();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
 
             statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS users (

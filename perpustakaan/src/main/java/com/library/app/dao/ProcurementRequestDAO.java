@@ -13,7 +13,7 @@ public class ProcurementRequestDAO {
         String sql = "INSERT INTO procurement_requests(member_id, requester_name, title, author, note, status) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (request.getMemberId() == null) {
                 statement.setNull(1, Types.BIGINT);
             } else {
@@ -39,11 +39,12 @@ public class ProcurementRequestDAO {
 
     public List<ProcurementRequest> findAll() {
         List<ProcurementRequest> requests = new ArrayList<>();
-        String sql = "SELECT id, member_id, requester_name, title, author, note, status, response_note, created_at, responded_at " +
+        String sql = "SELECT id, member_id, requester_name, title, author, note, status, response_note, created_at, responded_at "
+                +
                 "FROM procurement_requests ORDER BY id DESC";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 requests.add(map(resultSet));
             }
@@ -56,7 +57,7 @@ public class ProcurementRequestDAO {
     public void review(long requestId, RequestStatus status, String responseNote) {
         String sql = "UPDATE procurement_requests SET status = ?, response_note = ?, responded_at = NOW() WHERE id = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
             statement.setString(2, responseNote);
             statement.setLong(3, requestId);
@@ -68,9 +69,9 @@ public class ProcurementRequestDAO {
 
     public int countPending() {
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT COUNT(*) FROM procurement_requests WHERE status = 'PENDING'");
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(
+                        "SELECT COUNT(*) FROM procurement_requests WHERE status = 'PENDING'");
+                ResultSet resultSet = statement.executeQuery()) {
             resultSet.next();
             return resultSet.getInt(1);
         } catch (SQLException exception) {

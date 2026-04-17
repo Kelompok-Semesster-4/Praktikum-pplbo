@@ -461,7 +461,8 @@ class AdminDashboardFxApp extends Application {
         scrollPane.setPannable(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; -fx-padding: 0 2 0 0;");
+        scrollPane.setStyle(
+                "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; -fx-padding: 0 2 0 0;");
         scrollPane.setPrefViewportHeight(380);
         scrollPane.setMaxHeight(380);
         scrollPane.setMinHeight(140);
@@ -500,7 +501,8 @@ class AdminDashboardFxApp extends Application {
         icon.setPrefSize(28, 28);
         icon.setAlignment(Pos.CENTER);
         icon.setStyle("-fx-background-color: " + notificationIconBackground(notification.getPriority()) + "; " +
-                "-fx-background-radius: 999; -fx-text-fill: " + notificationIconColor(notification.getPriority()) + "; " +
+                "-fx-background-radius: 999; -fx-text-fill: " + notificationIconColor(notification.getPriority()) + "; "
+                +
                 "-fx-font-size: 12px; -fx-font-weight: 700;");
 
         VBox textBox = new VBox(2);
@@ -519,7 +521,7 @@ class AdminDashboardFxApp extends Application {
         message.setStyle("-fx-font-size: 12px; -fx-text-fill: #667489;");
 
         Label meta = new Label(formatNotificationTime(notification.getCreatedAt()) + " • " +
-            notificationTypeLabel(notification.getType()));
+                notificationTypeLabel(notification.getType()));
         meta.setStyle("-fx-font-size: 11px; -fx-text-fill: #97a3b5;");
 
         textBox.getChildren().addAll(title, message, meta);
