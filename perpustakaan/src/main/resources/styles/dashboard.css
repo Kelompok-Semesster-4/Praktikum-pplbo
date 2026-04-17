@@ -414,3 +414,229 @@
   -fx-border-color: #dde5f2;
   -fx-border-radius: 999;
 }
+
+.book-management-content {
+  -fx-spacing: 16;
+}
+
+.book-section-header {
+  -fx-padding: 0;
+}
+
+.book-add-button {
+  -fx-background-color: #356cde;
+  -fx-text-fill: #ffffff;
+  -fx-font-size: 14px;
+  -fx-font-weight: 700;
+  -fx-padding: 10 18 10 18;
+  -fx-background-radius: 10;
+  -fx-cursor: hand;
+}
+
+.book-add-button:hover {
+  -fx-background-color: #2d5fc6;
+}
+
+.book-toolbar-card {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e7ebf2;
+  -fx-border-radius: 14;
+  -fx-background-radius: 14;
+}
+
+.book-search-box {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d9e2ef;
+  -fx-border-radius: 10;
+  -fx-background-radius: 10;
+  -fx-padding: 8 12 8 12;
+}
+
+.book-search-box:focused-within {
+  -fx-border-color: #356cde;
+  -fx-effect: dropshadow(gaussian, rgba(53, 108, 222, 0.16), 10, 0.2, 0, 2);
+}
+
+.book-search-icon {
+  -fx-text-fill: #97a5ba;
+  -fx-font-size: 14px;
+}
+
+.book-search-input {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-font-size: 14px;
+  -fx-padding: 2 0 2 0;
+  -fx-text-fill: #27344a;
+}
+
+.book-search-input:focused {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent;
+  -fx-effect: null;
+}
+
+.book-category-filter {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d9e2ef;
+  -fx-border-radius: 10;
+  -fx-background-radius: 10;
+  -fx-padding: 4 8 4 8;
+}
+
+.book-category-filter .list-cell {
+  -fx-font-size: 13px;
+  -fx-text-fill: #253246;
+}
+
+.book-category-filter .arrow {
+  -fx-background-color: #6d7890;
+}
+
+.book-table-card {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e7ebf2;
+  -fx-border-radius: 14;
+  -fx-background-radius: 14;
+}
+
+.book-table {
+  -fx-background-color: transparent;
+  -fx-background-insets: 0;
+  -fx-border-color: transparent;
+  -fx-padding: 0;
+}
+
+.book-table .column-header-background {
+  -fx-background-color: #f6f8fc;
+  -fx-background-radius: 14 14 0 0;
+  -fx-background-insets: 0;
+}
+
+.book-table .column-header,
+.book-table .filler {
+  -fx-background-color: transparent;
+  -fx-border-color: transparent transparent #e8edf6 transparent;
+}
+
+.book-table .column-header .label {
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #6a768c;
+}
+
+.book-table .table-row-cell {
+  -fx-background-color: #ffffff;
+  -fx-border-color: transparent transparent #edf2f8 transparent;
+}
+
+.book-table .table-row-cell:filled:hover {
+  -fx-background-color: #f9fbff;
+}
+
+.book-table .table-cell {
+  -fx-border-color: transparent;
+  -fx-text-fill: #344257;
+  -fx-padding: 8 10 8 10;
+  -fx-alignment: CENTER-LEFT;
+}
+
+.book-title-text {
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #1f2c40;
+}
+
+.book-meta-text {
+  -fx-font-size: 12px;
+  -fx-text-fill: #8d9ab0;
+}
+
+.book-isbn-text {
+  -fx-font-family: "Consolas", "Courier New", monospace;
+  -fx-font-size: 12px;
+  -fx-text-fill: #5f6f88;
+}
+
+.book-isbn-chip {
+  -fx-padding: 5 10 5 10;
+  -fx-background-radius: 999;
+  -fx-background-color: #f4f7fb;
+  -fx-border-color: #e1e8f3;
+  -fx-border-radius: 999;
+  -fx-pref-width: 126px;
+  -fx-alignment: center;
+  -fx-text-overrun: ellipsis;
+}
+
+.book-year-text,
+.book-copies-text,
+.book-shelf-text {
+  -fx-font-size: 12px;
+  -fx-font-weight: 600;
+  -fx-text-fill: #45566f;
+}
+
+.book-category-chip {
+  -fx-padding: 5 12 5 12;
+  -fx-background-radius: 999;
+  -fx-background-color: #eef2f8;
+  -fx-border-color: #dde5f2;
+  -fx-border-radius: 999;
+  -fx-pref-width: 106px;
+  -fx-alignment: center;
+  -fx-text-overrun: ellipsis;
+  -fx-font-size: 12px;
+  -fx-font-weight: 600;
+  -fx-text-fill: #4d5b70;
+}
+
+.book-action-button {
+  -fx-background-radius: 8;
+  -fx-border-radius: 8;
+  -fx-padding: 0;
+  -fx-cursor: hand;
+}
+
+.book-action-edit {
+  -fx-background-color: #eef3ff;
+  -fx-border-color: #d6e2ff;
+}
+
+.book-action-delete {
+  -fx-background-color: #fff1f1;
+  -fx-border-color: #ffdcdc;
+}
+
+.book-action-button:hover {
+  -fx-effect: dropshadow(gaussian, rgba(34, 53, 89, 0.12), 8, 0.2, 0, 2);
+}
+
+.book-action-edit:hover {
+  -fx-background-color: #dfe9ff;
+  -fx-border-color: #c9d8ff;
+}
+
+.book-action-delete:hover {
+  -fx-background-color: #ffe6e6;
+  -fx-border-color: #ffcfcf;
+}
+
+.book-action-icon {
+  -fx-scale-x: 0.72;
+  -fx-scale-y: 0.72;
+}
+
+.book-action-icon-edit {
+  -fx-fill: #4769cc;
+}
+
+.book-action-icon-delete {
+  -fx-fill: #d05550;
+}
+
+.book-form-label {
+  -fx-font-size: 12px;
+  -fx-font-weight: 600;
+  -fx-text-fill: #52637d;
+}
