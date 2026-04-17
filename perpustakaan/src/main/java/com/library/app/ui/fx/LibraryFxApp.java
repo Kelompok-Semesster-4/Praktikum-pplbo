@@ -11,6 +11,7 @@ public class LibraryFxApp extends Application {
 
     @Override
     public void start(Stage stage) {
+        stage.setFullScreen(true);
         KioskFrame kioskFrame = new KioskFrame();
         kioskFrame.showOn(stage);
     }
