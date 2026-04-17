@@ -34,12 +34,12 @@ public class BookDAO {
 
     public List<BookCatalogItem> searchCatalog(String keyword) {
         List<BookCatalogItem> items = new ArrayList<>();
-        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.category, b.shelf_code, b.publication_year, " +
+        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year, " +
                 "COUNT(c.id) AS total_copies, " +
                 "SUM(CASE WHEN c.status = 'AVAILABLE' THEN 1 ELSE 0 END) AS available_copies " +
                 "FROM books b LEFT JOIN book_copies c ON c.book_id = b.id " +
                 "WHERE b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ? " +
-                "GROUP BY b.id, b.isbn, b.title, b.author, b.category, b.shelf_code, b.publication_year " +
+                "GROUP BY b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year " +
                 "ORDER BY b.title";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -54,6 +54,7 @@ public class BookDAO {
                     item.setIsbn(resultSet.getString("isbn"));
                     item.setTitle(resultSet.getString("title"));
                     item.setAuthor(resultSet.getString("author"));
+                    item.setPublisher(resultSet.getString("publisher"));
                     item.setCategory(resultSet.getString("category"));
                     item.setShelfCode(resultSet.getString("shelf_code"));
                     item.setPublicationYear(resultSet.getInt("publication_year"));

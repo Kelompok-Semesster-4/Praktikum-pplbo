@@ -111,6 +111,7 @@ class AdminDashboardFxApp extends Application {
     private final Map<String, Button> menuButtons = new LinkedHashMap<>();
     private Label topbarTitleLabel;
     private StackPane contentSwitcher;
+    private BookManagementPanel bookManagementSectionView;
     private ReportPanel reportSectionView;
 
     @Override
@@ -327,6 +328,18 @@ class AdminDashboardFxApp extends Application {
             reportSectionView = new ReportPanel(dashboardService);
         }
         contentSwitcher.getChildren().setAll(reportSectionView.create());
+    }
+
+    private void showBookManagementSection() {
+        setTopbarTitle("Manajemen Buku");
+        if (contentSwitcher == null) {
+            return;
+        }
+        if (bookManagementSectionView == null) {
+            bookManagementSectionView = new BookManagementPanel();
+        }
+        contentSwitcher.getChildren().setAll(bookManagementSectionView.create());
+        bookManagementSectionView.refreshData();
     }
 
     private void setTopbarTitle(String title) {
@@ -825,6 +838,10 @@ class AdminDashboardFxApp extends Application {
                     safeLoad(() -> dashboardService.getMonthlyLoanReturnTrend(MONTH_RANGE), new LinkedHashMap<>()),
                     safeLoad(() -> dashboardService.getRecentLoans(6), Collections.emptyList()),
                     safeLoad(() -> dashboardService.getTodayVisits(6), Collections.emptyList()));
+            return;
+        }
+        if ("Manajemen Buku".equals(menuName)) {
+            showBookManagementSection();
             return;
         }
         if ("Laporan".equals(menuName)) {
