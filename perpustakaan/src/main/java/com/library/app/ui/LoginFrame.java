@@ -5,6 +5,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javafx.application.Platform;
+import javafx.stage.Stage;
+
 import javax.swing.*;
 
 public class LoginFrame{

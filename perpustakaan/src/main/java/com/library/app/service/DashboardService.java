@@ -2,6 +2,8 @@ package com.library.app.service;
 
 import com.library.app.dao.DashboardDAO;
 import com.library.app.model.DashboardSummary;
+import com.library.app.model.OverdueLoanReportItem;
+import com.library.app.model.ReportSummary;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,5 +29,13 @@ public class DashboardService {
 
     public List<String[]> getTodayVisits(int limit) {
         return dashboardDAO.findTodayVisits(limit);
+    }
+
+    public ReportSummary getReportSummary() {
+        return dashboardDAO.getReportSummary();
+    }
+
+    public List<OverdueLoanReportItem> getOverdueLoans(int limit) {
+        return dashboardDAO.findOverdueLoans(limit);
     }
 }

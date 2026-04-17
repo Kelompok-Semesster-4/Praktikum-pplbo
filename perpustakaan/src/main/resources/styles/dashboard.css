@@ -90,6 +90,12 @@
   -fx-background-color: #f2f4f8;
 }
 
+.topbar-fixed {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e8edf5;
+  -fx-border-width: 0 0 1 0;
+}
+
 .content-scroll {
   -fx-background-color: transparent;
   -fx-background: transparent;

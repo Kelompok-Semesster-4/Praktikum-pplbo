@@ -22,7 +22,7 @@ public final class DBConfig {
 
     public static final String HOST = property("db.host", "127.0.0.1");
     public static final int PORT = Integer.parseInt(property("db.port", "3306"));
-    public static final String DATABASE = property("db.name", "library_management_native_maven");
+    public static final String DATABASE = property("db.name", "library_management_native");
     public static final String USERNAME = property("db.username", "root");
     public static final String PASSWORD = property("db.password", "");
 

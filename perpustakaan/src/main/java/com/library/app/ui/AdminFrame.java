@@ -5,6 +5,7 @@ import com.library.app.model.DashboardSummary;
 import com.library.app.model.User;
 import com.library.app.model.enums.Role;
 import com.library.app.session.UserSession;
+import com.library.app.ui.fx.ReportSectionView;
 import com.library.app.ui.panel.*;
 
 import javafx.application.Application;
@@ -68,6 +69,9 @@ class AdminDashboardFxApp extends Application {
    private final com.library.app.service.DashboardService dashboardService = new com.library.app.service.DashboardService();
    private final UserDAO userDAO = new UserDAO();
    private final Map<String, Button> menuButtons = new LinkedHashMap<>();
+   private Label topbarTitleLabel;
+   private StackPane contentSwitcher;
+   private ReportSectionView reportSectionView;
 
    @Override
    public void start(Stage stage) {
@@ -94,6 +98,12 @@ class AdminDashboardFxApp extends Application {
             : getClass().getResource("/styles/dashboard.css").toExternalForm();
       if (stylesheet != null) {
          scene.getStylesheets().add(stylesheet);
+      }
+      String reportStylesheet = getClass().getResource("/styles/report.css") == null
+            ? null
+            : getClass().getResource("/styles/report.css").toExternalForm();
+      if (reportStylesheet != null) {
+         scene.getStylesheets().add(reportStylesheet);
       }
 
       stage.initStyle(StageStyle.DECORATED);
@@ -136,7 +146,7 @@ class AdminDashboardFxApp extends Application {
       VBox menuContainer = new VBox(6);
       menuContainer.getStyleClass().add("menu-container");
       menuContainer.getChildren().addAll(
-            createMenuButton("Dashboard", "▦", true, () -> setActiveMenu("Dashboard")),
+            createMenuButton("Dashboard", "▦", true, () -> openFxSection("Dashboard")),
             createMenuButton("Manajemen Buku", "📚", false, () -> openFxSection("Manajemen Buku")),
             createMenuButton("Manajemen Anggota", "👥", false, () -> openFxSection("Manajemen Anggota")),
             createMenuButton("Peminjaman & Pengembalian", "⇄", false,
@@ -190,34 +200,38 @@ class AdminDashboardFxApp extends Application {
       content.getStyleClass().add("content-body");
       content.setPadding(new Insets(16, 24, 24, 24));
 
-      content.getChildren().addAll(
-            createTopHeader(adminIdentity),
-            createSectionHeader(),
-            createStatCards(summary),
-            createChartRow(visitsPerMonth, loanTrend),
-            createListRow(recentLoans, todayVisits));
+      contentSwitcher = new StackPane();
+      contentSwitcher.getStyleClass().add("content-switcher");
+      VBox.setVgrow(contentSwitcher, Priority.ALWAYS);
+      content.getChildren().add(contentSwitcher);
+
+      showDashboardSection(summary, visitsPerMonth, loanTrend, recentLoans, todayVisits);
 
       ScrollPane scrollPane = new ScrollPane(content);
       scrollPane.getStyleClass().add("content-scroll");
       scrollPane.setFitToWidth(true);
       scrollPane.setPannable(true);
 
-      StackPane wrapper = new StackPane(scrollPane);
+      BorderPane wrapper = new BorderPane();
       wrapper.getStyleClass().add("content-wrapper");
+      wrapper.setTop(createTopHeader(adminIdentity));
+      wrapper.setCenter(scrollPane);
       return wrapper;
    }
 
    private Node createTopHeader(String[] adminIdentity) {
       HBox topBar = new HBox();
+      topBar.getStyleClass().add("topbar-fixed");
       topBar.setAlignment(Pos.CENTER_LEFT);
+      topBar.setPadding(new Insets(16, 40, 16, 24));
 
       VBox left = new VBox(2);
-      Label title = new Label("Dashboard");
-      title.getStyleClass().add("topbar-title");
+      topbarTitleLabel = new Label("Dashboard");
+      topbarTitleLabel.getStyleClass().add("topbar-title");
       Label date = new Label(
             capitalizeWords(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", ID_LOCALE))));
       date.getStyleClass().add("topbar-date");
-      left.getChildren().addAll(title, date);
+      left.getChildren().addAll(topbarTitleLabel, date);
 
       Region spacer = new Region();
       HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -243,6 +257,37 @@ class AdminDashboardFxApp extends Application {
       right.getChildren().addAll(notification, userCluster);
       topBar.getChildren().addAll(left, spacer, right);
       return topBar;
+   }
+
+   private void showDashboardSection(DashboardSummary summary, LinkedHashMap<String, Integer> visitsPerMonth,
+         LinkedHashMap<String, int[]> loanTrend, List<String[]> recentLoans, List<String[]> todayVisits) {
+      setTopbarTitle("Dashboard");
+      if (contentSwitcher != null) {
+         VBox dashboardContent = new VBox(18);
+         dashboardContent.getChildren().addAll(
+               createSectionHeader(),
+               createStatCards(summary),
+               createChartRow(visitsPerMonth, loanTrend),
+               createListRow(recentLoans, todayVisits));
+         contentSwitcher.getChildren().setAll(dashboardContent);
+      }
+   }
+
+   private void showReportSection() {
+      setTopbarTitle("Laporan");
+      if (contentSwitcher == null) {
+         return;
+      }
+      if (reportSectionView == null) {
+         reportSectionView = new ReportSectionView(dashboardService);
+      }
+      contentSwitcher.getChildren().setAll(reportSectionView.create());
+   }
+
+   private void setTopbarTitle(String title) {
+      if (topbarTitleLabel != null) {
+         topbarTitleLabel.setText(safeValue(title));
+      }
    }
 
    private Node createSectionHeader() {
@@ -718,6 +763,20 @@ class AdminDashboardFxApp extends Application {
    private void openFxSection(String menuName) {
       setActiveMenu(menuName);
       if ("Dashboard".equals(menuName)) {
+         showDashboardSection(
+               safeLoad(dashboardService::getSummary, new DashboardSummary()),
+               safeLoad(() -> dashboardService.getMonthlyVisits(MONTH_RANGE), new LinkedHashMap<>()),
+               safeLoad(() -> dashboardService.getMonthlyLoanReturnTrend(MONTH_RANGE), new LinkedHashMap<>()),
+               safeLoad(() -> dashboardService.getRecentLoans(6), Collections.emptyList()),
+               safeLoad(() -> dashboardService.getTodayVisits(6), Collections.emptyList()));
+         return;
+      }
+      if ("Laporan".equals(menuName)) {
+         showReportSection();
+         return;
+      }
+      if ("Mode Kiosk".equals(menuName)) {
+         new KioskFrame().setVisible(true);
          return;
       }
       showInfo("Menu " + menuName + " sedang dimigrasi ke JavaFX.");

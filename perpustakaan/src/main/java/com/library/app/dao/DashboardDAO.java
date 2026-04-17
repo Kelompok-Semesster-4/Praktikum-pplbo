@@ -2,6 +2,8 @@ package com.library.app.dao;
 
 import com.library.app.config.DBConnection;
 import com.library.app.model.DashboardSummary;
+import com.library.app.model.OverdueLoanReportItem;
+import com.library.app.model.ReportSummary;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,6 +35,29 @@ public class DashboardDAO {
         summary.setActiveLoans(loanDAO.countActiveLoans());
         summary.setPendingRequests(procurementRequestDAO.countPending());
         return summary;
+    }
+
+    public ReportSummary getReportSummary() {
+        String sql = "SELECT COUNT(*) AS total_loans, " +
+                "SUM(CASE WHEN return_date IS NOT NULL OR status = 'RETURNED' THEN 1 ELSE 0 END) AS returned_total, " +
+                "SUM(CASE WHEN return_date IS NULL AND due_date < CURDATE() THEN 1 ELSE 0 END) AS overdue_total, " +
+                "COALESCE(SUM(fine_amount), 0) AS total_fine " +
+                "FROM loans";
+
+        try (Connection connection = DBConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+            ReportSummary summary = new ReportSummary();
+            if (resultSet.next()) {
+                summary.setTotalLoans(resultSet.getInt("total_loans"));
+                summary.setReturnedLoans(resultSet.getInt("returned_total"));
+                summary.setOverdueLoans(resultSet.getInt("overdue_total"));
+                summary.setTotalFineAmount(resultSet.getBigDecimal("total_fine"));
+            }
+            return summary;
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal mengambil ringkasan laporan.", exception);
+        }
     }
 
     public LinkedHashMap<String, Integer> findMonthlyVisits(int monthCount) {
@@ -149,6 +174,39 @@ public class DashboardDAO {
             return rows;
         } catch (SQLException exception) {
             throw new RuntimeException("Gagal mengambil kunjungan hari ini.", exception);
+        }
+    }
+
+    public List<OverdueLoanReportItem> findOverdueLoans(int limit) {
+        List<OverdueLoanReportItem> rows = new ArrayList<>();
+        String sql = "SELECT m.name AS member_name, m.member_code, b.title AS book_title, " +
+                "l.due_date, COALESCE(l.fine_amount, 0) AS fine_amount, l.status " +
+                "FROM loans l " +
+                "JOIN members m ON m.id = l.member_id " +
+                "JOIN book_copies c ON c.id = l.copy_id " +
+                "JOIN books b ON b.id = c.book_id " +
+                "WHERE l.return_date IS NULL AND l.due_date < CURDATE() " +
+                "ORDER BY l.due_date ASC, l.id DESC " +
+                "LIMIT ?";
+
+        try (Connection connection = DBConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, limit);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    OverdueLoanReportItem item = new OverdueLoanReportItem();
+                    item.setBorrowerName(resultSet.getString("member_name"));
+                    item.setMemberCode(resultSet.getString("member_code"));
+                    item.setBookTitle(resultSet.getString("book_title"));
+                    item.setDueDate(resultSet.getObject("due_date", java.time.LocalDate.class));
+                    item.setFineAmount(resultSet.getBigDecimal("fine_amount"));
+                    item.setStatus(resultSet.getString("status"));
+                    rows.add(item);
+                }
+            }
+            return rows;
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal mengambil daftar pinjaman terlambat.", exception);
         }
     }
 
