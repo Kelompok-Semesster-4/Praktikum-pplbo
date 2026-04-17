@@ -120,6 +120,12 @@
     -fx-background-color: #2563eb;
 }
 
+.login-status {
+    -fx-text-fill: #b91c1c;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 600;
+}
+
 /* Kotak Info Akun Demo */
 .demo-box {
     -fx-background-color: #f8fafc;

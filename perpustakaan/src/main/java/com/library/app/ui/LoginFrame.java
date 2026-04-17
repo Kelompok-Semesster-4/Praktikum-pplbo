@@ -1,5 +1,10 @@
 package com.library.app.ui;
 
+import com.library.app.model.User;
+import com.library.app.model.enums.Role;
+import com.library.app.service.AuthService;
+import com.library.app.session.UserSession;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -17,6 +22,7 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class LoginFrame {
+    private final AuthService authService = new AuthService();
     private Stage stage;
 
     public void showOn(Stage stage) {
@@ -131,6 +137,17 @@ public class LoginFrame {
         btnLogin.getStyleClass().add("btn-login");
         btnLogin.setMaxWidth(Double.MAX_VALUE);
 
+        Label statusLabel = new Label();
+        statusLabel.getStyleClass().add("login-status");
+        statusLabel.setWrapText(true);
+        statusLabel.setManaged(false);
+        statusLabel.setVisible(false);
+
+        Runnable loginAction = () -> authenticateAndNavigate(userField, passField, statusLabel);
+        btnLogin.setOnAction(event -> loginAction.run());
+        userField.setOnAction(event -> loginAction.run());
+        passField.setOnAction(event -> loginAction.run());
+
         // Kotak Info Akun Demo
         VBox demoBox = new VBox(5);
         demoBox.getStyleClass().add("demo-box");
@@ -143,8 +160,39 @@ public class LoginFrame {
         demoBox.getChildren().addAll(demoTitle, demoAdmin, demoKiosk);
         demoBox.setPadding(new Insets(15));
 
-        rightPanel.getChildren().addAll(loginTitle, loginSubtitle, userLabel, userBox, passLabel, passBox, btnLogin, demoBox);
+        rightPanel.getChildren().addAll(loginTitle, loginSubtitle, userLabel, userBox, passLabel, passBox, btnLogin,
+                statusLabel, demoBox);
         return rightPanel;
+    }
+
+    private void authenticateAndNavigate(TextField userField, PasswordField passField, Label statusLabel) {
+        if (stage == null) {
+            statusLabel.setText("Halaman login belum siap. Silakan coba lagi.");
+            statusLabel.setManaged(true);
+            statusLabel.setVisible(true);
+            return;
+        }
+
+        statusLabel.setManaged(false);
+        statusLabel.setVisible(false);
+
+        try {
+            User user = authService.login(userField.getText(), passField.getText());
+            UserSession session = new UserSession(user);
+
+            if (session.getRole() == Role.ADMIN) {
+                new AdminFrame().showDashboard(stage);
+            } else if (session.getRole() == Role.KIOSK) {
+                new KioskFrame(session).showOn(stage);
+            } else {
+                throw new IllegalStateException("Role pengguna tidak dikenali.");
+            }
+        } catch (Exception exception) {
+            statusLabel.setText(exception.getMessage());
+            statusLabel.setManaged(true);
+            statusLabel.setVisible(true);
+            passField.clear();
+        }
     }
 
     // --- HELPER UNTUK LOGO & ICON ---

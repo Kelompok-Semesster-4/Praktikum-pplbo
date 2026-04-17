@@ -146,7 +146,10 @@ class AdminDashboardFxApp extends Application {
             scene.getStylesheets().add(reportStylesheet);
         }
 
-        stage.initStyle(StageStyle.DECORATED);
+        boolean stageAlreadyVisible = stage.isShowing();
+        if (!stageAlreadyVisible) {
+            stage.initStyle(StageStyle.DECORATED);
+        }
         stage.setTitle("Sistem Manajemen Perpustakaan");
         stage.setWidth(1240);
         stage.setHeight(760);
@@ -156,7 +159,9 @@ class AdminDashboardFxApp extends Application {
         stage.setMaximized(true);
         stage.setScene(scene);
         stage.centerOnScreen();
-        stage.show();
+        if (!stageAlreadyVisible) {
+            stage.show();
+        }
     }
 
     public void showDashboard(Stage stage) {
