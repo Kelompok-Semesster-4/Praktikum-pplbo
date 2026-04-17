@@ -12,6 +12,7 @@ import java.util.List;
 public class ProcurementService {
     private final ProcurementRequestDAO requestDAO = new ProcurementRequestDAO();
     private final MemberService memberService = new MemberService();
+    private final NotificationService notificationService = new NotificationService();
 
     public void submitRequest(String memberCode, String requesterName, String title, String author, String note) {
         ValidationUtil.requireNotBlank(requesterName, "Nama pengaju wajib diisi.");
@@ -28,7 +29,8 @@ public class ProcurementService {
         request.setNote(note == null ? "" : note.trim());
         request.setStatus(RequestStatus.PENDING);
         request.setCreatedAt(LocalDateTime.now());
-        requestDAO.save(request);
+        long requestId = requestDAO.save(request);
+        notificationService.createProcurementNotification(requestId, request.getRequesterName(), request.getTitle());
     }
 
     public List<ProcurementRequest> getAllRequests() {

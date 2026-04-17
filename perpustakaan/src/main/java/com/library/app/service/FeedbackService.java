@@ -11,6 +11,7 @@ import java.util.List;
 public class FeedbackService {
     private final FeedbackDAO feedbackDAO = new FeedbackDAO();
     private final MemberService memberService = new MemberService();
+    private final NotificationService notificationService = new NotificationService();
 
     public void submitFeedback(String memberCode, String senderName, String message) {
         ValidationUtil.requireNotBlank(senderName, "Nama pengirim wajib diisi.");
@@ -24,7 +25,8 @@ public class FeedbackService {
         feedback.setSenderName(senderName.trim());
         feedback.setMessage(message.trim());
         feedback.setCreatedAt(LocalDateTime.now());
-        feedbackDAO.save(feedback);
+        long feedbackId = feedbackDAO.save(feedback);
+        notificationService.createFeedbackNotification(feedbackId, feedback.getSenderName(), feedback.getMessage());
     }
 
     public List<Feedback> getAllFeedback() {

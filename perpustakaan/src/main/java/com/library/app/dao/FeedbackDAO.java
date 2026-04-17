@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FeedbackDAO {
-    public void save(Feedback feedback) {
+    public long save(Feedback feedback) {
         String sql = "INSERT INTO feedbacks(member_id, sender_name, message) VALUES (?, ?, ?)";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (feedback.getMemberId() == null) {
                 statement.setNull(1, Types.BIGINT);
             } else {
@@ -20,6 +20,13 @@ public class FeedbackDAO {
             statement.setString(2, feedback.getSenderName());
             statement.setString(3, feedback.getMessage());
             statement.executeUpdate();
+
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getLong(1);
+                }
+            }
+            return 0L;
         } catch (SQLException exception) {
             throw new RuntimeException("Gagal menyimpan feedback.", exception);
         }
@@ -29,8 +36,8 @@ public class FeedbackDAO {
         List<Feedback> feedbacks = new ArrayList<>();
         String sql = "SELECT id, member_id, sender_name, message, created_at FROM feedbacks ORDER BY id DESC";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 Feedback feedback = new Feedback();
                 feedback.setId(resultSet.getLong("id"));

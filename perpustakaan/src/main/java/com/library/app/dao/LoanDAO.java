@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class LoanDAO {
@@ -181,7 +182,12 @@ public class LoanDAO {
             loan.setReturnDate(returnDate);
         }
         loan.setFineAmount(resultSet.getBigDecimal("fine_amount"));
-        loan.setStatus(LoanStatus.valueOf(resultSet.getString("status")));
+        String rawStatus = resultSet.getString("status");
+        if (rawStatus == null || rawStatus.isBlank()) {
+            loan.setStatus(LoanStatus.ACTIVE);
+        } else {
+            loan.setStatus(LoanStatus.valueOf(rawStatus.trim().toUpperCase(Locale.ROOT)));
+        }
         return loan;
     }
 }
