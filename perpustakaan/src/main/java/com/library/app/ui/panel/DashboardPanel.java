@@ -189,8 +189,26 @@ class AdminDashboardFxApp extends Application {
         brandSubtitle.getStyleClass().add("brand-subtitle");
         brandBox.getChildren().addAll(brandTitle, brandSubtitle);
 
-        Label roleBadge = new Label("Administrator");
+        Separator adminDivider = new Separator();
+        adminDivider.getStyleClass().add("sidebar-divider");
+        adminDivider.setMaxWidth(Double.MAX_VALUE);
+
+        HBox roleBadge = new HBox(8);
         roleBadge.getStyleClass().addAll("sidebar-badge", "is-admin");
+        roleBadge.setAlignment(Pos.CENTER_LEFT);
+        roleBadge.setMaxWidth(Region.USE_PREF_SIZE);
+
+        StackPane roleIconWrap = new StackPane();
+        roleIconWrap.getStyleClass().add("sidebar-badge-icon-wrap");
+
+        Label roleIcon = new Label("\u2699");
+        roleIcon.getStyleClass().add("sidebar-badge-icon");
+        roleIconWrap.getChildren().add(roleIcon);
+
+        Label roleText = new Label("Administrator");
+        roleText.getStyleClass().add("sidebar-badge-text");
+
+        roleBadge.getChildren().addAll(roleIconWrap, roleText);
 
         VBox menuContainer = new VBox(6);
         menuContainer.getStyleClass().add("menu-container");
@@ -213,7 +231,7 @@ class AdminDashboardFxApp extends Application {
                 createMenuButton("Mode Kiosk", "\uD83D\uDDA5", false, () -> openFxSection("Mode Kiosk")),
                 createMenuButton("Keluar", "\u238B", false, Platform::exit));
 
-        sidebar.getChildren().addAll(brandBox, roleBadge, menuContainer, spacer, footerMenu);
+        sidebar.getChildren().addAll(brandBox, adminDivider, roleBadge, menuContainer, spacer, footerMenu);
         return sidebar;
     }
 
@@ -289,6 +307,13 @@ class AdminDashboardFxApp extends Application {
         right.setAlignment(Pos.CENTER_RIGHT);
         Label notification = new Label("\uD83D\uDD14");
         notification.getStyleClass().add("topbar-icon");
+
+        Region topbarDivider = new Region();
+        topbarDivider.getStyleClass().add("topbar-divider");
+        topbarDivider.setPrefWidth(1);
+        topbarDivider.setMinWidth(1);
+        topbarDivider.setMaxWidth(1);
+
         Label avatar = new Label(safeValue(adminIdentity[2]));
         avatar.getStyleClass().add("avatar");
 
@@ -303,7 +328,7 @@ class AdminDashboardFxApp extends Application {
         HBox userCluster = new HBox(10, avatar, identity);
         userCluster.setAlignment(Pos.CENTER_LEFT);
 
-        right.getChildren().addAll(notification, userCluster);
+        right.getChildren().addAll(notification, topbarDivider, userCluster);
         topBar.getChildren().addAll(left, spacer, right);
         return topBar;
     }

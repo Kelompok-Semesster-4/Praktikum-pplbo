@@ -156,14 +156,12 @@ public class ReportPanel {
    }
 
    private VBox createStatCard(String iconText, String iconClass, String helperText) {
-      VBox card = new VBox(6);
+      VBox card = new VBox(4);
       card.getStyleClass().add("stat-card");
-      card.setPadding(new Insets(14));
+      card.setPadding(new Insets(12, 14, 12, 14));
 
       Label icon = new Label(iconText);
       icon.getStyleClass().addAll("stat-icon", iconClass);
-      card.setMinHeight(140);
-      card.setPrefHeight(140);
       card.setMaxWidth(Double.MAX_VALUE);
 
       Label value = new Label("0");
