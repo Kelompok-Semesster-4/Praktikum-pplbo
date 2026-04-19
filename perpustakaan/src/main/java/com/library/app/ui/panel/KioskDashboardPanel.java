@@ -19,7 +19,9 @@ public class KioskDashboardPanel {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
-    public Node createContent(Runnable onVisitClick) {
+    public Node createContent(Runnable onVisitClick,
+                              Runnable onFeedbackClick,
+                              Runnable onProcurementClick) {
         VBox content = new VBox(14);
         content.getStyleClass().add("center-content");
         content.setAlignment(Pos.CENTER);
@@ -56,14 +58,14 @@ public class KioskDashboardPanel {
                 "Sampaikan saran dan masukan Anda",
                 "card-feedback",
                 KioskIconFactory.createFeedbackIcon(Color.web("#D97706")),
-                null), 0, 1);
+                onFeedbackClick), 0, 1);
 
         serviceGrid.add(createServiceCard(
                 "Usul Buku",
                 "Ajukan permintaan pengadaan buku",
                 "card-request",
                 KioskIconFactory.createRequestIcon(Color.web("#7C3AED")),
-                null), 1, 1);
+                onProcurementClick), 1, 1);
 
         Label dateLabel = new Label(LocalDate.now().format(DATE_FORMATTER));
         dateLabel.getStyleClass().add("date-label");
@@ -80,7 +82,11 @@ public class KioskDashboardPanel {
         return contentWrapper;
     }
 
-    private StackPane createServiceCard(String titleText, String detailText, String cardClass, Node icon, Runnable onClick) {
+    private StackPane createServiceCard(String titleText,
+                                        String detailText,
+                                        String cardClass,
+                                        Node icon,
+                                        Runnable onClick) {
         StackPane card = new StackPane();
         card.getStyleClass().addAll("service-card", cardClass);
         card.setPrefSize(320, 182);
