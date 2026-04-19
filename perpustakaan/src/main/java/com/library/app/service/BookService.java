@@ -36,4 +36,26 @@ public class BookService {
     public List<BookCatalogItem> searchCatalog(String keyword) {
         return bookDAO.searchCatalog(keyword == null ? "" : keyword.trim());
     }
+
+    public void updateBook(long bookId, String isbn, String title, String author, String publisher,
+                           int publicationYear, String category, String shelfCode) {
+        if (bookId <= 0) {
+            throw new IllegalArgumentException("Data buku tidak valid.");
+        }
+        ValidationUtil.requireNotBlank(isbn, "ISBN wajib diisi.");
+        ValidationUtil.requireNotBlank(title, "Judul buku wajib diisi.");
+        ValidationUtil.requireNotBlank(author, "Penulis wajib diisi.");
+        ValidationUtil.requirePublicationYear(publicationYear);
+
+        Book book = new Book();
+        book.setId(bookId);
+        book.setIsbn(isbn.trim());
+        book.setTitle(title.trim());
+        book.setAuthor(author.trim());
+        book.setPublisher(publisher == null ? "" : publisher.trim());
+        book.setPublicationYear(publicationYear);
+        book.setCategory(category == null ? "" : category.trim());
+        book.setShelfCode(shelfCode == null ? "" : shelfCode.trim());
+        bookDAO.update(book);
+    }
 }

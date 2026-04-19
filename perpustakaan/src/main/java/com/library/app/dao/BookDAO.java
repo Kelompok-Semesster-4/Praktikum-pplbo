@@ -69,6 +69,36 @@ public class BookDAO {
         }
     }
 
+    public void update(Book book) {
+        String sql = "UPDATE books SET isbn = ?, title = ?, author = ?, publisher = ?, publication_year = ?, " +
+                "category = ?, shelf_code = ? WHERE id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, book.getIsbn());
+            statement.setString(2, book.getTitle());
+            statement.setString(3, book.getAuthor());
+            statement.setString(4, book.getPublisher());
+            statement.setInt(5, book.getPublicationYear());
+            statement.setString(6, book.getCategory());
+            statement.setString(7, book.getShelfCode());
+            statement.setLong(8, book.getId());
+
+            int updated = statement.executeUpdate();
+            if (updated == 0) {
+                throw new IllegalArgumentException("Buku tidak ditemukan.");
+            }
+        } catch (SQLException exception) {
+            if (isDuplicateIsbn(exception)) {
+                throw new IllegalArgumentException("ISBN sudah digunakan buku lain.");
+            }
+            throw new RuntimeException("Gagal memperbarui buku.", exception);
+        }
+    }
+
+    private boolean isDuplicateIsbn(SQLException exception) {
+        return "23000".equals(exception.getSQLState()) || exception.getErrorCode() == 1062;
+    }
+
     public int countBooks() {
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM books");
