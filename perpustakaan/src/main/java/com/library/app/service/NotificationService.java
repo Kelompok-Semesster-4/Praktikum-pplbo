@@ -3,15 +3,15 @@ package com.library.app.service;
 import com.library.app.config.DBConnection;
 import com.library.app.dao.NotificationDAO;
 import com.library.app.model.AppNotification;
+import com.library.app.model.Feedback;
+import com.library.app.model.ProcurementRequest;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,13 +40,38 @@ public class NotificationService {
       notificationDAO.markAsRead(id);
    }
 
+   public void createFeedbackNotification(Feedback feedback) {
+      if (feedback == null || feedback.getId() == null) {
+         return;
+      }
+      String headline = feedback.getSubject() == null || feedback.getSubject().isBlank()
+            ? feedback.getMessage()
+            : feedback.getSubject();
+      createFeedbackNotification(
+            feedback.getId(),
+            feedback.getSenderName() == null ? "Pengguna Kiosk" : feedback.getSenderName(),
+            headline
+      );
+   }
+
+   public void createProcurementNotification(ProcurementRequest request) {
+      if (request == null || request.getId() == null) {
+         return;
+      }
+      createProcurementNotification(
+            request.getId(),
+            request.getRequesterName() == null ? "Pemohon" : request.getRequesterName(),
+            request.getTitle()
+      );
+   }
+
    public void createFeedbackNotification(long feedbackId, String senderName, String message) {
       AppNotification notification = new AppNotification();
       notification.setNotificationKey("FEEDBACK:" + feedbackId);
       notification.setType("FEEDBACK");
       notification.setTitle("Feedback baru masuk");
       notification.setMessage(senderName + " mengirim feedback: " + preview(message));
-      notification.setTargetKey("SWING_FEEDBACK");
+      notification.setTargetKey("FX_FEEDBACK_REQUEST");
       notification.setPriority("NORMAL");
       notification.setRead(false);
       notificationDAO.upsert(notification);
@@ -58,7 +83,7 @@ public class NotificationService {
       notification.setType("PROCUREMENT");
       notification.setTitle("Request pengadaan baru");
       notification.setMessage(requesterName + " mengajukan buku: " + preview(title));
-      notification.setTargetKey("SWING_PROCUREMENT");
+      notification.setTargetKey("FX_FEEDBACK_REQUEST");
       notification.setPriority("NORMAL");
       notification.setRead(false);
       notificationDAO.upsert(notification);
