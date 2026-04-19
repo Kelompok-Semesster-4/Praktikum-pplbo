@@ -338,7 +338,7 @@ public class BookManagementPanel {
                 }
 
                 Button editButton = createIconActionButton(createEditIcon(), "book-action-edit", "Ubah buku");
-                editButton.setOnAction(event -> showInfo("Fitur ubah buku masih dalam pengembangan."));
+                editButton.setOnAction(event -> openEditBookDialog(item));
 
                 Button deleteButton = createIconActionButton(createDeleteIcon(), "book-action-delete", "Hapus buku");
                 deleteButton.setOnAction(event -> showInfo("Fitur hapus buku masih dalam pengembangan."));
@@ -478,6 +478,25 @@ public class BookManagementPanel {
         modalHost.getChildren().add(addBookModalOverlay);
     }
 
+    private void openEditBookDialog(BookCatalogItem selectedBook) {
+        if (selectedBook == null || selectedBook.getBookId() == null) {
+            showError("Data buku tidak valid.");
+            return;
+        }
+        if (addBookModalOverlay != null) {
+            return;
+        }
+
+        StackPane host = resolveModalHost();
+        if (host == null) {
+            return;
+        }
+
+        addBookModalOverlay = buildEditBookModalOverlay(selectedBook);
+        modalHost = host;
+        modalHost.getChildren().add(addBookModalOverlay);
+    }
+
     private void closeAddBookDialog() {
         if (addBookModalOverlay == null) {
             return;
@@ -601,6 +620,109 @@ public class BookManagementPanel {
         return overlay;
     }
 
+    private StackPane buildEditBookModalOverlay(BookCatalogItem selectedBook) {
+        TextField titleInput = createModalTextField("", selectedBook.getTitle());
+        TextField authorInput = createModalTextField("", selectedBook.getAuthor());
+        TextField publisherInput = createModalTextField("", selectedBook.getPublisher());
+        TextField isbnInput = createModalTextField("", selectedBook.getIsbn());
+        TextField yearInput = createModalTextField("", selectedBook.getPublicationYear() <= 0
+                ? ""
+                : String.valueOf(selectedBook.getPublicationYear()));
+        TextField shelfInput = createModalTextField("", selectedBook.getShelfCode());
+        ComboBox<String> categoryInput = createModalCategoryField();
+
+        String currentCategory = normalizedCategory(selectedBook);
+        if (!categoryInput.getItems().contains(currentCategory)) {
+            categoryInput.getItems().add(currentCategory);
+        }
+        categoryInput.setValue(currentCategory);
+
+        StackPane overlay = new StackPane();
+        overlay.getStyleClass().add("book-modal-overlay");
+        overlay.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox();
+        card.getStyleClass().add("book-modal-card");
+        card.setPrefWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setMaxWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setPrefHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setMaxHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setTranslateX(ADD_BOOK_MODAL_OFFSET_X);
+
+        HBox header = new HBox();
+        header.getStyleClass().add("book-modal-header");
+        Label titleLabel = new Label("Ubah Buku");
+        titleLabel.getStyleClass().add("book-modal-title");
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        Button closeButton = new Button("x");
+        closeButton.getStyleClass().add("book-modal-close");
+        closeButton.setOnAction(event -> closeAddBookDialog());
+
+        header.getChildren().addAll(titleLabel, headerSpacer, closeButton);
+
+        VBox body = new VBox(18);
+        body.getStyleClass().add("book-modal-body");
+        body.getChildren().add(buildModalField("Judul Buku", titleInput));
+        body.getChildren().add(buildModalTwoColumnRow("Pengarang", authorInput, "Penerbit", publisherInput));
+        body.getChildren().add(buildModalTwoColumnRow("ISBN", isbnInput, "Tahun Terbit", yearInput));
+        body.getChildren().add(buildModalHalfRow("Kategori", categoryInput));
+        body.getChildren().add(buildModalHalfRow("Lokasi Rak", shelfInput));
+
+        HBox footer = new HBox(14);
+        footer.getStyleClass().add("book-modal-footer");
+        footer.setAlignment(Pos.CENTER_RIGHT);
+
+        Button cancelButton = new Button("Batal");
+        cancelButton.getStyleClass().addAll("book-modal-button", "book-modal-button-cancel");
+        cancelButton.setOnAction(event -> closeAddBookDialog());
+        cancelButton.setCancelButton(true);
+
+        Button saveButton = new Button("Perbarui");
+        saveButton.getStyleClass().addAll("book-modal-button", "book-modal-button-save");
+        saveButton.setDefaultButton(true);
+        saveButton.setOnAction(event -> {
+            try {
+                int publicationYear = parseInt(yearInput.getText(), "Tahun terbit harus berupa angka.");
+                String categoryValue = normalizeInput(categoryInput.getValue());
+                if (categoryValue.isBlank()) {
+                    throw new IllegalArgumentException("Kategori wajib dipilih.");
+                }
+
+                bookService.updateBook(
+                        selectedBook.getBookId(),
+                        normalizeInput(isbnInput.getText()),
+                        normalizeInput(titleInput.getText()),
+                        normalizeInput(authorInput.getText()),
+                        normalizeInput(publisherInput.getText()),
+                        publicationYear,
+                        categoryValue,
+                        normalizeInput(shelfInput.getText()));
+
+                refreshData();
+                closeAddBookDialog();
+                showInfo("Buku berhasil diperbarui.");
+            } catch (Exception exception) {
+                showError(resolveErrorMessage(exception));
+            }
+        });
+
+        footer.getChildren().addAll(cancelButton, saveButton);
+
+        card.getChildren().addAll(header, body, footer);
+        overlay.getChildren().add(card);
+
+        overlay.setOnMouseClicked(event -> {
+            if (event.getTarget() == overlay) {
+                closeAddBookDialog();
+            }
+        });
+
+        return overlay;
+    }
+
     private TextField createModalTextField(String promptText) {
         TextField field = new TextField();
         field.getStyleClass().add("book-modal-input");
@@ -608,6 +730,12 @@ public class BookManagementPanel {
         field.setMinHeight(44);
         field.setPrefHeight(44);
         field.setMaxWidth(Double.MAX_VALUE);
+        return field;
+    }
+
+    private TextField createModalTextField(String promptText, String value) {
+        TextField field = createModalTextField(promptText);
+        field.setText(safe(value, ""));
         return field;
     }
 
