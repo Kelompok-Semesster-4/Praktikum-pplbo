@@ -2,119 +2,906 @@ package com.library.app.ui.panel;
 
 import com.library.app.model.BookCatalogItem;
 import com.library.app.service.BookService;
-import com.library.app.util.UiUtil;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
+import javafx.stage.Window;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class BookManagementPanel extends JPanel implements RefreshablePanel {
+public class BookManagementPanel {
+    private static final String ALL_CATEGORIES = "Semua Kategori";
+    private static final Locale ID_LOCALE = Locale.forLanguageTag("id-ID");
+    private static final double ADD_BOOK_MODAL_WIDTH = 980;
+    private static final double ADD_BOOK_MODAL_HEIGHT = 620;
+    private static final double ADD_BOOK_MODAL_OFFSET_X = 72;
+
     private final BookService bookService = new BookService();
+    private final ObservableList<BookCatalogItem> catalogItems = FXCollections.observableArrayList();
+    private final FilteredList<BookCatalogItem> filteredItems = new FilteredList<>(catalogItems, item -> true);
 
-    private final JTextField isbnField = new JTextField();
-    private final JTextField titleField = new JTextField();
-    private final JTextField authorField = new JTextField();
-    private final JTextField publisherField = new JTextField();
-    private final JTextField yearField = new JTextField();
-    private final JTextField categoryField = new JTextField();
-    private final JTextField shelfField = new JTextField();
-    private final JTextField copiesField = new JTextField("1");
-    private final JTextField searchField = new JTextField();
+    private final TextField searchField = new TextField();
+    private final ComboBox<String> categoryFilter = new ComboBox<>();
+    private final Label subtitleLabel = new Label();
+    private final TableView<BookCatalogItem> bookTable = new TableView<>();
 
-    private final DefaultTableModel tableModel = new DefaultTableModel(
-            new Object[]{"ISBN", "Judul", "Penulis", "Kategori", "Rak", "Total", "Tersedia"}, 0);
+    private StackPane root;
+    private StackPane addBookModalOverlay;
+    private StackPane modalHost;
 
-    public BookManagementPanel() {
-        setLayout(new BorderLayout(10, 10));
-        add(buildFormPanel(), BorderLayout.NORTH);
-        add(new JScrollPane(new JTable(tableModel)), BorderLayout.CENTER);
+    public Node create() {
+        if (root == null) {
+            VBox content = buildContent();
+            root = new StackPane(content);
+            root.getStyleClass().add("book-management-root");
+            StackPane.setAlignment(content, Pos.TOP_LEFT);
+            bindFilterEvents();
+            configureTable();
+        }
         refreshData();
+        return root;
     }
 
-    private JComponent buildFormPanel() {
-        JPanel container = new JPanel(new BorderLayout(10, 10));
-
-        JPanel form = new JPanel(new GridLayout(0, 4, 8, 8));
-        form.setBorder(BorderFactory.createTitledBorder("Tambah Buku & Eksemplar"));
-        form.add(new JLabel("ISBN"));
-        form.add(isbnField);
-        form.add(new JLabel("Judul"));
-        form.add(titleField);
-        form.add(new JLabel("Penulis"));
-        form.add(authorField);
-        form.add(new JLabel("Penerbit"));
-        form.add(publisherField);
-        form.add(new JLabel("Tahun"));
-        form.add(yearField);
-        form.add(new JLabel("Kategori"));
-        form.add(categoryField);
-        form.add(new JLabel("Kode Rak"));
-        form.add(shelfField);
-        form.add(new JLabel("Jumlah Eksemplar"));
-        form.add(copiesField);
-
-        JButton saveButton = new JButton("Simpan Buku");
-        saveButton.addActionListener(event -> saveBook());
-
-        JPanel searchPanel = new JPanel(new BorderLayout(8, 8));
-        searchPanel.setBorder(BorderFactory.createTitledBorder("Cari Buku"));
-        JButton searchButton = new JButton("Cari");
-        searchButton.addActionListener(event -> refreshData());
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.add(searchButton, BorderLayout.EAST);
-
-        container.add(form, BorderLayout.CENTER);
-        container.add(saveButton, BorderLayout.EAST);
-        container.add(searchPanel, BorderLayout.SOUTH);
-        return container;
-    }
-
-    private void saveBook() {
-        try {
-            bookService.addBook(
-                    isbnField.getText(),
-                    titleField.getText(),
-                    authorField.getText(),
-                    publisherField.getText(),
-                    Integer.parseInt(yearField.getText().trim()),
-                    categoryField.getText(),
-                    shelfField.getText(),
-                    Integer.parseInt(copiesField.getText().trim())
-            );
-            UiUtil.showInfo(this, "Buku berhasil disimpan.");
-            clearForm();
-            refreshData();
-        } catch (Exception exception) {
-            UiUtil.showError(this, exception.getMessage());
-        }
-    }
-
-    private void clearForm() {
-        isbnField.setText("");
-        titleField.setText("");
-        authorField.setText("");
-        publisherField.setText("");
-        yearField.setText("");
-        categoryField.setText("");
-        shelfField.setText("");
-        copiesField.setText("1");
-    }
-
-    @Override
     public void refreshData() {
-        tableModel.setRowCount(0);
-        List<BookCatalogItem> items = bookService.searchCatalog(searchField.getText());
-        for (BookCatalogItem item : items) {
-            tableModel.addRow(new Object[]{
-                    item.getIsbn(),
-                    item.getTitle(),
-                    item.getAuthor(),
-                    item.getCategory(),
-                    item.getShelfCode(),
-                    item.getTotalCopies(),
-                    item.getAvailableCopies()
-            });
+        List<BookCatalogItem> items = bookService.searchCatalog("");
+        catalogItems.setAll(items);
+        rebuildCategoryOptions(items);
+        applyFilters();
+    }
+
+    private VBox buildContent() {
+        VBox content = new VBox(18);
+        content.getStyleClass().add("book-management-content");
+        content.setPadding(Insets.EMPTY);
+
+        HBox header = new HBox();
+        header.getStyleClass().add("book-section-header");
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        VBox titleBox = new VBox(4);
+        Label titleLabel = new Label("Manajemen Buku");
+        titleLabel.getStyleClass().add("section-title");
+        subtitleLabel.getStyleClass().add("section-subtitle");
+        titleBox.getChildren().addAll(titleLabel, subtitleLabel);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button addButton = new Button("+ Tambah Buku");
+        addButton.getStyleClass().add("book-add-button");
+        addButton.setOnAction(event -> openAddBookDialog());
+
+        header.getChildren().addAll(titleBox, spacer, addButton);
+
+        HBox toolbar = new HBox(12);
+        toolbar.getStyleClass().addAll("list-card", "book-toolbar-card");
+        toolbar.setAlignment(Pos.CENTER_LEFT);
+        toolbar.setPadding(new Insets(14, 16, 14, 16));
+
+        searchField.setPromptText("Cari judul, pengarang, atau ISBN...");
+        searchField.getStyleClass().add("book-search-input");
+
+        Label searchIcon = new Label("\u2315");
+        searchIcon.getStyleClass().add("book-search-icon");
+
+        HBox searchBox = new HBox(8, searchIcon, searchField);
+        searchBox.getStyleClass().add("book-search-box");
+        searchBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(searchBox, Priority.ALWAYS);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
+
+        categoryFilter.getStyleClass().add("book-category-filter");
+        categoryFilter.setPrefWidth(190);
+        categoryFilter.getItems().setAll(ALL_CATEGORIES);
+        categoryFilter.setValue(ALL_CATEGORIES);
+
+        toolbar.getChildren().addAll(searchBox, categoryFilter);
+
+        VBox tableCard = new VBox(10);
+        tableCard.getStyleClass().addAll("list-card", "book-table-card");
+        tableCard.setPadding(new Insets(0));
+        VBox.setVgrow(tableCard, Priority.ALWAYS);
+
+        bookTable.getStyleClass().add("book-table");
+        bookTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        bookTable.setFixedCellSize(56);
+        bookTable.setMinHeight(260);
+        bookTable.setFocusTraversable(false);
+        VBox.setVgrow(bookTable, Priority.ALWAYS);
+
+        Label emptyLabel = new Label("Belum ada buku yang sesuai filter.");
+        emptyLabel.getStyleClass().add("empty-list");
+        bookTable.setPlaceholder(new StackPane(emptyLabel));
+
+        tableCard.getChildren().add(bookTable);
+
+        content.getChildren().addAll(header, toolbar, tableCard);
+        VBox.setVgrow(tableCard, Priority.ALWAYS);
+        return content;
+    }
+
+    private void bindFilterEvents() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+        categoryFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyFilters());
+        filteredItems.addListener((ListChangeListener<BookCatalogItem>) change -> updateSubtitle());
+    }
+
+    private void configureTable() {
+        SortedList<BookCatalogItem> sortedItems = new SortedList<>(filteredItems);
+        sortedItems.comparatorProperty().bind(bookTable.comparatorProperty());
+        bookTable.setItems(sortedItems);
+
+        TableColumn<BookCatalogItem, BookCatalogItem> bookColumn = new TableColumn<>("BUKU");
+        bookColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        bookColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        bookColumn.getStyleClass().add("book-column-title");
+        bookColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BookCatalogItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                Label title = new Label(safe(item.getTitle(), "Tanpa Judul"));
+                title.getStyleClass().add("book-title-text");
+
+                Label meta = new Label(buildMetaText(item));
+                meta.getStyleClass().add("book-meta-text");
+
+                VBox wrapper = new VBox(2, title, meta);
+                wrapper.setAlignment(Pos.CENTER_LEFT);
+                wrapper.setPadding(new Insets(0, 0, 0, 8));
+                setText(null);
+                setGraphic(wrapper);
+            }
+        });
+        bookColumn.setPrefWidth(170);
+
+        TableColumn<BookCatalogItem, String> isbnColumn = new TableColumn<>("ISBN");
+        isbnColumn.setCellValueFactory(cell -> new SimpleStringProperty(safe(cell.getValue().getIsbn(), "-")));
+        isbnColumn.setStyle("-fx-alignment: CENTER;");
+        isbnColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label value = new Label(item);
+                value.getStyleClass().add("book-isbn-text");
+                value.setTooltip(new Tooltip(item));
+                setText(null);
+                setGraphic(value);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        isbnColumn.setPrefWidth(160);
+
+        TableColumn<BookCatalogItem, String> categoryColumn = new TableColumn<>("KATEGORI");
+        categoryColumn.setCellValueFactory(cell -> new SimpleStringProperty(normalizedCategory(cell.getValue())));
+        categoryColumn.setStyle("-fx-alignment: CENTER;");
+        categoryColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label chip = new Label(item);
+                chip.getStyleClass().add("book-category-chip");
+                chip.setAlignment(Pos.CENTER);
+                chip.setTooltip(new Tooltip(item));
+                HBox wrapper = new HBox(chip);
+                wrapper.setAlignment(Pos.CENTER);
+                setText(null);
+                setGraphic(wrapper);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        categoryColumn.setPrefWidth(128);
+
+        TableColumn<BookCatalogItem, Integer> yearColumn = new TableColumn<>("TAHUN");
+        yearColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getPublicationYear()));
+        yearColumn.setStyle("-fx-alignment: CENTER;");
+        yearColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label value = new Label(item <= 0 ? "-" : String.valueOf(item));
+                value.getStyleClass().add("book-year-text");
+                setText(null);
+                setGraphic(value);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        yearColumn.setPrefWidth(90);
+
+        TableColumn<BookCatalogItem, BookCatalogItem> copiesColumn = new TableColumn<>("EKSEMPLAR");
+        copiesColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        copiesColumn.setStyle("-fx-alignment: CENTER;");
+        copiesColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BookCatalogItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label value = new Label(item.getAvailableCopies() + " / " + item.getTotalCopies());
+                value.getStyleClass().add("book-copies-text");
+                setText(null);
+                setGraphic(value);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        copiesColumn.setPrefWidth(90);
+
+        TableColumn<BookCatalogItem, BookCatalogItem> statusColumn = new TableColumn<>("STATUS");
+        statusColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        statusColumn.setStyle("-fx-alignment: CENTER;");
+        statusColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BookCatalogItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                boolean available = item.getAvailableCopies() > 0;
+                Label badge = new Label(available ? "Tersedia" : "Habis");
+                badge.getStyleClass().addAll("status-badge", available ? "status-success" : "status-warning");
+                HBox wrapper = new HBox(badge);
+                wrapper.setAlignment(Pos.CENTER);
+                setText(null);
+                setGraphic(wrapper);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        statusColumn.setPrefWidth(110);
+
+        TableColumn<BookCatalogItem, String> shelfColumn = new TableColumn<>("LOKASI");
+        shelfColumn.setCellValueFactory(cell -> new SimpleStringProperty(safe(cell.getValue().getShelfCode(), "-")));
+        shelfColumn.setStyle("-fx-alignment: CENTER;");
+        shelfColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+                Label value = new Label(item);
+                value.getStyleClass().add("book-shelf-text");
+                setText(null);
+                setGraphic(value);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        shelfColumn.setPrefWidth(90);
+
+        TableColumn<BookCatalogItem, BookCatalogItem> actionColumn = new TableColumn<>("AKSI");
+        actionColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
+        actionColumn.setStyle("-fx-alignment: CENTER;");
+        actionColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(BookCatalogItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                Button editButton = createIconActionButton(createEditIcon(), "book-action-edit", "Ubah buku");
+                editButton.setOnAction(event -> openEditBookDialog(item));
+
+                Button deleteButton = createIconActionButton(createDeleteIcon(), "book-action-delete", "Hapus buku");
+                deleteButton.setOnAction(event -> openDeleteBookDialog(item));
+
+                HBox actions = new HBox(8, editButton, deleteButton);
+                actions.setAlignment(Pos.CENTER);
+                actions.getStyleClass().add("book-actions-wrapper");
+                setText(null);
+                setGraphic(actions);
+                setAlignment(Pos.CENTER);
+            }
+        });
+        actionColumn.setSortable(false);
+        actionColumn.setReorderable(false);
+        actionColumn.setPrefWidth(102);
+
+        bookTable.getColumns().setAll(
+                bookColumn,
+                isbnColumn,
+                categoryColumn,
+                yearColumn,
+                copiesColumn,
+                statusColumn,
+                shelfColumn,
+                actionColumn);
+    }
+
+    private Button createIconActionButton(Node icon, String variantClass, String tooltipText) {
+        Button button = new Button();
+        button.getStyleClass().addAll("book-action-button", variantClass);
+        button.setGraphic(icon);
+        button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        button.setTooltip(new Tooltip(tooltipText));
+        button.setMinWidth(28);
+        button.setPrefWidth(28);
+        button.setMaxWidth(28);
+        button.setMinHeight(28);
+        button.setPrefHeight(28);
+        button.setMaxHeight(28);
+        button.setFocusTraversable(false);
+        button.setMnemonicParsing(false);
+        return button;
+    }
+
+    private Node createEditIcon() {
+        SVGPath icon = new SVGPath();
+        icon.setContent("M12.854.146a.5.5 0 0 1 .707 0l2.293 2.293a.5.5 0 0 1 0 .707L5.207 13.793 2 14.5l.707-3.207L12.854.146z");
+        icon.getStyleClass().addAll("book-action-icon", "book-action-icon-edit");
+        return icon;
+    }
+
+    private Node createDeleteIcon() {
+        SVGPath icon = new SVGPath();
+        icon.setContent("M2.5 3a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h2.5a1 1 0 0 1 1 1V4H2.5V3zm1 2h9l-.8 9.2a1.5 1.5 0 0 1-1.5 1.3H5.8a1.5 1.5 0 0 1-1.5-1.3L3.5 5z");
+        icon.getStyleClass().addAll("book-action-icon", "book-action-icon-delete");
+        return icon;
+    }
+
+    private void rebuildCategoryOptions(List<BookCatalogItem> items) {
+        String previousValue = categoryFilter.getValue();
+        Set<String> categories = items.stream()
+                .map(BookCatalogItem::getCategory)
+                .filter(value -> value != null && !value.isBlank())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        List<String> sortedCategories = categories.stream()
+                .sorted(Comparator.comparing(value -> value.toLowerCase(ID_LOCALE)))
+                .collect(Collectors.toList());
+
+        categoryFilter.getItems().setAll(ALL_CATEGORIES);
+        categoryFilter.getItems().addAll(sortedCategories);
+
+        if (previousValue != null && categoryFilter.getItems().contains(previousValue)) {
+            categoryFilter.setValue(previousValue);
+            return;
         }
+        categoryFilter.setValue(ALL_CATEGORIES);
+    }
+
+    private void applyFilters() {
+        String keyword = normalize(searchField.getText());
+        String selectedCategory = normalize(categoryFilter.getValue());
+        filteredItems.setPredicate(item -> matchesKeyword(item, keyword) && matchesCategory(item, selectedCategory));
+        updateSubtitle();
+    }
+
+    private boolean matchesKeyword(BookCatalogItem item, String keyword) {
+        if (keyword.isBlank()) {
+            return true;
+        }
+        return contains(item.getTitle(), keyword)
+                || contains(item.getAuthor(), keyword)
+                || contains(item.getPublisher(), keyword)
+                || contains(item.getIsbn(), keyword);
+    }
+
+    private boolean matchesCategory(BookCatalogItem item, String selectedCategory) {
+        if (selectedCategory.isBlank() || ALL_CATEGORIES.equalsIgnoreCase(selectedCategory)) {
+            return true;
+        }
+        return normalize(item.getCategory()).equals(selectedCategory);
+    }
+
+    private void updateSubtitle() {
+        subtitleLabel.setText(filteredItems.size() + " buku terdaftar");
+    }
+
+    private String normalizedCategory(BookCatalogItem item) {
+        String value = item.getCategory();
+        if (value == null || value.isBlank()) {
+            return "Umum";
+        }
+        return value;
+    }
+
+    private String buildMetaText(BookCatalogItem item) {
+        String author = safe(item.getAuthor(), "Penulis tidak tersedia");
+        String publisher = item.getPublisher() == null ? "" : item.getPublisher().trim();
+        if (publisher.isBlank()) {
+            return author;
+        }
+        return author + " - " + publisher;
+    }
+
+    private void openAddBookDialog() {
+        if (addBookModalOverlay != null) {
+            return;
+        }
+
+        StackPane host = resolveModalHost();
+        if (host == null) {
+            return;
+        }
+
+        addBookModalOverlay = buildAddBookModalOverlay();
+        modalHost = host;
+        modalHost.getChildren().add(addBookModalOverlay);
+    }
+
+    private void openEditBookDialog(BookCatalogItem selectedBook) {
+        if (selectedBook == null || selectedBook.getBookId() == null) {
+            showError("Data buku tidak valid.");
+            return;
+        }
+        if (addBookModalOverlay != null) {
+            return;
+        }
+
+        StackPane host = resolveModalHost();
+        if (host == null) {
+            return;
+        }
+
+        addBookModalOverlay = buildEditBookModalOverlay(selectedBook);
+        modalHost = host;
+        modalHost.getChildren().add(addBookModalOverlay);
+    }
+
+    private void openDeleteBookDialog(BookCatalogItem selectedBook) {
+        if (selectedBook == null || selectedBook.getBookId() == null) {
+            showError("Data buku tidak valid.");
+            return;
+        }
+
+        String displayTitle = safe(selectedBook.getTitle(), "Tanpa Judul");
+        boolean confirmed = showDeleteConfirmation(displayTitle);
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            bookService.deleteBook(selectedBook.getBookId());
+            refreshData();
+            showInfo("Buku berhasil dihapus.");
+        } catch (Exception exception) {
+            showError(resolveErrorMessage(exception));
+        }
+    }
+
+    private void closeAddBookDialog() {
+        if (addBookModalOverlay == null) {
+            return;
+        }
+        StackPane host = modalHost != null ? modalHost : resolveModalHost();
+        if (host != null) {
+            host.getChildren().remove(addBookModalOverlay);
+        }
+        addBookModalOverlay = null;
+        modalHost = null;
+    }
+
+    private StackPane resolveModalHost() {
+        if (root == null) {
+            return null;
+        }
+        if (root.getScene() != null) {
+            Parent sceneRoot = root.getScene().getRoot();
+            if (sceneRoot instanceof StackPane sceneStack) {
+                return sceneStack;
+            }
+        }
+        return root;
+    }
+
+    private StackPane buildAddBookModalOverlay() {
+        TextField titleInput = createModalTextField("");
+        TextField authorInput = createModalTextField("");
+        TextField publisherInput = createModalTextField("");
+        TextField isbnInput = createModalTextField("");
+        TextField yearInput = createModalTextField("");
+        TextField copiesInput = createModalTextField("");
+        copiesInput.setText("1");
+        TextField shelfInput = createModalTextField("");
+        ComboBox<String> categoryInput = createModalCategoryField();
+
+        StackPane overlay = new StackPane();
+        overlay.getStyleClass().add("book-modal-overlay");
+        overlay.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox();
+        card.getStyleClass().add("book-modal-card");
+        card.setPrefWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setMaxWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setPrefHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setMaxHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setTranslateX(ADD_BOOK_MODAL_OFFSET_X);
+
+        HBox header = new HBox();
+        header.getStyleClass().add("book-modal-header");
+        Label titleLabel = new Label("Tambah Buku Baru");
+        titleLabel.getStyleClass().add("book-modal-title");
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        Button closeButton = new Button("x");
+        closeButton.getStyleClass().add("book-modal-close");
+        closeButton.setOnAction(event -> closeAddBookDialog());
+
+        header.getChildren().addAll(titleLabel, headerSpacer, closeButton);
+
+        VBox body = new VBox(18);
+        body.getStyleClass().add("book-modal-body");
+        body.getChildren().add(buildModalField("Judul Buku", titleInput));
+        body.getChildren().add(buildModalTwoColumnRow("Pengarang", authorInput, "Penerbit", publisherInput));
+        body.getChildren().add(buildModalTwoColumnRow("ISBN", isbnInput, "Tahun Terbit", yearInput));
+        body.getChildren().add(buildModalTwoColumnRow("Jumlah Eksemplar", copiesInput, "Lokasi Rak", shelfInput));
+        body.getChildren().add(buildModalHalfRow("Kategori", categoryInput));
+
+        HBox footer = new HBox(14);
+        footer.getStyleClass().add("book-modal-footer");
+        footer.setAlignment(Pos.CENTER_RIGHT);
+
+        Button cancelButton = new Button("Batal");
+        cancelButton.getStyleClass().addAll("book-modal-button", "book-modal-button-cancel");
+        cancelButton.setOnAction(event -> closeAddBookDialog());
+        cancelButton.setCancelButton(true);
+
+        Button saveButton = new Button("Simpan");
+        saveButton.getStyleClass().addAll("book-modal-button", "book-modal-button-save");
+        saveButton.setDefaultButton(true);
+        saveButton.setOnAction(event -> {
+            try {
+                int publicationYear = parseInt(yearInput.getText(), "Tahun terbit harus berupa angka.");
+                int totalCopies = parseInt(copiesInput.getText(), "Jumlah eksemplar harus berupa angka.");
+                String categoryValue = normalizeInput(categoryInput.getValue());
+                if (categoryValue.isBlank()) {
+                    throw new IllegalArgumentException("Kategori wajib dipilih.");
+                }
+
+                bookService.addBook(
+                        normalizeInput(isbnInput.getText()),
+                        normalizeInput(titleInput.getText()),
+                        normalizeInput(authorInput.getText()),
+                        normalizeInput(publisherInput.getText()),
+                        publicationYear,
+                        categoryValue,
+                        normalizeInput(shelfInput.getText()),
+                        totalCopies);
+
+                refreshData();
+                closeAddBookDialog();
+                showInfo("Buku berhasil disimpan.");
+            } catch (Exception exception) {
+                showError(resolveErrorMessage(exception));
+            }
+        });
+
+        footer.getChildren().addAll(cancelButton, saveButton);
+
+        card.getChildren().addAll(header, body, footer);
+        overlay.getChildren().add(card);
+
+        overlay.setOnMouseClicked(event -> {
+            if (event.getTarget() == overlay) {
+                closeAddBookDialog();
+            }
+        });
+
+        return overlay;
+    }
+
+    private StackPane buildEditBookModalOverlay(BookCatalogItem selectedBook) {
+        TextField titleInput = createModalTextField("", selectedBook.getTitle());
+        TextField authorInput = createModalTextField("", selectedBook.getAuthor());
+        TextField publisherInput = createModalTextField("", selectedBook.getPublisher());
+        TextField isbnInput = createModalTextField("", selectedBook.getIsbn());
+        TextField yearInput = createModalTextField("", selectedBook.getPublicationYear() <= 0
+                ? ""
+                : String.valueOf(selectedBook.getPublicationYear()));
+        TextField shelfInput = createModalTextField("", selectedBook.getShelfCode());
+        ComboBox<String> categoryInput = createModalCategoryField();
+
+        String currentCategory = normalizedCategory(selectedBook);
+        if (!categoryInput.getItems().contains(currentCategory)) {
+            categoryInput.getItems().add(currentCategory);
+        }
+        categoryInput.setValue(currentCategory);
+
+        StackPane overlay = new StackPane();
+        overlay.getStyleClass().add("book-modal-overlay");
+        overlay.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox();
+        card.getStyleClass().add("book-modal-card");
+        card.setPrefWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setMaxWidth(ADD_BOOK_MODAL_WIDTH);
+        card.setPrefHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setMaxHeight(ADD_BOOK_MODAL_HEIGHT);
+        card.setTranslateX(ADD_BOOK_MODAL_OFFSET_X);
+
+        HBox header = new HBox();
+        header.getStyleClass().add("book-modal-header");
+        Label titleLabel = new Label("Ubah Buku");
+        titleLabel.getStyleClass().add("book-modal-title");
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        Button closeButton = new Button("x");
+        closeButton.getStyleClass().add("book-modal-close");
+        closeButton.setOnAction(event -> closeAddBookDialog());
+
+        header.getChildren().addAll(titleLabel, headerSpacer, closeButton);
+
+        VBox body = new VBox(18);
+        body.getStyleClass().add("book-modal-body");
+        body.getChildren().add(buildModalField("Judul Buku", titleInput));
+        body.getChildren().add(buildModalTwoColumnRow("Pengarang", authorInput, "Penerbit", publisherInput));
+        body.getChildren().add(buildModalTwoColumnRow("ISBN", isbnInput, "Tahun Terbit", yearInput));
+        body.getChildren().add(buildModalHalfRow("Kategori", categoryInput));
+        body.getChildren().add(buildModalHalfRow("Lokasi Rak", shelfInput));
+
+        HBox footer = new HBox(14);
+        footer.getStyleClass().add("book-modal-footer");
+        footer.setAlignment(Pos.CENTER_RIGHT);
+
+        Button cancelButton = new Button("Batal");
+        cancelButton.getStyleClass().addAll("book-modal-button", "book-modal-button-cancel");
+        cancelButton.setOnAction(event -> closeAddBookDialog());
+        cancelButton.setCancelButton(true);
+
+        Button saveButton = new Button("Perbarui");
+        saveButton.getStyleClass().addAll("book-modal-button", "book-modal-button-save");
+        saveButton.setDefaultButton(true);
+        saveButton.setOnAction(event -> {
+            try {
+                int publicationYear = parseInt(yearInput.getText(), "Tahun terbit harus berupa angka.");
+                String categoryValue = normalizeInput(categoryInput.getValue());
+                if (categoryValue.isBlank()) {
+                    throw new IllegalArgumentException("Kategori wajib dipilih.");
+                }
+
+                bookService.updateBook(
+                        selectedBook.getBookId(),
+                        normalizeInput(isbnInput.getText()),
+                        normalizeInput(titleInput.getText()),
+                        normalizeInput(authorInput.getText()),
+                        normalizeInput(publisherInput.getText()),
+                        publicationYear,
+                        categoryValue,
+                        normalizeInput(shelfInput.getText()));
+
+                refreshData();
+                closeAddBookDialog();
+                showInfo("Buku berhasil diperbarui.");
+            } catch (Exception exception) {
+                showError(resolveErrorMessage(exception));
+            }
+        });
+
+        footer.getChildren().addAll(cancelButton, saveButton);
+
+        card.getChildren().addAll(header, body, footer);
+        overlay.getChildren().add(card);
+
+        overlay.setOnMouseClicked(event -> {
+            if (event.getTarget() == overlay) {
+                closeAddBookDialog();
+            }
+        });
+
+        return overlay;
+    }
+
+    private TextField createModalTextField(String promptText) {
+        TextField field = new TextField();
+        field.getStyleClass().add("book-modal-input");
+        field.setPromptText(promptText);
+        field.setMinHeight(44);
+        field.setPrefHeight(44);
+        field.setMaxWidth(Double.MAX_VALUE);
+        return field;
+    }
+
+    private TextField createModalTextField(String promptText, String value) {
+        TextField field = createModalTextField(promptText);
+        field.setText(safe(value, ""));
+        return field;
+    }
+
+    private ComboBox<String> createModalCategoryField() {
+        ComboBox<String> field = new ComboBox<>();
+        field.getStyleClass().add("book-modal-select");
+        field.getItems().setAll(resolveModalCategoryOptions());
+        field.setPromptText("Pilih Kategori");
+        field.setMinHeight(44);
+        field.setPrefHeight(44);
+        field.setMaxWidth(Double.MAX_VALUE);
+        return field;
+    }
+
+    private List<String> resolveModalCategoryOptions() {
+        Set<String> options = new LinkedHashSet<>();
+        options.add("Teknologi");
+        options.add("Sains");
+        options.add("Fiksi");
+        options.add("Sejarah");
+        options.add("Pendidikan");
+        options.add("Referensi");
+        options.add("Umum");
+
+        for (String category : categoryFilter.getItems()) {
+            if (category == null || category.isBlank() || ALL_CATEGORIES.equalsIgnoreCase(category)) {
+                continue;
+            }
+            options.add(category);
+        }
+        return options.stream().collect(Collectors.toList());
+    }
+
+    private VBox buildModalField(String labelText, Node inputControl) {
+        Label label = new Label(labelText);
+        label.getStyleClass().add("book-modal-label");
+
+        if (inputControl instanceof Region) {
+            ((Region) inputControl).setMaxWidth(Double.MAX_VALUE);
+        }
+
+        VBox field = new VBox(8, label, inputControl);
+        field.getStyleClass().add("book-modal-field");
+        HBox.setHgrow(field, Priority.ALWAYS);
+        return field;
+    }
+
+    private HBox buildModalTwoColumnRow(String leftLabel, Node leftInput, String rightLabel, Node rightInput) {
+        VBox leftField = buildModalField(leftLabel, leftInput);
+        VBox rightField = buildModalField(rightLabel, rightInput);
+        HBox row = new HBox(22, leftField, rightField);
+        row.getStyleClass().add("book-modal-row");
+        HBox.setHgrow(leftField, Priority.ALWAYS);
+        HBox.setHgrow(rightField, Priority.ALWAYS);
+        return row;
+    }
+
+    private HBox buildModalHalfRow(String labelText, Node inputControl) {
+        VBox leftField = buildModalField(labelText, inputControl);
+        Region spacer = new Region();
+        HBox row = new HBox(22, leftField, spacer);
+        row.getStyleClass().add("book-modal-row");
+        HBox.setHgrow(leftField, Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        return row;
+    }
+
+    private int parseInt(String rawValue, String errorMessage) {
+        try {
+            return Integer.parseInt(rawValue.trim());
+        } catch (Exception exception) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private String resolveErrorMessage(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null || message.isBlank()) {
+            return "Terjadi kesalahan saat menyimpan buku.";
+        }
+        return message;
+    }
+
+    private String safe(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value;
+    }
+
+    private String normalizeInput(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim().toLowerCase(ID_LOCALE);
+    }
+
+    private boolean contains(String source, String keyword) {
+        return normalize(source).contains(keyword);
+    }
+
+    private void showInfo(String message) {
+        showAlert(Alert.AlertType.INFORMATION, message);
+    }
+
+    private void showError(String message) {
+        showAlert(Alert.AlertType.ERROR, message);
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        Window owner = root == null || root.getScene() == null ? null : root.getScene().getWindow();
+        if (owner != null) {
+            alert.initOwner(owner);
+        }
+        alert.showAndWait();
+    }
+
+    private boolean showDeleteConfirmation(String bookTitle) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Konfirmasi Hapus Buku");
+        alert.setHeaderText("Hapus buku \"" + bookTitle + "\"?");
+
+        Label contentLabel = new Label("Aksi ini akan menghapus data buku dan seluruh eksemplarnya.");
+        contentLabel.setWrapText(true);
+        contentLabel.setMaxWidth(420);
+        alert.getDialogPane().setContent(contentLabel);
+        alert.getDialogPane().setPrefWidth(480);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+        ButtonType cancelButton = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType deleteButton = new ButtonType("Hapus", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(cancelButton, deleteButton);
+
+        Window owner = root == null || root.getScene() == null ? null : root.getScene().getWindow();
+        if (owner != null) {
+            alert.initOwner(owner);
+        }
+
+        ButtonType chosen = alert.showAndWait().orElse(cancelButton);
+        return chosen == deleteButton;
     }
 }

@@ -8,15 +8,14 @@ import com.library.app.model.Member;
 import com.library.app.model.enums.CopyStatus;
 import com.library.app.model.enums.LoanStatus;
 import com.library.app.util.ValidationUtil;
+import com.library.app.util.DateUtil;
+import com.library.app.util.FineCalculator;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 public class LoanService {
     private static final int MAX_ACTIVE_LOANS = 3;
-    private static final int DEFAULT_LOAN_DAYS = 7;
-    private static final BigDecimal DAILY_FINE = BigDecimal.valueOf(1000);
 
     private final LoanDAO loanDAO = new LoanDAO();
     private final BookCopyDAO bookCopyDAO = new BookCopyDAO();
@@ -41,9 +40,7 @@ public class LoanService {
         loan.setMemberId(member.getId());
         loan.setCopyId(copy.getId());
         loan.setLoanDate(LocalDate.now());
-        loan.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
-        loan.setFineAmount(BigDecimal.ZERO);
-        loan.setStatus(LoanStatus.ACTIVE);
+        loan.setDueDate(DateUtil.calculateDueDate(LocalDate.now()));
         loanDAO.save(loan);
 
         copy.markBorrowed();
@@ -55,7 +52,10 @@ public class LoanService {
         ValidationUtil.requireNotBlank(copyCode, "Kode eksemplar wajib diisi.");
         Loan loan = loanDAO.findActiveLoanByCopyCode(copyCode.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Transaksi pinjam aktif tidak ditemukan untuk kode eksemplar ini."));
-        loan.returnBook(LocalDate.now(), DAILY_FINE);
+        loan.setReturnDate(LocalDate.now());
+        long daysLate = DateUtil.calculateDaysDifference(loan.getDueDate(), loan.getReturnDate());
+        loan.setFineAmount(FineCalculator.calculateTotalFine(daysLate));
+        loan.setStatus(LoanStatus.RETURNED);
         loanDAO.updateReturn(loan);
         bookCopyDAO.updateStatus(loan.getCopyId(), CopyStatus.AVAILABLE);
         return loan;

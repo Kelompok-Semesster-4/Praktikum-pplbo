@@ -1,0 +1,221 @@
+.report-root {
+  -fx-background-color: #f2f4f8;
+}
+
+.report-content {
+  -fx-padding: 0;
+}
+
+.report-page-header {
+  -fx-background-color: #ffffff;
+  -fx-padding: 16 24 16 24;
+  -fx-border-color: #e8edf5;
+  -fx-border-width: 0 0 1 0;
+  -fx-min-height: 88;
+  -fx-max-width: Infinity;
+}
+
+.report-section-title {
+  -fx-font-size: 26px;
+  -fx-font-weight: 800;
+  -fx-text-fill: #1f2938;
+}
+
+.report-section-subtitle {
+  -fx-font-size: 13px;
+  -fx-text-fill: #6f7d95;
+}
+
+.report-export-button {
+  -fx-background-color: #f4f6fa;
+  -fx-border-color: #d5dce9;
+  -fx-border-radius: 12;
+  -fx-background-radius: 12;
+  -fx-text-fill: #394659;
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-padding: 10 18 10 18;
+  -fx-cursor: hand;
+}
+
+.report-export-button:hover {
+  -fx-background-color: #eef2f8;
+}
+
+.report-stat-card,
+.report-chart-card,
+.report-table-card {
+  -fx-background-color: #ffffff;
+  -fx-background-radius: 14;
+  -fx-border-color: #e7ebf2;
+  -fx-border-radius: 14;
+  -fx-effect: dropshadow(gaussian, rgba(10, 20, 40, 0.06), 12, 0.15, 0, 4);
+}
+
+.report-stat-card {
+  -fx-padding: 14;
+  -fx-min-height: 140;
+}
+
+.report-stat-icon {
+  -fx-min-width: 24px;
+  -fx-min-height: 24px;
+  -fx-pref-width: 24px;
+  -fx-pref-height: 24px;
+  -fx-alignment: CENTER;
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-background-radius: 8;
+}
+
+.report-icon-blue {
+  -fx-background-color: #e8f1ff;
+  -fx-text-fill: #2f6fe2;
+}
+
+.report-icon-green {
+  -fx-background-color: #e2f7ef;
+  -fx-text-fill: #16996b;
+}
+
+.report-icon-red {
+  -fx-background-color: #ffeaea;
+  -fx-text-fill: #da4a44;
+}
+
+.report-icon-gold {
+  -fx-background-color: #fff3dc;
+  -fx-text-fill: #d38b1d;
+}
+
+.report-stat-value {
+  -fx-font-size: 24px;
+  -fx-font-weight: 800;
+  -fx-text-fill: #1f2c40;
+}
+
+.report-stat-helper {
+  -fx-font-size: 10px;
+  -fx-text-fill: #6f7d95;
+}
+
+.report-chart-card,
+.report-table-card {
+  -fx-padding: 16;
+}
+
+.report-chart-host {
+  -fx-min-height: 250;
+  -fx-pref-height: 250;
+}
+
+.report-card-title {
+  -fx-font-size: 14px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #2a3548;
+}
+
+.report-legend-dot {
+  -fx-font-size: 11px;
+  -fx-font-weight: 700;
+}
+
+.report-legend-text {
+  -fx-font-size: 12px;
+  -fx-text-fill: #67758e;
+}
+
+.report-legend-blue {
+  -fx-text-fill: #356cde;
+}
+
+.report-legend-green {
+  -fx-text-fill: #35c495;
+}
+
+.report-chart {
+  -fx-background-color: transparent;
+  -fx-legend-visible: false;
+}
+
+.report-chart .chart-plot-background {
+  -fx-background-color: #ffffff;
+}
+
+.report-chart .chart-horizontal-grid-lines,
+.report-chart .chart-vertical-grid-lines {
+  -fx-stroke: #edf1f7;
+}
+
+.report-chart .axis {
+  -fx-tick-label-fill: #97a4b8;
+}
+
+.report-chart .default-color0.chart-bar {
+  -fx-bar-fill: #356cde;
+}
+
+.report-chart .default-color1.chart-bar {
+  -fx-bar-fill: #35c495;
+}
+
+.report-chart-value {
+  -fx-font-size: 11px;
+  -fx-font-weight: 600;
+  -fx-text-fill: #8c96a8;
+}
+
+.report-overdue-table {
+  -fx-background-color: transparent;
+  -fx-border-color: #e8edf5;
+  -fx-border-radius: 10;
+  -fx-background-radius: 10;
+}
+
+.report-overdue-table .column-header-background {
+  -fx-background-color: #f3f5f9;
+}
+
+.report-overdue-table .column-header,
+.report-overdue-table .filler {
+  -fx-background-color: #f3f5f9;
+  -fx-border-color: transparent transparent #e5ebf4 transparent;
+}
+
+.report-overdue-table .column-header .label {
+  -fx-text-fill: #7a8598;
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+  -fx-alignment: CENTER_LEFT;
+}
+
+.report-overdue-table .table-cell {
+  -fx-padding: 12 10 12 10;
+  -fx-border-color: transparent transparent #edf2f8 transparent;
+  -fx-text-fill: #374459;
+  -fx-font-size: 13px;
+}
+
+.report-overdue-table .table-row-cell {
+  -fx-background-color: #ffffff;
+}
+
+.report-overdue-table .table-row-cell:filled:hover {
+  -fx-background-color: #f9fbff;
+}
+
+.report-borrower-name {
+  -fx-font-size: 15px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #232f41;
+}
+
+.report-borrower-meta {
+  -fx-font-size: 12px;
+  -fx-text-fill: #95a2b8;
+}
+
+.report-fine-highlight {
+  -fx-text-fill: #e23838;
+  -fx-font-weight: 700;
+}

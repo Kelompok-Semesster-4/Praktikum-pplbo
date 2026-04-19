@@ -44,3 +44,9 @@ Thumbs.db
 Desktop.ini
 *.tmp
 *.temp
+
+# =========================
+# Rogue compiler files
+# =========================
+perpustakaan/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+perpustakaan/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

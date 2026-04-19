@@ -1,24 +1,20 @@
 package com.library.app.ui.fx;
 
+import com.library.app.ui.LoginFrame;
+
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.stage.*;;
 
 public class LibraryFxApp extends Application {
+    public static void launchApp(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage stage) {
-        Label title = new Label("Library Management System");
-        Label subtitle = new Label("JavaFX is configured and ready.");
-
-        VBox root = new VBox(10, title, subtitle);
-        root.setPadding(new Insets(20));
-
-        Scene scene = new Scene(root, 480, 180);
-        stage.setTitle("Library System - JavaFX");
-        stage.setScene(scene);
-        stage.show();
+        stage.setFullScreen(true);
+        // KioskFrame kioskFrame = new KioskFrame();
+        LoginFrame loginFrame=new LoginFrame();
+        loginFrame.showOn(stage);
     }
 }

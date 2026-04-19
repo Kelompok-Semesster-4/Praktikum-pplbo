@@ -1,123 +1,43 @@
 package com.library.app.model;
 
 import com.library.app.model.enums.LoanStatus;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
 
 public class Loan {
-    private Long id;
-    private Long memberId;
-    private Long copyId;
-    private String memberCode;
-    private String memberName;
-    private String copyCode;
-    private String bookTitle;
+    private long id;
+    private long memberId;
+    private long copyId;
     private LocalDate loanDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
     private BigDecimal fineAmount = BigDecimal.ZERO;
-    private LoanStatus status;
+    private LoanStatus status = LoanStatus.ACTIVE;
+    
+    public Loan() {}
 
-    public Loan() {
+    public Loan(long id, long memberId, long copyId, LocalDate loanDate, LocalDate dueDate, LocalDate returnDate,
+            BigDecimal fineAmount, LoanStatus status) {
+        this.id = id;
+        this.memberId = memberId;
+        this.copyId = copyId;
+        this.loanDate = loanDate;
+        this.dueDate = dueDate;
+        this.returnDate = returnDate;
+        this.fineAmount = fineAmount;
+        this.status = status;
     }
 
-    public boolean isOverdue(LocalDate today) {
-        return dueDate != null && today.isAfter(dueDate);
-    }
-
-    public long calculateLateDays(LocalDate today) {
-        if (!isOverdue(today)) {
-            return 0;
-        }
-        return ChronoUnit.DAYS.between(dueDate, today);
-    }
-
-    public BigDecimal calculateFine(LocalDate today, BigDecimal dailyFine) {
-        return dailyFine.multiply(BigDecimal.valueOf(calculateLateDays(today)));
-    }
-
-    public void returnBook(LocalDate today, BigDecimal dailyFine) {
-        this.returnDate = today;
-        this.fineAmount = calculateFine(today, dailyFine);
-        this.status = LoanStatus.RETURNED;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getMemberId() {
-        return memberId;
-    }
-
-    public Long getCopyId() {
-        return copyId;
-    }
-
-    public String getMemberCode() {
-        return memberCode;
-    }
-
-    public String getMemberName() {
-        return memberName;
-    }
-
-    public String getCopyCode() {
-        return copyCode;
-    }
-
-    public String getBookTitle() {
-        return bookTitle;
-    }
-
-    public LocalDate getLoanDate() {
-        return loanDate;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public LocalDate getReturnDate() {
-        return returnDate;
-    }
-
-    public BigDecimal getFineAmount() {
-        return fineAmount;
-    }
-
-    public LoanStatus getStatus() {
-        return status;
-    }
-
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public void setMemberId(Long memberId) {
+    public void setMemberId(long memberId) {
         this.memberId = memberId;
     }
 
-    public void setCopyId(Long copyId) {
+    public void setCopyId(long copyId) {
         this.copyId = copyId;
-    }
-
-    public void setMemberCode(String memberCode) {
-        this.memberCode = memberCode;
-    }
-
-    public void setMemberName(String memberName) {
-        this.memberName = memberName;
-    }
-
-    public void setCopyCode(String copyCode) {
-        this.copyCode = copyCode;
-    }
-
-    public void setBookTitle(String bookTitle) {
-        this.bookTitle = bookTitle;
     }
 
     public void setLoanDate(LocalDate loanDate) {
@@ -138,5 +58,37 @@ public class Loan {
 
     public void setStatus(LoanStatus status) {
         this.status = status;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public long getMemberId() {
+        return memberId;
+    }
+
+    public long getCopyId() {
+        return copyId;
+    }
+
+    public LocalDate getLoanDate() {
+        return loanDate;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public LocalDate getReturnDate() {
+        return returnDate;
+    }
+
+    public BigDecimal getFineAmount() {
+        return fineAmount;
+    }
+
+    public LoanStatus getStatus() {
+        return status;
     }
 }

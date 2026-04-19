@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
-public class KioskVisitPanel {
+public class KioskVisitFxPanel {
     private final VisitService visitService = new VisitService();
 
     public Node createContent(Runnable onBack) {

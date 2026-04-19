@@ -26,4 +26,14 @@ public abstract class BaseMainFrame extends JFrame {
       add(headerLabel, BorderLayout.NORTH);
       add(tabbedPane, BorderLayout.CENTER);
    }
+
+   public boolean selectTab(String title) {
+      for (int index = 0; index < tabbedPane.getTabCount(); index++) {
+         if (title.equals(tabbedPane.getTitleAt(index))) {
+            tabbedPane.setSelectedIndex(index);
+            return true;
+         }
+      }
+      return false;
+   }
 }

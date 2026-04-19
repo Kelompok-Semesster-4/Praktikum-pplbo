@@ -1,0 +1,126 @@
+/* --- Konfigurasi Dasar --- */
+.root {
+  -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.app-root {
+  -fx-background-color: #f1f5f9; /* Abu-abu kebiruan terang untuk background layar */
+  -fx-alignment: center;
+}
+
+/* --- Container Utama Login --- */
+.login-card {
+  -fx-background-radius: 12;
+  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 20, 0.2, 0, 8);
+}
+
+/* =========================================
+   PANEL KIRI (Biru Gelap)
+   ========================================= */
+.left-panel {
+  -fx-background-color: #1e3a8a; /* Biru gelap modern */
+  -fx-background-radius: 12 0 0 12; /* Melengkung hanya di sudut kiri */
+}
+
+.brand-box {
+  -fx-alignment: center-left;
+}
+
+.brand-box .label {
+  -fx-text-fill: #ffffff;
+  -fx-font-size: 14px;
+  -fx-font-weight: 800;
+}
+
+.welcome-title {
+  -fx-text-fill: #ffffff;
+  -fx-font-size: 28px;
+  -fx-font-weight: 800;
+  -fx-padding: 20 0 5 0;
+}
+
+.welcome-desc {
+  -fx-text-fill: #bfdbfe; /* Biru muda pucat */
+  -fx-font-size: 14px;
+  -fx-line-spacing: 5px;
+}
+
+.feature-text {
+  -fx-text-fill: #e2e8f0;
+  -fx-font-size: 13.5px;
+  -fx-font-weight: 600;
+}
+
+/* =========================================
+   PANEL KANAN (Form Login Putih)
+   ========================================= */
+.right-panel {
+  -fx-background-color: #ffffff;
+  -fx-background-radius: 0 12 12 0; /* Melengkung hanya di sudut kanan */
+}
+
+.login-title {
+  -fx-font-size: 24px;
+  -fx-font-weight: 800;
+  -fx-text-fill: #111827;
+}
+
+.login-subtitle {
+  -fx-font-size: 14px;
+  -fx-text-fill: #6b7280;
+}
+
+.input-label {
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #374151;
+}
+
+/* Trik Form Input dengan Icon di dalamnya */
+.input-group {
+  -fx-border-color: #d1d5db;
+  -fx-border-radius: 8;
+  -fx-background-color: #ffffff;
+  -fx-background-radius: 8;
+  -fx-padding: 6 12 6 12;
+}
+
+/* Efek saat form input sedang diklik/diketik */
+.input-group:focused-within {
+  -fx-border-color: #3b82f6;
+  -fx-border-width: 1.5px;
+}
+
+.transparent-input {
+  -fx-background-color: transparent;
+  -fx-border-width: 0;
+  -fx-padding: 6;
+  -fx-font-size: 14px;
+  -fx-text-fill: #111827;
+}
+
+.transparent-input:focused {
+  -fx-background-color: transparent;
+  -fx-border-width: 0;
+}
+
+/* Tombol Masuk */
+.btn-login {
+  -fx-background-color: #3b82f6;
+  -fx-text-fill: #ffffff;
+  -fx-font-size: 15px;
+  -fx-font-weight: 800;
+  -fx-background-radius: 8;
+  -fx-padding: 12 0 12 0;
+  -fx-cursor: hand;
+}
+
+.btn-login:hover {
+  -fx-background-color: #2563eb;
+}
+
+.login-status {
+  -fx-text-fill: #b91c1c;
+  -fx-font-size: 12.5px;
+  -fx-font-weight: 600;
+}

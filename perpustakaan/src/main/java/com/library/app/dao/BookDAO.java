@@ -34,12 +34,12 @@ public class BookDAO {
 
     public List<BookCatalogItem> searchCatalog(String keyword) {
         List<BookCatalogItem> items = new ArrayList<>();
-        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.category, b.shelf_code, b.publication_year, " +
+        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year, " +
                 "COUNT(c.id) AS total_copies, " +
                 "SUM(CASE WHEN c.status = 'AVAILABLE' THEN 1 ELSE 0 END) AS available_copies " +
                 "FROM books b LEFT JOIN book_copies c ON c.book_id = b.id " +
                 "WHERE b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ? " +
-                "GROUP BY b.id, b.isbn, b.title, b.author, b.category, b.shelf_code, b.publication_year " +
+                "GROUP BY b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year " +
                 "ORDER BY b.title";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -54,6 +54,7 @@ public class BookDAO {
                     item.setIsbn(resultSet.getString("isbn"));
                     item.setTitle(resultSet.getString("title"));
                     item.setAuthor(resultSet.getString("author"));
+                    item.setPublisher(resultSet.getString("publisher"));
                     item.setCategory(resultSet.getString("category"));
                     item.setShelfCode(resultSet.getString("shelf_code"));
                     item.setPublicationYear(resultSet.getInt("publication_year"));
@@ -65,6 +66,50 @@ public class BookDAO {
             return items;
         } catch (SQLException exception) {
             throw new RuntimeException("Gagal mengambil katalog buku.", exception);
+        }
+    }
+
+    public void update(Book book) {
+        String sql = "UPDATE books SET isbn = ?, title = ?, author = ?, publisher = ?, publication_year = ?, " +
+                "category = ?, shelf_code = ? WHERE id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, book.getIsbn());
+            statement.setString(2, book.getTitle());
+            statement.setString(3, book.getAuthor());
+            statement.setString(4, book.getPublisher());
+            statement.setInt(5, book.getPublicationYear());
+            statement.setString(6, book.getCategory());
+            statement.setString(7, book.getShelfCode());
+            statement.setLong(8, book.getId());
+
+            int updated = statement.executeUpdate();
+            if (updated == 0) {
+                throw new IllegalArgumentException("Buku tidak ditemukan.");
+            }
+        } catch (SQLException exception) {
+            if (isDuplicateIsbn(exception)) {
+                throw new IllegalArgumentException("ISBN sudah digunakan buku lain.");
+            }
+            throw new RuntimeException("Gagal memperbarui buku.", exception);
+        }
+    }
+
+    private boolean isDuplicateIsbn(SQLException exception) {
+        return "23000".equals(exception.getSQLState()) || exception.getErrorCode() == 1062;
+    }
+
+    public void deleteById(long bookId) {
+        String sql = "DELETE FROM books WHERE id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, bookId);
+            int deleted = statement.executeUpdate();
+            if (deleted == 0) {
+                throw new IllegalArgumentException("Buku tidak ditemukan.");
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal menghapus buku.", exception);
         }
     }
 
