@@ -2,6 +2,7 @@ package com.library.app.service;
 
 import com.library.app.dao.BookCopyDAO;
 import com.library.app.dao.BookDAO;
+import com.library.app.dao.LoanDAO;
 import com.library.app.model.Book;
 import com.library.app.model.BookCatalogItem;
 import com.library.app.util.ValidationUtil;
@@ -11,6 +12,7 @@ import java.util.List;
 public class BookService {
     private final BookDAO bookDAO = new BookDAO();
     private final BookCopyDAO bookCopyDAO = new BookCopyDAO();
+    private final LoanDAO loanDAO = new LoanDAO();
 
     public Book addBook(String isbn, String title, String author, String publisher,
                         int publicationYear, String category, String shelfCode, int totalCopies) {
@@ -57,5 +59,17 @@ public class BookService {
         book.setCategory(category == null ? "" : category.trim());
         book.setShelfCode(shelfCode == null ? "" : shelfCode.trim());
         bookDAO.update(book);
+    }
+
+    public void deleteBook(long bookId) {
+        if (bookId <= 0) {
+            throw new IllegalArgumentException("Data buku tidak valid.");
+        }
+        if (loanDAO.hasLoanHistoryByBookId(bookId)) {
+            throw new IllegalArgumentException("Buku tidak dapat dihapus karena sudah memiliki riwayat peminjaman.");
+        }
+
+        bookCopyDAO.deleteByBookId(bookId);
+        bookDAO.deleteById(bookId);
     }
 }

@@ -60,6 +60,22 @@ public class LoanDAO {
         }
     }
 
+    public boolean hasLoanHistoryByBookId(long bookId) {
+        String sql = "SELECT COUNT(*) FROM loans l " +
+                "JOIN book_copies c ON c.id = l.copy_id " +
+                "WHERE c.book_id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, bookId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getInt(1) > 0;
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal memeriksa riwayat peminjaman buku.", exception);
+        }
+    }
+
     public Optional<Loan> findActiveLoanByCopyCode(String copyCode) {
         String sql = "SELECT l.id, l.member_id, l.copy_id, m.member_code, m.name AS member_name, " +
                 "c.copy_code, b.title AS book_title, l.loan_date, l.due_date, l.return_date, l.fine_amount, l.status " +
