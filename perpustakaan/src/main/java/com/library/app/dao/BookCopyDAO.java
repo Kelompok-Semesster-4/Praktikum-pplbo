@@ -94,6 +94,17 @@ public class BookCopyDAO {
         }
     }
 
+    public void deleteByBookId(long bookId) {
+        String sql = "DELETE FROM book_copies WHERE book_id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, bookId);
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal menghapus eksemplar buku.", exception);
+        }
+    }
+
     private String generateCopyCode(long bookId, int index) {
         return String.format("CPY-%05d-%03d", bookId, index);
     }

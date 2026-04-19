@@ -99,6 +99,20 @@ public class BookDAO {
         return "23000".equals(exception.getSQLState()) || exception.getErrorCode() == 1062;
     }
 
+    public void deleteById(long bookId) {
+        String sql = "DELETE FROM books WHERE id = ?";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, bookId);
+            int deleted = statement.executeUpdate();
+            if (deleted == 0) {
+                throw new IllegalArgumentException("Buku tidak ditemukan.");
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal menghapus buku.", exception);
+        }
+    }
+
     public int countBooks() {
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM books");

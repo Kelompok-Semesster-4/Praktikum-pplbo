@@ -15,6 +15,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -341,7 +343,7 @@ public class BookManagementPanel {
                 editButton.setOnAction(event -> openEditBookDialog(item));
 
                 Button deleteButton = createIconActionButton(createDeleteIcon(), "book-action-delete", "Hapus buku");
-                deleteButton.setOnAction(event -> showInfo("Fitur hapus buku masih dalam pengembangan."));
+                deleteButton.setOnAction(event -> openDeleteBookDialog(item));
 
                 HBox actions = new HBox(8, editButton, deleteButton);
                 actions.setAlignment(Pos.CENTER);
@@ -495,6 +497,27 @@ public class BookManagementPanel {
         addBookModalOverlay = buildEditBookModalOverlay(selectedBook);
         modalHost = host;
         modalHost.getChildren().add(addBookModalOverlay);
+    }
+
+    private void openDeleteBookDialog(BookCatalogItem selectedBook) {
+        if (selectedBook == null || selectedBook.getBookId() == null) {
+            showError("Data buku tidak valid.");
+            return;
+        }
+
+        String displayTitle = safe(selectedBook.getTitle(), "Tanpa Judul");
+        boolean confirmed = showDeleteConfirmation(displayTitle);
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            bookService.deleteBook(selectedBook.getBookId());
+            refreshData();
+            showInfo("Buku berhasil dihapus.");
+        } catch (Exception exception) {
+            showError(resolveErrorMessage(exception));
+        }
     }
 
     private void closeAddBookDialog() {
@@ -855,5 +878,30 @@ public class BookManagementPanel {
             alert.initOwner(owner);
         }
         alert.showAndWait();
+    }
+
+    private boolean showDeleteConfirmation(String bookTitle) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Konfirmasi Hapus Buku");
+        alert.setHeaderText("Hapus buku \"" + bookTitle + "\"?");
+
+        Label contentLabel = new Label("Aksi ini akan menghapus data buku dan seluruh eksemplarnya.");
+        contentLabel.setWrapText(true);
+        contentLabel.setMaxWidth(420);
+        alert.getDialogPane().setContent(contentLabel);
+        alert.getDialogPane().setPrefWidth(480);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+        ButtonType cancelButton = new ButtonType("Batal", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType deleteButton = new ButtonType("Hapus", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(cancelButton, deleteButton);
+
+        Window owner = root == null || root.getScene() == null ? null : root.getScene().getWindow();
+        if (owner != null) {
+            alert.initOwner(owner);
+        }
+
+        ButtonType chosen = alert.showAndWait().orElse(cancelButton);
+        return chosen == deleteButton;
     }
 }
