@@ -78,6 +78,7 @@ public final class DatabaseInitializer {
                         visitor_name VARCHAR(100) NOT NULL,
                         visitor_identifier VARCHAR(50),
                         visit_type VARCHAR(20) NOT NULL,
+                        visit_status VARCHAR(20) NOT NULL DEFAULT 'SELESAI',
                         institution VARCHAR(150),
                         purpose VARCHAR(255),
                         visit_date DATE NOT NULL,
@@ -164,6 +165,7 @@ public final class DatabaseInitializer {
             ensureColumnExists(connection, "feedbacks", "status", "ALTER TABLE feedbacks ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'NEW' AFTER message");
             ensureColumnExists(connection, "feedbacks", "response_note", "ALTER TABLE feedbacks ADD COLUMN response_note TEXT NULL AFTER status");
             ensureColumnExists(connection, "feedbacks", "responded_at", "ALTER TABLE feedbacks ADD COLUMN responded_at TIMESTAMP NULL AFTER created_at");
+            ensureColumnExists(connection, "visits", "visit_status", "ALTER TABLE visits ADD COLUMN visit_status VARCHAR(20) NOT NULL DEFAULT 'SELESAI' AFTER visit_type");
             ensureColumnExists(connection, "procurement_requests", "publisher", "ALTER TABLE procurement_requests ADD COLUMN publisher VARCHAR(150) NULL AFTER author");
             ensureColumnExists(connection, "procurement_requests", "publication_year", "ALTER TABLE procurement_requests ADD COLUMN publication_year INT NULL AFTER publisher");
             ensureColumnExists(connection, "procurement_requests", "isbn", "ALTER TABLE procurement_requests ADD COLUMN isbn VARCHAR(30) NULL AFTER publication_year");

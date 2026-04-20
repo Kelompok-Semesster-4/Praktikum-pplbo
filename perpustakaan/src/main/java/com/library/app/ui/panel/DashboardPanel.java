@@ -1062,15 +1062,16 @@ class AdminDashboardFxApp extends Application {
             items.getChildren().add(createEmptyItem("Belum ada kunjungan hari ini."));
         } else {
             for (String[] row : rows) {
-                String status = "MEMBER".equalsIgnoreCase(row[2]) ? "Di dalam" : "Selesai";
-                Label badge = createStatusBadge(status, "Di dalam".equals(status) ? "success" : "muted");
+                boolean isInside = "DI_DALAM".equalsIgnoreCase(safeValue(row[3]));
+                String status = isInside ? "Di dalam" : "Selesai";
+                Label badge = createStatusBadge(status, isInside ? "success" : "muted");
                 String iconClass = "MEMBER".equalsIgnoreCase(row[2]) ? "item-icon-member" : "item-icon-guest";
                 Node item = createListItem(
                         "MEMBER".equalsIgnoreCase(row[2]) ? "\uD83C\uDF93" : "\uD83D\uDC64",
                         iconClass,
                         row[0],
                         "ID: " + row[1],
-                        "Jam: " + safeValue(row[3]),
+                        "Jam: " + safeValue(row[4]),
                         badge);
                 items.getChildren().add(item);
             }

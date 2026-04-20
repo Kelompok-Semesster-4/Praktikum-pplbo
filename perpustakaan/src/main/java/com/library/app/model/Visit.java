@@ -1,5 +1,6 @@
 package com.library.app.model;
 
+import com.library.app.model.enums.VisitPresenceStatus;
 import com.library.app.model.enums.VisitType;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ public class Visit {
     private String visitorName;
     private String visitorIdentifier;
     private VisitType visitType;
+    private VisitPresenceStatus visitStatus;
     private String institution;
     private String purpose;
     private LocalDate visitDate;
@@ -18,12 +20,13 @@ public class Visit {
     }
 
     public Visit(Long id, Long memberId, String visitorName, String visitorIdentifier, VisitType visitType,
-                 String institution, String purpose, LocalDate visitDate) {
+                 VisitPresenceStatus visitStatus, String institution, String purpose, LocalDate visitDate) {
         this.id = id;
         this.memberId = memberId;
         this.visitorName = visitorName;
         this.visitorIdentifier = visitorIdentifier;
         this.visitType = visitType;
+        this.visitStatus = visitStatus;
         this.institution = institution;
         this.purpose = purpose;
         this.visitDate = visitDate;
@@ -47,6 +50,10 @@ public class Visit {
 
     public VisitType getVisitType() {
         return visitType;
+    }
+
+    public VisitPresenceStatus getVisitStatus() {
+        return visitStatus;
     }
 
     public String getInstitution() {
@@ -79,6 +86,10 @@ public class Visit {
 
     public void setVisitType(VisitType visitType) {
         this.visitType = visitType;
+    }
+
+    public void setVisitStatus(VisitPresenceStatus visitStatus) {
+        this.visitStatus = visitStatus;
     }
 
     public void setInstitution(String institution) {

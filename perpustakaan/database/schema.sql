@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS visits (
     visitor_name VARCHAR(100) NOT NULL,
     visitor_identifier VARCHAR(50),
     visit_type VARCHAR(20) NOT NULL,
+    visit_status VARCHAR(20) NOT NULL DEFAULT 'SELESAI',
     institution VARCHAR(150),
     purpose VARCHAR(255),
     visit_date DATE NOT NULL,

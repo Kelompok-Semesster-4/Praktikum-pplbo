@@ -1,6 +1,7 @@
 package com.library.app.ui.panel;
 
 import com.library.app.model.Visit;
+import com.library.app.model.enums.VisitPresenceStatus;
 import com.library.app.service.VisitService;
 import com.library.app.util.DateUtil;
 import com.library.app.util.UiUtil;
@@ -19,7 +20,7 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
     private final JTextField guestPurposeField = new JTextField();
 
     private final DefaultTableModel tableModel = new DefaultTableModel(
-            new Object[]{"Tanggal", "Tipe", "Nama", "Identitas", "Instansi", "Keperluan"}, 0);
+            new Object[]{"Tanggal", "Tipe", "Status", "Nama", "Identitas", "Instansi", "Keperluan"}, 0);
 
     public VisitPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -32,10 +33,10 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
         JPanel container = new JPanel(new GridLayout(1, 2, 10, 10));
 
         JPanel memberPanel = new JPanel(new GridLayout(0, 1, 6, 6));
-        memberPanel.setBorder(BorderFactory.createTitledBorder("Absen Mahasiswa / Dosen"));
-        memberPanel.add(new JLabel("Masukkan NIM/NIS/NIDN"));
+        memberPanel.setBorder(BorderFactory.createTitledBorder("Absen Member (Masuk/Keluar)"));
+        memberPanel.add(new JLabel("Masukkan NIM/NIS/NIDN (scan 2x: masuk lalu keluar)"));
         memberPanel.add(memberCodeField);
-        JButton memberButton = new JButton("Catat Kunjungan");
+        JButton memberButton = new JButton("Proses Absen Masuk/Keluar");
         memberButton.addActionListener(event -> recordMemberVisit());
         memberPanel.add(memberButton);
 
@@ -58,8 +59,8 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
 
     private void recordMemberVisit() {
         try {
-            visitService.recordMemberVisit(memberCodeField.getText());
-            UiUtil.showInfo(this, "Kunjungan anggota berhasil dicatat.");
+            String message = visitService.recordMemberVisit(memberCodeField.getText());
+            UiUtil.showInfo(this, message);
             memberCodeField.setText("");
             refreshData();
         } catch (Exception exception) {
@@ -88,11 +89,19 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
             tableModel.addRow(new Object[]{
                     DateUtil.format(visit.getVisitDate()),
                     visit.getVisitType(),
+                    formatVisitStatus(visit.getVisitStatus()),
                     visit.getVisitorName(),
                     visit.getVisitorIdentifier(),
                     visit.getInstitution(),
                     visit.getPurpose()
             });
         }
+    }
+
+    private String formatVisitStatus(VisitPresenceStatus status) {
+        if (status == VisitPresenceStatus.DI_DALAM) {
+            return "Di dalam";
+        }
+        return "Selesai";
     }
 }

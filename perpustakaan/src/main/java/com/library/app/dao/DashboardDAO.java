@@ -151,7 +151,7 @@ public class DashboardDAO {
 
     public List<String[]> findTodayVisits(int limit) {
         List<String[]> rows = new ArrayList<>();
-        String sql = "SELECT visitor_name, COALESCE(visitor_identifier, '-') AS visitor_identifier, visit_type, " +
+        String sql = "SELECT visitor_name, COALESCE(visitor_identifier, '-') AS visitor_identifier, visit_type, visit_status, " +
                 "DATE_FORMAT(created_at, '%H:%i') AS visit_time " +
                 "FROM visits " +
                 "WHERE visit_date = CURDATE() " +
@@ -163,11 +163,12 @@ public class DashboardDAO {
             statement.setInt(1, limit);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    String[] row = new String[4];
+                    String[] row = new String[5];
                     row[0] = resultSet.getString("visitor_name");
                     row[1] = resultSet.getString("visitor_identifier");
                     row[2] = resultSet.getString("visit_type");
-                    row[3] = resultSet.getString("visit_time");
+                    row[3] = resultSet.getString("visit_status");
+                    row[4] = resultSet.getString("visit_time");
                     rows.add(row);
                 }
             }
