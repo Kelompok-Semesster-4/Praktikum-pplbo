@@ -163,7 +163,7 @@ public class KioskFrame {
 
     private void enforceKioskFullscreen(Stage hostStage) {
         hostStage.setMaximized(true);
-        hostStage.setFullScreenExitHint("Tekan ESC untuk keluar mode layar penuh");
+        hostStage.setFullScreenExitHint("");
         hostStage.setFullScreen(true);
 
         Platform.runLater(() -> {
