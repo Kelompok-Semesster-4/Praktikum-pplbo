@@ -6,6 +6,7 @@ import com.library.app.model.enums.FeedbackStatus;
 import com.library.app.model.enums.RequestStatus;
 import com.library.app.service.FeedbackService;
 import com.library.app.service.ProcurementService;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -31,6 +32,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class AdminFeedbackRequestPanel {
+    private static final double FEEDBACK_DETAIL_BASELINE_HEIGHT = 520;
+    private static final double PROCUREMENT_DETAIL_BASELINE_HEIGHT = 620;
+
     private enum TabType {
         FEEDBACK, PROCUREMENT
     }
@@ -44,6 +48,8 @@ public class AdminFeedbackRequestPanel {
     private final BorderPane root = new BorderPane();
     private final VBox listContainer = new VBox(10);
     private final VBox detailContainer = new VBox();
+    private VBox leftPane;
+    private ScrollPane listScrollPane;
     private final Button feedbackTabButton = new Button();
     private final Button procurementTabButton = new Button();
     private final Label sectionTitle = new Label();
@@ -75,18 +81,14 @@ public class AdminFeedbackRequestPanel {
                 selectedFeedback = feedbacks.stream()
                         .filter(item -> item.getId().equals(selectedFeedback.getId()))
                         .findFirst()
-                        .orElse(feedbacks.isEmpty() ? null : feedbacks.get(0));
-            } else if (!feedbacks.isEmpty()) {
-                selectedFeedback = feedbacks.get(0);
+                        .orElse(null);
             }
         } else {
             if (selectedRequest != null) {
                 selectedRequest = requests.stream()
                         .filter(item -> item.getId().equals(selectedRequest.getId()))
                         .findFirst()
-                        .orElse(requests.isEmpty() ? null : requests.get(0));
-            } else if (!requests.isEmpty()) {
-                selectedRequest = requests.get(0);
+                        .orElse(null);
             }
         }
 
@@ -97,7 +99,13 @@ public class AdminFeedbackRequestPanel {
     private Node buildContent() {
         VBox wrapper = new VBox(16);
         wrapper.setPadding(Insets.EMPTY);
-        wrapper.getChildren().addAll(buildHeader(), buildBodyArea());
+        wrapper.setFillWidth(true);
+        wrapper.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        Node bodyArea = buildBodyArea();
+        VBox.setVgrow(bodyArea, Priority.ALWAYS);
+
+        wrapper.getChildren().addAll(buildHeader(), bodyArea);
         return wrapper;
     }
 
@@ -108,7 +116,7 @@ public class AdminFeedbackRequestPanel {
         Label title = new Label("Feedback & Permintaan");
         title.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #0F172A;");
 
-        Label subtitle = new Label("Kelola masukan pengguna kiosk dan tinjau usulan pengadaan buku dari satu halaman.");
+        Label subtitle = new Label("Kelola masukan pengguna kiosk dan tinjau usulan pengadaan buku");
         subtitle.setWrapText(true);
         subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748B;");
 
@@ -121,32 +129,45 @@ public class AdminFeedbackRequestPanel {
 
     private Node buildBodyArea() {
         HBox content = new HBox(18);
-        content.setFillHeight(true);
+        content.setAlignment(Pos.TOP_LEFT);
+        content.setFillHeight(false);
+        content.setMaxWidth(Double.MAX_VALUE);
 
-        VBox leftPane = new VBox(14);
+        leftPane = new VBox(14);
         leftPane.setPrefWidth(380);
         leftPane.setMinWidth(340);
         leftPane.setPadding(new Insets(22));
         leftPane.setStyle(panelStyle());
+        leftPane.setFillWidth(true);
+        leftPane.setMinHeight(Region.USE_PREF_SIZE);
+        leftPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
 
         sectionTitle.setStyle("-fx-font-size: 19px; -fx-font-weight: 800; -fx-text-fill: #0F172A;");
         sectionSubtitle.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
         sectionSubtitle.setWrapText(true);
 
-        ScrollPane scrollPane = new ScrollPane(listContainer);
-        scrollPane.getStyleClass().add("app-scroll");
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background-insets: 0;");
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        listScrollPane = new ScrollPane(listContainer);
+        listScrollPane.getStyleClass().add("app-scroll");
+        listScrollPane.setFitToWidth(true);
+        listScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        listScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        listScrollPane.setStyle("-fx-background-color: transparent; -fx-background-insets: 0;");
+        VBox.setVgrow(listScrollPane, Priority.ALWAYS);
 
-        leftPane.getChildren().addAll(sectionTitle, sectionSubtitle, scrollPane);
+        leftPane.getChildren().addAll(sectionTitle, sectionSubtitle, listScrollPane);
 
         detailContainer.setPadding(new Insets(24));
         detailContainer.setSpacing(16);
         detailContainer.setStyle(panelStyle());
+        detailContainer.setFillWidth(true);
+        detailContainer.setMinHeight(Region.USE_PREF_SIZE);
+        detailContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
         HBox.setHgrow(detailContainer, Priority.ALWAYS);
+
+        leftPane.prefHeightProperty().bind(detailContainer.heightProperty());
+        leftPane.minHeightProperty().bind(detailContainer.heightProperty());
+        listScrollPane.prefViewportHeightProperty()
+            .bind(Bindings.max(180.0, detailContainer.heightProperty().subtract(130.0)));
 
         content.getChildren().addAll(leftPane, detailContainer);
         return content;
@@ -159,9 +180,6 @@ public class AdminFeedbackRequestPanel {
         feedbackTabButton.setStyle(tabButtonStyle(activeTab == TabType.FEEDBACK));
         feedbackTabButton.setOnAction(event -> {
             activeTab = TabType.FEEDBACK;
-            if (selectedFeedback == null && !feedbacks.isEmpty()) {
-                selectedFeedback = feedbacks.get(0);
-            }
             renderTabButtons();
             renderBody();
         });
@@ -172,9 +190,6 @@ public class AdminFeedbackRequestPanel {
         procurementTabButton.setStyle(tabButtonStyle(activeTab == TabType.PROCUREMENT));
         procurementTabButton.setOnAction(event -> {
             activeTab = TabType.PROCUREMENT;
-            if (selectedRequest == null && !requests.isEmpty()) {
-                selectedRequest = requests.get(0);
-            }
             renderTabButtons();
             renderBody();
         });
@@ -201,6 +216,7 @@ public class AdminFeedbackRequestPanel {
 
     private void renderBody() {
         if (activeTab == TabType.FEEDBACK) {
+            applyDetailContainerHeight(FEEDBACK_DETAIL_BASELINE_HEIGHT);
             sectionTitle.setText("Daftar Feedback");
             sectionSubtitle.setText(feedbacks.isEmpty()
                     ? "Belum ada feedback dari pengguna kiosk."
@@ -210,12 +226,18 @@ public class AdminFeedbackRequestPanel {
             return;
         }
 
+        applyDetailContainerHeight(PROCUREMENT_DETAIL_BASELINE_HEIGHT);
         sectionTitle.setText("Daftar Permintaan Buku");
         sectionSubtitle.setText(requests.isEmpty()
                 ? "Belum ada usulan pengadaan buku."
                 : requests.size() + " usulan tercatat. Tinjau detail lalu setujui atau tolak.");
         renderRequestList();
         renderRequestDetail();
+    }
+
+    private void applyDetailContainerHeight(double baselineHeight) {
+        detailContainer.setMinHeight(baselineHeight);
+        detailContainer.setPrefHeight(baselineHeight);
     }
 
     private void renderFeedbackList() {
@@ -231,6 +253,9 @@ public class AdminFeedbackRequestPanel {
             itemButton.setMaxWidth(Double.MAX_VALUE);
             itemButton.setAlignment(Pos.TOP_LEFT);
             itemButton.setWrapText(true);
+            itemButton.setMinHeight(Region.USE_PREF_SIZE);
+            itemButton.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            itemButton.setMaxHeight(Region.USE_PREF_SIZE);
             itemButton.setGraphic(buildFeedbackListItem(feedback));
             itemButton.setStyle(
                     listItemStyle(selectedFeedback != null && feedback.getId().equals(selectedFeedback.getId())));
@@ -275,9 +300,10 @@ public class AdminFeedbackRequestPanel {
 
     private void renderFeedbackDetail() {
         detailContainer.getChildren().clear();
+        detailContainer.setAlignment(Pos.TOP_LEFT);
 
         if (selectedFeedback == null) {
-            detailContainer.getChildren().add(createEmptyState("Pilih feedback untuk melihat detailnya."));
+            detailContainer.getChildren().add(createDetailPlaceholder("\uD83D\uDCAC", "Pilih feedback untuk melihat detail"));
             return;
         }
 
@@ -372,6 +398,10 @@ public class AdminFeedbackRequestPanel {
             Button itemButton = new Button();
             itemButton.setMaxWidth(Double.MAX_VALUE);
             itemButton.setAlignment(Pos.TOP_LEFT);
+            itemButton.setWrapText(true);
+            itemButton.setMinHeight(Region.USE_PREF_SIZE);
+            itemButton.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            itemButton.setMaxHeight(Region.USE_PREF_SIZE);
             itemButton.setGraphic(buildRequestListItem(request));
             itemButton.setStyle(
                     listItemStyle(selectedRequest != null && request.getId().equals(selectedRequest.getId())));
@@ -417,12 +447,7 @@ public class AdminFeedbackRequestPanel {
         detailContainer.setAlignment(Pos.TOP_LEFT);
 
         if (selectedRequest == null) {
-            Node emptyState = createEmptyState("Pilih permintaan buku untuk melihat detailnya.");
-            StackPane centeredState = new StackPane(emptyState);
-            centeredState.setAlignment(Pos.CENTER);
-            centeredState.setMaxWidth(Double.MAX_VALUE);
-            VBox.setVgrow(centeredState, Priority.ALWAYS);
-            detailContainer.getChildren().add(centeredState);
+            detailContainer.getChildren().add(createDetailPlaceholder("\uD83D\uDCE6", "Pilih permintaan untuk melihat detail"));
             return;
         }
 
@@ -541,6 +566,25 @@ public class AdminFeedbackRequestPanel {
 
         box.getChildren().addAll(title, text);
         return box;
+    }
+
+    private Node createDetailPlaceholder(String icon, String message) {
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 32px; -fx-text-fill: #9CA3AF;");
+
+        Label textLabel = new Label(message);
+        textLabel.setWrapText(true);
+        textLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+
+        VBox content = new VBox(10, iconLabel, textLabel);
+        content.setAlignment(Pos.CENTER);
+
+        StackPane placeholder = new StackPane(content);
+        placeholder.setAlignment(Pos.CENTER);
+        placeholder.setMinHeight(340);
+        placeholder.setMaxWidth(Double.MAX_VALUE);
+        VBox.setVgrow(placeholder, Priority.ALWAYS);
+        return placeholder;
     }
 
     private Label buildStatusChip(FeedbackStatus status) {
