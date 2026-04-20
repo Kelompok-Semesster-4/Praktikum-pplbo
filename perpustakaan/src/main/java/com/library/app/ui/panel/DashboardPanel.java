@@ -763,7 +763,7 @@ class AdminDashboardFxApp extends Application {
         VBox header = new VBox(4);
         Label title = new Label("Dashboard");
         title.getStyleClass().add("section-title");
-        Label subtitle = new Label("Ringkasan operasional perpustakaan hari ini");
+        Label subtitle = new Label("Ringkasan operasional perpustakaan");
         subtitle.getStyleClass().add("section-subtitle");
         header.getChildren().addAll(title, subtitle);
         return header;
