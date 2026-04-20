@@ -181,10 +181,14 @@ class AdminDashboardFxApp extends Application {
         stage.setHeight(760);
         stage.setMinWidth(980);
         stage.setMinHeight(620);
-        stage.setFullScreen(false);
-        stage.setMaximized(true);
+        stage.setFullScreenExitHint("");
+        stage.setMaximized(false);
         stage.setScene(scene);
         stage.centerOnScreen();
+        Platform.runLater(() -> {
+            stage.setFullScreenExitHint("");
+            stage.setFullScreen(true);
+        });
         if (!stageAlreadyVisible) {
             stage.show();
         }
@@ -1260,10 +1264,25 @@ class AdminDashboardFxApp extends Application {
             return;
         }
         if ("Mode Kiosk".equals(menuName)) {
-            new KioskFrame().setVisible(true);
+            showKioskOnCurrentStage();
             return;
         }
         showInfo("Menu " + menuName + " sedang dimigrasi ke JavaFX.");
+    }
+
+    private void showKioskOnCurrentStage() {
+        Stage currentStage = null;
+        if (contentSwitcher != null && contentSwitcher.getScene() != null
+                && contentSwitcher.getScene().getWindow() instanceof Stage stage) {
+            currentStage = stage;
+        }
+
+        if (currentStage != null) {
+            new KioskFrame().showOn(currentStage);
+            return;
+        }
+
+        new KioskFrame().setVisible(true);
     }
 
     private void setActiveMenu(String menuName) {

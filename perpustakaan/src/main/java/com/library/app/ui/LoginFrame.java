@@ -28,6 +28,7 @@ public class LoginFrame {
     public void showOn(Stage stage) {
         this.stage = stage;
         stage.setTitle("Login - Sistem Manajemen Perpustakaan");
+        stage.setFullScreenExitHint("");
 
         // Container utama (Background abu-abu kebiruan)
         StackPane root = new StackPane();
