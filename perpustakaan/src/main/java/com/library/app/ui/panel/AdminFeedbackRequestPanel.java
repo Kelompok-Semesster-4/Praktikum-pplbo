@@ -30,14 +30,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class AdminFeedbackRequestPanel {
-    private enum TabType { FEEDBACK, PROCUREMENT }
+    private enum TabType {
+        FEEDBACK, PROCUREMENT
+    }
 
     private final FeedbackService feedbackService = new FeedbackService();
     private final ProcurementService procurementService = new ProcurementService();
-    private final DateTimeFormatter listFormatter =
-            DateTimeFormatter.ofPattern("dd MMM yyyy", new Locale("id", "ID"));
-    private final DateTimeFormatter detailFormatter =
-            DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy • HH:mm", new Locale("id", "ID"));
+    private final DateTimeFormatter listFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", new Locale("id", "ID"));
+    private final DateTimeFormatter detailFormatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy • HH:mm",
+            new Locale("id", "ID"));
 
     private final BorderPane root = new BorderPane();
     private final VBox listContainer = new VBox(10);
@@ -153,8 +154,7 @@ public class AdminFeedbackRequestPanel {
     private void renderTabButtons() {
         feedbackTabButton.setGraphic(buildTabGraphic(
                 "Feedback Kiosk",
-                countFeedbackNeedingAttention()
-        ));
+                countFeedbackNeedingAttention()));
         feedbackTabButton.setStyle(tabButtonStyle(activeTab == TabType.FEEDBACK));
         feedbackTabButton.setOnAction(event -> {
             activeTab = TabType.FEEDBACK;
@@ -167,8 +167,7 @@ public class AdminFeedbackRequestPanel {
 
         procurementTabButton.setGraphic(buildTabGraphic(
                 "Permintaan Buku",
-                countPendingRequests()
-        ));
+                countPendingRequests()));
         procurementTabButton.setStyle(tabButtonStyle(activeTab == TabType.PROCUREMENT));
         procurementTabButton.setOnAction(event -> {
             activeTab = TabType.PROCUREMENT;
@@ -192,8 +191,7 @@ public class AdminFeedbackRequestPanel {
             Label badge = new Label(String.valueOf(badgeCount));
             badge.setStyle(
                     "-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: 800;" +
-                    "-fx-background-radius: 999; -fx-padding: 4 8 4 8;"
-            );
+                            "-fx-background-radius: 999; -fx-padding: 4 8 4 8;");
             box.getChildren().add(badge);
         }
 
@@ -233,7 +231,8 @@ public class AdminFeedbackRequestPanel {
             itemButton.setAlignment(Pos.TOP_LEFT);
             itemButton.setWrapText(true);
             itemButton.setGraphic(buildFeedbackListItem(feedback));
-            itemButton.setStyle(listItemStyle(selectedFeedback != null && feedback.getId().equals(selectedFeedback.getId())));
+            itemButton.setStyle(
+                    listItemStyle(selectedFeedback != null && feedback.getId().equals(selectedFeedback.getId())));
             itemButton.setOnAction(event -> {
                 selectedFeedback = feedback;
                 renderFeedbackList();
@@ -262,8 +261,7 @@ public class AdminFeedbackRequestPanel {
         ratingLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #F59E0B; -fx-font-weight: 700;");
 
         Label metaLabel = new Label(
-                safeText(feedback.getSenderName(), "Pengguna kiosk") + " • " + formatDate(feedback.getCreatedAt())
-        );
+                safeText(feedback.getSenderName(), "Pengguna kiosk") + " • " + formatDate(feedback.getCreatedAt()));
         metaLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
 
         Label previewLabel = new Label(trimText(feedback.getMessage(), 88));
@@ -292,8 +290,7 @@ public class AdminFeedbackRequestPanel {
         metaRow.getChildren().addAll(
                 buildSoftChip(toStatusLabel(selectedFeedback.getStatus())),
                 buildSoftChip("Pengirim: " + safeText(selectedFeedback.getSenderName(), "Pengguna kiosk")),
-                buildSoftChip("Rating: " + renderStars(selectedFeedback.getRating()))
-        );
+                buildSoftChip("Rating: " + renderStars(selectedFeedback.getRating())));
 
         Label timeLabel = new Label("Dikirim pada " + formatDateTime(selectedFeedback.getCreatedAt()));
         timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
@@ -333,7 +330,8 @@ public class AdminFeedbackRequestPanel {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button readButton = new Button(selectedFeedback.getStatus() == FeedbackStatus.NEW ? "Tandai Dibaca" : "Sudah Dibaca");
+        Button readButton = new Button(
+                selectedFeedback.getStatus() == FeedbackStatus.NEW ? "Tandai Dibaca" : "Sudah Dibaca");
         readButton.setDisable(selectedFeedback.getStatus() != FeedbackStatus.NEW);
         readButton.setStyle(secondaryButtonStyle());
         readButton.setOnAction(event -> {
@@ -374,7 +372,8 @@ public class AdminFeedbackRequestPanel {
             itemButton.setMaxWidth(Double.MAX_VALUE);
             itemButton.setAlignment(Pos.TOP_LEFT);
             itemButton.setGraphic(buildRequestListItem(request));
-            itemButton.setStyle(listItemStyle(selectedRequest != null && request.getId().equals(selectedRequest.getId())));
+            itemButton.setStyle(
+                    listItemStyle(selectedRequest != null && request.getId().equals(selectedRequest.getId())));
             itemButton.setOnAction(event -> {
                 selectedRequest = request;
                 renderRequestList();
@@ -401,8 +400,7 @@ public class AdminFeedbackRequestPanel {
         Label meta = new Label(joinMeta(
                 safeText(request.getAuthor(), "Pengarang belum diisi"),
                 safeText(request.getRequesterName(), "Pemohon tidak diketahui"),
-                formatDate(request.getCreatedAt())
-        ));
+                formatDate(request.getCreatedAt())));
         meta.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
 
         Label preview = new Label(trimText(request.getNote(), 90));
@@ -431,8 +429,7 @@ public class AdminFeedbackRequestPanel {
         metaRow.getChildren().addAll(
                 buildSoftChip(toRequestStatusLabel(selectedRequest.getStatus())),
                 buildSoftChip("Pemohon: " + safeText(selectedRequest.getRequesterName(), "-")),
-                buildSoftChip(formatDate(selectedRequest.getCreatedAt()))
-        );
+                buildSoftChip(formatDate(selectedRequest.getCreatedAt())));
 
         GridPane detailGrid = new GridPane();
         detailGrid.setHgap(14);
@@ -452,8 +449,9 @@ public class AdminFeedbackRequestPanel {
         detailGrid.add(buildInfoCard("Penerbit", safeText(selectedRequest.getPublisher(), "-")), 1, 0);
         detailGrid.add(buildInfoCard(
                 "Tahun Terbit",
-                selectedRequest.getPublicationYear() == null ? "-" : String.valueOf(selectedRequest.getPublicationYear())
-        ), 0, 1);
+                selectedRequest.getPublicationYear() == null ? "-"
+                        : String.valueOf(selectedRequest.getPublicationYear())),
+                0, 1);
         detailGrid.add(buildInfoCard("ISBN", safeText(selectedRequest.getIsbn(), "-")), 1, 1);
         detailGrid.add(buildInfoCard("Alasan Permintaan", safeText(selectedRequest.getNote(), "-")), 0, 2, 2, 1);
 
@@ -542,8 +540,7 @@ public class AdminFeedbackRequestPanel {
         Label chip = new Label(toStatusLabel(status));
         chip.setStyle(statusChipStyle(
                 status == FeedbackStatus.NEW ? "#FEE2E2" : status == FeedbackStatus.RESPONDED ? "#DCFCE7" : "#E0E7FF",
-                status == FeedbackStatus.NEW ? "#B91C1C" : status == FeedbackStatus.RESPONDED ? "#166534" : "#1D4ED8"
-        ));
+                status == FeedbackStatus.NEW ? "#B91C1C" : status == FeedbackStatus.RESPONDED ? "#166534" : "#1D4ED8"));
         return chip;
     }
 
@@ -551,10 +548,10 @@ public class AdminFeedbackRequestPanel {
         Label chip = new Label(toRequestStatusLabel(status));
         String background = status == RequestStatus.PENDING ? "#FEF3C7"
                 : status == RequestStatus.APPROVED ? "#DCFCE7"
-                : "#FEE2E2";
+                        : "#FEE2E2";
         String foreground = status == RequestStatus.PENDING ? "#92400E"
                 : status == RequestStatus.APPROVED ? "#166534"
-                : "#B91C1C";
+                        : "#B91C1C";
         chip.setStyle(statusChipStyle(background, foreground));
         return chip;
     }
@@ -563,8 +560,7 @@ public class AdminFeedbackRequestPanel {
         Label chip = new Label(text);
         chip.setStyle(
                 "-fx-background-color: #F1F5F9; -fx-text-fill: #334155; -fx-font-size: 12px;" +
-                "-fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 6 12 6 12;"
-        );
+                        "-fx-font-weight: 700; -fx-background-radius: 999; -fx-padding: 6 12 6 12;");
         return chip;
     }
 
@@ -591,7 +587,7 @@ public class AdminFeedbackRequestPanel {
 
     private String panelStyle() {
         return "-fx-background-color: white; -fx-background-radius: 22; -fx-border-radius: 22;" +
-               "-fx-border-color: #E2E8F0; -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.06), 18, 0, 0, 8);";
+                "-fx-border-color: #E2E8F0; -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.06), 18, 0, 0, 8);";
     }
 
     private String innerCardStyle() {
@@ -600,39 +596,40 @@ public class AdminFeedbackRequestPanel {
 
     private String listItemStyle(boolean active) {
         return "-fx-background-color: " + (active ? "#EFF6FF" : "white") + ";" +
-               "-fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: " +
-               (active ? "#60A5FA" : "#E2E8F0") + "; -fx-padding: 16; -fx-cursor: hand;";
+                "-fx-background-radius: 18; -fx-border-radius: 18; -fx-border-color: " +
+                (active ? "#60A5FA" : "#E2E8F0") + "; -fx-padding: 16; -fx-cursor: hand;";
     }
 
     private String tabButtonStyle(boolean active) {
         return "-fx-background-color: " + (active ? "#DBEAFE" : "white") + ";" +
-               "-fx-text-fill: #0F172A; -fx-font-weight: 700; -fx-background-radius: 999; -fx-border-radius: 999;" +
-               "-fx-border-color: " + (active ? "#93C5FD" : "#E2E8F0") + "; -fx-padding: 10 16 10 16; -fx-cursor: hand;";
+                "-fx-text-fill: #0F172A; -fx-font-weight: 700; -fx-background-radius: 999; -fx-border-radius: 999;" +
+                "-fx-border-color: " + (active ? "#93C5FD" : "#E2E8F0")
+                + "; -fx-padding: 10 16 10 16; -fx-cursor: hand;";
     }
 
     private String primaryButtonStyle() {
         return "-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-weight: 700;" +
-               "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
+                "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
     }
 
     private String secondaryButtonStyle() {
         return "-fx-background-color: #E2E8F0; -fx-text-fill: #0F172A; -fx-font-weight: 700;" +
-               "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
+                "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
     }
 
     private String dangerButtonStyle() {
         return "-fx-background-color: #DC2626; -fx-text-fill: white; -fx-font-weight: 700;" +
-               "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
+                "-fx-background-radius: 14; -fx-padding: 12 18 12 18; -fx-cursor: hand;";
     }
 
     private String textAreaStyle() {
         return "-fx-background-color: white; -fx-background-radius: 16; -fx-border-radius: 16;" +
-               "-fx-border-color: #CBD5E1; -fx-padding: 12; -fx-font-size: 13px; -fx-text-fill: #0F172A;";
+                "-fx-border-color: #CBD5E1; -fx-padding: 12; -fx-font-size: 13px; -fx-text-fill: #0F172A;";
     }
 
     private String statusChipStyle(String background, String foreground) {
         return "-fx-background-color: " + background + "; -fx-text-fill: " + foreground + ";" +
-               "-fx-font-size: 11px; -fx-font-weight: 800; -fx-background-radius: 999; -fx-padding: 5 10 5 10;";
+                "-fx-font-size: 11px; -fx-font-weight: 800; -fx-background-radius: 999; -fx-padding: 5 10 5 10;";
     }
 
     private String formatDate(LocalDateTime value) {

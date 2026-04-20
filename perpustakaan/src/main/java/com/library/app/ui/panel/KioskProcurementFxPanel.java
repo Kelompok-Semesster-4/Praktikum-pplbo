@@ -62,18 +62,16 @@ public class KioskProcurementFxPanel {
         card.setPadding(new Insets(28));
         card.setStyle(
                 "-fx-background-color: white; " +
-                "-fx-background-radius: 26; " +
-                "-fx-border-radius: 26; " +
-                "-fx-border-color: #E5E7EB; " +
-                "-fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0, 0, 10);"
-        );
+                        "-fx-background-radius: 26; " +
+                        "-fx-border-radius: 26; " +
+                        "-fx-border-color: #E5E7EB; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 22, 0, 0, 10);");
 
         Label title = new Label("Usulan Pengadaan Buku");
         title.setStyle("-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;");
 
         Label subtitle = new Label(
-                "Ajukan buku yang ingin tersedia di perpustakaan. Lengkapi data buku agar admin mudah meninjau permintaan."
-        );
+                "Ajukan buku yang ingin tersedia di perpustakaan. Lengkapi data buku agar admin mudah meninjau permintaan.");
         subtitle.setWrapText(true);
         subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #6B7280;");
 
@@ -111,8 +109,7 @@ public class KioskProcurementFxPanel {
         VBox memberBlock = new VBox(8,
                 createFieldLabel("NIM / NIS / NIDN"),
                 memberActionRow,
-                memberNameHint
-        );
+                memberNameHint);
 
         titleField = createField("Contoh: Clean Code");
         authorField = createField("Contoh: Robert C. Martin");
@@ -132,8 +129,7 @@ public class KioskProcurementFxPanel {
         VBox.setVgrow(reasonArea, Priority.ALWAYS);
 
         Label helper = new Label(
-                "Catatan: judul, pengarang, dan alasan permintaan sebaiknya diisi sejelas mungkin agar proses review lebih cepat."
-        );
+                "Catatan: judul, pengarang, dan alasan permintaan sebaiknya diisi sejelas mungkin agar proses review lebih cepat.");
         helper.setWrapText(true);
         helper.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
 
@@ -188,14 +184,12 @@ public class KioskProcurementFxPanel {
                     publisherField.getText(),
                     publicationYear,
                     isbnField.getText(),
-                    reasonArea.getText()
-            );
+                    reasonArea.getText());
 
             new Alert(
                     Alert.AlertType.INFORMATION,
                     "Usulan buku berhasil dikirim. Admin akan meninjau permintaan Anda.",
-                    ButtonType.OK
-            ).showAndWait();
+                    ButtonType.OK).showAndWait();
 
             clearForm();
         } catch (IllegalArgumentException exception) {
@@ -259,29 +253,29 @@ public class KioskProcurementFxPanel {
 
     private String inputStyle() {
         return "-fx-background-color: #F9FAFB; " +
-               "-fx-background-radius: 16; " +
-               "-fx-border-color: #D1D5DB; " +
-               "-fx-border-radius: 16; " +
-               "-fx-padding: 12 14 12 14; " +
-               "-fx-font-size: 13px; " +
-               "-fx-text-fill: #111827;";
+                "-fx-background-radius: 16; " +
+                "-fx-border-color: #D1D5DB; " +
+                "-fx-border-radius: 16; " +
+                "-fx-padding: 12 14 12 14; " +
+                "-fx-font-size: 13px; " +
+                "-fx-text-fill: #111827;";
     }
 
     private String primaryButtonStyle() {
         return "-fx-background-color: #2563EB; " +
-               "-fx-text-fill: white; " +
-               "-fx-font-weight: 700; " +
-               "-fx-background-radius: 16; " +
-               "-fx-padding: 12 20 12 20; " +
-               "-fx-cursor: hand;";
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: 700; " +
+                "-fx-background-radius: 16; " +
+                "-fx-padding: 12 20 12 20; " +
+                "-fx-cursor: hand;";
     }
 
     private String secondaryButtonStyle() {
         return "-fx-background-color: #E5E7EB; " +
-               "-fx-text-fill: #111827; " +
-               "-fx-font-weight: 700; " +
-               "-fx-background-radius: 16; " +
-               "-fx-padding: 12 20 12 20; " +
-               "-fx-cursor: hand;";
+                "-fx-text-fill: #111827; " +
+                "-fx-font-weight: 700; " +
+                "-fx-background-radius: 16; " +
+                "-fx-padding: 12 20 12 20; " +
+                "-fx-cursor: hand;";
     }
 }

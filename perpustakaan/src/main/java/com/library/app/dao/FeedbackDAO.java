@@ -15,7 +15,7 @@ public class FeedbackDAO {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setObject(1, feedback.getMemberId());
             statement.setString(2, feedback.getSenderName());
             statement.setString(3, feedback.getSubject());
@@ -44,8 +44,8 @@ public class FeedbackDAO {
                 ORDER BY created_at DESC
                 """;
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 feedbacks.add(map(resultSet));
             }
@@ -58,7 +58,7 @@ public class FeedbackDAO {
     public void markAsRead(Long feedbackId) {
         String sql = "UPDATE feedbacks SET status = ? WHERE id = ? AND status = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, FeedbackStatus.READ.name());
             statement.setLong(2, feedbackId);
             statement.setString(3, FeedbackStatus.NEW.name());
@@ -71,7 +71,7 @@ public class FeedbackDAO {
     public void respond(Long feedbackId, String responseNote) {
         String sql = "UPDATE feedbacks SET status = ?, response_note = ?, responded_at = CURRENT_TIMESTAMP WHERE id = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, FeedbackStatus.RESPONDED.name());
             statement.setString(2, responseNote);
             statement.setLong(3, feedbackId);
@@ -83,8 +83,8 @@ public class FeedbackDAO {
 
     public int countAll() {
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM feedbacks");
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM feedbacks");
+                ResultSet resultSet = statement.executeQuery()) {
             resultSet.next();
             return resultSet.getInt(1);
         } catch (SQLException exception) {
@@ -103,8 +103,7 @@ public class FeedbackDAO {
                 parseStatus(resultSet.getString("status")),
                 resultSet.getString("response_note"),
                 toLocalDateTime(resultSet.getTimestamp("created_at")),
-                toLocalDateTime(resultSet.getTimestamp("responded_at"))
-        );
+                toLocalDateTime(resultSet.getTimestamp("responded_at")));
     }
 
     private FeedbackStatus parseStatus(String rawValue) {

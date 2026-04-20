@@ -18,7 +18,7 @@ public class ProcurementRequestDAO {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setObject(1, request.getMemberId());
             statement.setString(2, request.getRequesterName());
             statement.setString(3, request.getTitle());
@@ -58,8 +58,8 @@ public class ProcurementRequestDAO {
                 ORDER BY created_at DESC
                 """;
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 requests.add(map(resultSet));
             }
@@ -72,7 +72,7 @@ public class ProcurementRequestDAO {
     public void reviewRequest(Long requestId, RequestStatus status, String responseNote) {
         String sql = "UPDATE procurement_requests SET status = ?, response_note = ?, responded_at = CURRENT_TIMESTAMP WHERE id = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
             statement.setString(2, responseNote);
             statement.setLong(3, requestId);
@@ -85,7 +85,7 @@ public class ProcurementRequestDAO {
     public int countByStatus(RequestStatus status) {
         String sql = "SELECT COUNT(*) FROM procurement_requests WHERE status = ?";
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
             try (ResultSet resultSet = statement.executeQuery()) {
                 resultSet.next();
@@ -115,7 +115,6 @@ public class ProcurementRequestDAO {
                 RequestStatus.fromDbValue(resultSet.getString("status")),
                 resultSet.getString("response_note"),
                 resultSet.getTimestamp("created_at").toLocalDateTime(),
-                respondedAt == null ? null : respondedAt.toLocalDateTime()
-        );
+                respondedAt == null ? null : respondedAt.toLocalDateTime());
     }
 }
