@@ -34,22 +34,22 @@ public class KioskVisitPanel {
         visitIconShell.setMaxSize(46, 46);
         StackPane.setAlignment(visitIcon, Pos.CENTER);
 
-        Label title = new Label("Absen Kunjungan");
+        Label title = new Label("Absen Masuk / Keluar");
         title.getStyleClass().add("visit-title");
 
-        Label subtitle = new Label("Masukkan NIM/NIS Anda untuk mencatat kehadiran");
+        Label subtitle = new Label("Scan pertama untuk masuk, scan kedua untuk keluar (selesai).\nMasukkan NIM/NIS/NIDN Anda.");
         subtitle.getStyleClass().add("visit-subtitle");
         subtitle.setTextAlignment(TextAlignment.CENTER);
 
-        Label memberCodeLabel = new Label("NIM / NIS");
+        Label memberCodeLabel = new Label("NIM / NIS / NIDN");
         memberCodeLabel.getStyleClass().add("visit-label");
 
         TextField memberCodeField = new TextField();
         memberCodeField.getStyleClass().add("visit-input");
-        memberCodeField.setPromptText("Contoh: 2021001001");
+        memberCodeField.setPromptText("Contoh: 09000000000001");
         memberCodeField.setMaxWidth(Double.MAX_VALUE);
 
-        Button submitButton = new Button("Catat Kehadiran");
+        Button submitButton = new Button("Scan Masuk / Keluar");
         submitButton.getStyleClass().add("visit-submit-button");
         submitButton.setMaxWidth(Double.MAX_VALUE);
 
@@ -91,9 +91,9 @@ public class KioskVisitPanel {
         statusLabel.getStyleClass().removeAll("visit-status-success", "visit-status-error");
 
         try {
-            visitService.recordMemberVisit(memberCodeField.getText());
+            String message = visitService.recordMemberVisit(memberCodeField.getText());
             statusLabel.getStyleClass().add("visit-status-success");
-            statusLabel.setText("Kunjungan berhasil dicatat.");
+            statusLabel.setText(message);
             memberCodeField.clear();
         } catch (Exception exception) {
             statusLabel.getStyleClass().add("visit-status-error");
