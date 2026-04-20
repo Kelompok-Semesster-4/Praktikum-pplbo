@@ -5,6 +5,7 @@ import com.library.app.ui.panel.KioskDashboardPanel;
 import com.library.app.ui.panel.KioskFeedbackFxPanel;
 import com.library.app.ui.panel.KioskIconFactory;
 import com.library.app.ui.panel.KioskProcurementFxPanel;
+import com.library.app.ui.panel.KioskSearchBookPanel;
 import com.library.app.ui.panel.KioskVisitPanel;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -28,6 +29,7 @@ public class KioskFrame {
 
     private final KioskDashboardPanel dashboardPanel = new KioskDashboardPanel();
     private final KioskVisitPanel visitPanel = new KioskVisitPanel();
+    private final KioskSearchBookPanel searchBookPanel = new KioskSearchBookPanel();
     private final KioskFeedbackFxPanel feedbackPanel = new KioskFeedbackFxPanel();
     private final KioskProcurementFxPanel procurementPanel = new KioskProcurementFxPanel();
     private final UserSession session;
@@ -184,6 +186,12 @@ public class KioskFrame {
         }
     }
 
+    private void showSearchBookContent() {
+        if (root != null) {
+            root.setCenter(searchBookPanel.createContent(this::showDashboardContent));
+        }
+    }
+
     private void showFeedbackContent() {
         if (root != null) {
             root.setCenter(feedbackPanel.createContent(this::showDashboardContent));
@@ -200,6 +208,7 @@ public class KioskFrame {
         if (root != null) {
             root.setCenter(dashboardPanel.createContent(
                     this::showVisitContent,
+                    this::showSearchBookContent,
                     this::showFeedbackContent,
                     this::showProcurementContent
             ));

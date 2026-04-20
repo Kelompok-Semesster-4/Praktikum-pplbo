@@ -20,6 +20,7 @@ public class KioskDashboardPanel {
             DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.forLanguageTag("id-ID"));
 
     public Node createContent(Runnable onVisitClick,
+                              Runnable onSearchBookClick,
                               Runnable onFeedbackClick,
                               Runnable onProcurementClick) {
         VBox content = new VBox(14);
@@ -51,7 +52,7 @@ public class KioskDashboardPanel {
                 "Temukan koleksi buku perpustakaan",
                 "card-search",
                 KioskIconFactory.createSearchIcon(Color.web("#059669")),
-                null), 1, 0);
+                onSearchBookClick), 1, 0);
 
         serviceGrid.add(createServiceCard(
                 "Beri Feedback",
