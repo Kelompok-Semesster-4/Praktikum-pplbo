@@ -167,7 +167,7 @@ public class AdminFeedbackRequestPanel {
         leftPane.prefHeightProperty().bind(detailContainer.heightProperty());
         leftPane.minHeightProperty().bind(detailContainer.heightProperty());
         listScrollPane.prefViewportHeightProperty()
-            .bind(Bindings.max(180.0, detailContainer.heightProperty().subtract(130.0)));
+                .bind(Bindings.max(180.0, detailContainer.heightProperty().subtract(130.0)));
 
         content.getChildren().addAll(leftPane, detailContainer);
         return content;
@@ -303,7 +303,8 @@ public class AdminFeedbackRequestPanel {
         detailContainer.setAlignment(Pos.TOP_LEFT);
 
         if (selectedFeedback == null) {
-            detailContainer.getChildren().add(createDetailPlaceholder("\uD83D\uDCAC", "Pilih feedback untuk melihat detail"));
+            detailContainer.getChildren()
+                    .add(createDetailPlaceholder("\uD83D\uDCAC", "Pilih feedback untuk melihat detail"));
             return;
         }
 
@@ -447,7 +448,8 @@ public class AdminFeedbackRequestPanel {
         detailContainer.setAlignment(Pos.TOP_LEFT);
 
         if (selectedRequest == null) {
-            detailContainer.getChildren().add(createDetailPlaceholder("\uD83D\uDCE6", "Pilih permintaan untuk melihat detail"));
+            detailContainer.getChildren()
+                    .add(createDetailPlaceholder("\uD83D\uDCE6", "Pilih permintaan untuk melihat detail"));
             return;
         }
 
