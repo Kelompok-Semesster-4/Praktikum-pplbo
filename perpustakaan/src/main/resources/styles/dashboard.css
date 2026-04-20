@@ -637,6 +637,7 @@
 
 .book-table .table-row-cell {
   -fx-background-color: #ffffff;
+  -fx-cell-size: 56px;
   -fx-border-color: transparent transparent #edf2f8 transparent;
 }
 
@@ -647,7 +648,7 @@
 .book-table .table-cell {
   -fx-border-color: transparent;
   -fx-text-fill: #344257;
-  -fx-padding: 8 10 8 10;
+  -fx-padding: 0 10 0 10;
   -fx-alignment: CENTER-LEFT;
 }
 

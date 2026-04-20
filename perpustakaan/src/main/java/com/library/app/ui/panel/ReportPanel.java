@@ -19,6 +19,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -49,7 +50,7 @@ public class ReportPanel {
    private static final int MONTH_RANGE = 7;
    private static final int OVERDUE_LIMIT = 12;
    private static final Locale ID_LOCALE = Locale.forLanguageTag("id-ID");
-   private static final double TABLE_ROW_HEIGHT = 52.0;
+   private static final double TABLE_ROW_HEIGHT = 60.0;
    private static final double TABLE_EMPTY_HEIGHT = 118.0;
 
    private final DashboardService dashboardService;
@@ -267,12 +268,18 @@ public class ReportPanel {
       overdueTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
       TableColumn<OverdueLoanReportItem, OverdueLoanReportItem> borrowerColumn = new TableColumn<>("PEMINJAM");
+      borrowerColumn.getStyleClass().add("report-column-borrower");
+      borrowerColumn.setPrefWidth(250);
       borrowerColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
       borrowerColumn.setCellFactory(column -> new TableCell<>() {
          @Override
          protected void updateItem(OverdueLoanReportItem item, boolean empty) {
             super.updateItem(item, empty);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setAlignment(Pos.CENTER_LEFT);
+            setStyle("-fx-alignment: CENTER-LEFT;");
             if (empty || item == null) {
+               setText(null);
                setGraphic(null);
                return;
             }
@@ -284,48 +291,101 @@ public class ReportPanel {
             nim.getStyleClass().add("list-item-subtitle");
 
             VBox box = new VBox(2, name, nim);
+            box.setAlignment(Pos.CENTER_LEFT);
+            setText(null);
             setGraphic(box);
          }
       });
 
       TableColumn<OverdueLoanReportItem, String> bookColumn = new TableColumn<>("BUKU");
+      bookColumn.setPrefWidth(320);
+      bookColumn.setStyle("-fx-alignment: CENTER;");
       bookColumn.setCellValueFactory(cell -> new SimpleStringProperty(safe(cell.getValue().getBookTitle())));
+      bookColumn.setCellFactory(column -> new TableCell<>() {
+         @Override
+         protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setAlignment(Pos.CENTER);
+            if (empty || item == null) {
+               setText(null);
+               setGraphic(null);
+               return;
+            }
+
+            Label value = new Label(item);
+            HBox wrapper = new HBox(value);
+            wrapper.setAlignment(Pos.CENTER);
+            setText(null);
+            setGraphic(wrapper);
+         }
+      });
 
       TableColumn<OverdueLoanReportItem, LocalDate> dueDateColumn = new TableColumn<>("JATUH TEMPO");
+      dueDateColumn.setPrefWidth(146);
+      dueDateColumn.setStyle("-fx-alignment: CENTER;");
       dueDateColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getDueDate()));
       dueDateColumn.setCellFactory(column -> new TableCell<>() {
          @Override
          protected void updateItem(LocalDate item, boolean empty) {
             super.updateItem(item, empty);
-            setText(empty ? null : formatDate(item));
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setAlignment(Pos.CENTER);
+            if (empty) {
+               setText(null);
+               setGraphic(null);
+               return;
+            }
+
+            Label value = new Label(formatDate(item));
+            StackPane wrapper = new StackPane(value);
+            wrapper.setAlignment(Pos.CENTER);
+            setText(null);
+            setGraphic(wrapper);
          }
       });
 
       TableColumn<OverdueLoanReportItem, BigDecimal> fineColumn = new TableColumn<>("DENDA");
+      fineColumn.setPrefWidth(136);
+      fineColumn.setStyle("-fx-alignment: CENTER;");
       fineColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getFineAmount()));
       fineColumn.setCellFactory(column -> new TableCell<>() {
          @Override
          protected void updateItem(BigDecimal item, boolean empty) {
             super.updateItem(item, empty);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             if (empty) {
+               setAlignment(Pos.CENTER);
                setText(null);
+               setGraphic(null);
                getStyleClass().remove("report-fine-highlight");
                return;
             }
-            setText(formatCurrency(item));
+            setAlignment(Pos.CENTER);
+            Label value = new Label(formatCurrency(item));
             if (!getStyleClass().contains("report-fine-highlight")) {
                getStyleClass().add("report-fine-highlight");
             }
+            StackPane wrapper = new StackPane(value);
+            wrapper.setAlignment(Pos.CENTER);
+            setText(null);
+            setGraphic(wrapper);
          }
       });
 
       TableColumn<OverdueLoanReportItem, String> statusColumn = new TableColumn<>("STATUS");
+      statusColumn.setPrefWidth(132);
+      statusColumn.setStyle("-fx-alignment: CENTER;");
       statusColumn.setCellValueFactory(cell -> new SimpleStringProperty("Terlambat"));
       statusColumn.setCellFactory(column -> new TableCell<>() {
          @Override
          protected void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setAlignment(Pos.CENTER);
+            setStyle("-fx-alignment: CENTER;");
             if (empty || item == null) {
+               setText(null);
                setGraphic(null);
                return;
             }
@@ -333,7 +393,8 @@ public class ReportPanel {
             Label badge = new Label(item);
             badge.getStyleClass().addAll("status-badge", "status-warning");
             HBox wrapper = new HBox(badge);
-            wrapper.setFillHeight(true);
+            wrapper.setAlignment(Pos.CENTER);
+            setText(null);
             setGraphic(wrapper);
          }
       });

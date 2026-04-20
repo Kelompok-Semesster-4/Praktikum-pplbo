@@ -186,11 +186,16 @@
   -fx-text-fill: #7a8598;
   -fx-font-size: 12px;
   -fx-font-weight: 700;
-  -fx-alignment: CENTER_LEFT;
+  -fx-alignment: CENTER;
+}
+
+.report-overdue-table .column-header.report-column-borrower .label {
+  -fx-alignment: CENTER-LEFT;
+  -fx-padding: 0 0 0 10;
 }
 
 .report-overdue-table .table-cell {
-  -fx-padding: 12 10 12 10;
+  -fx-padding: 0 10 0 10;
   -fx-border-color: transparent transparent #edf2f8 transparent;
   -fx-text-fill: #374459;
   -fx-font-size: 13px;
@@ -198,6 +203,7 @@
 
 .report-overdue-table .table-row-cell {
   -fx-background-color: #ffffff;
+  -fx-cell-size: 60px;
 }
 
 .report-overdue-table .table-row-cell:filled:hover {

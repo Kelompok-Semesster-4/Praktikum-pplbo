@@ -170,6 +170,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(BookCatalogItem item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER_LEFT);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -198,6 +200,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -208,7 +212,6 @@ public class BookManagementPanel {
                 value.setTooltip(new Tooltip(item));
                 setText(null);
                 setGraphic(value);
-                setAlignment(Pos.CENTER);
             }
         });
         isbnColumn.setPrefWidth(160);
@@ -220,6 +223,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -233,7 +238,6 @@ public class BookManagementPanel {
                 wrapper.setAlignment(Pos.CENTER);
                 setText(null);
                 setGraphic(wrapper);
-                setAlignment(Pos.CENTER);
             }
         });
         categoryColumn.setPrefWidth(128);
@@ -245,6 +249,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(Integer item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -254,7 +260,6 @@ public class BookManagementPanel {
                 value.getStyleClass().add("book-year-text");
                 setText(null);
                 setGraphic(value);
-                setAlignment(Pos.CENTER);
             }
         });
         yearColumn.setPrefWidth(90);
@@ -266,6 +271,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(BookCatalogItem item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -275,7 +282,6 @@ public class BookManagementPanel {
                 value.getStyleClass().add("book-copies-text");
                 setText(null);
                 setGraphic(value);
-                setAlignment(Pos.CENTER);
             }
         });
         copiesColumn.setPrefWidth(90);
@@ -287,6 +293,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(BookCatalogItem item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -300,7 +308,6 @@ public class BookManagementPanel {
                 wrapper.setAlignment(Pos.CENTER);
                 setText(null);
                 setGraphic(wrapper);
-                setAlignment(Pos.CENTER);
             }
         });
         statusColumn.setPrefWidth(110);
@@ -312,6 +319,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -321,7 +330,6 @@ public class BookManagementPanel {
                 value.getStyleClass().add("book-shelf-text");
                 setText(null);
                 setGraphic(value);
-                setAlignment(Pos.CENTER);
             }
         });
         shelfColumn.setPrefWidth(90);
@@ -333,6 +341,8 @@ public class BookManagementPanel {
             @Override
             protected void updateItem(BookCatalogItem item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -350,7 +360,6 @@ public class BookManagementPanel {
                 actions.getStyleClass().add("book-actions-wrapper");
                 setText(null);
                 setGraphic(actions);
-                setAlignment(Pos.CENTER);
             }
         });
         actionColumn.setSortable(false);
@@ -387,14 +396,16 @@ public class BookManagementPanel {
 
     private Node createEditIcon() {
         SVGPath icon = new SVGPath();
-        icon.setContent("M12.854.146a.5.5 0 0 1 .707 0l2.293 2.293a.5.5 0 0 1 0 .707L5.207 13.793 2 14.5l.707-3.207L12.854.146z");
+        icon.setContent(
+                "M12.854.146a.5.5 0 0 1 .707 0l2.293 2.293a.5.5 0 0 1 0 .707L5.207 13.793 2 14.5l.707-3.207L12.854.146z");
         icon.getStyleClass().addAll("book-action-icon", "book-action-icon-edit");
         return icon;
     }
 
     private Node createDeleteIcon() {
         SVGPath icon = new SVGPath();
-        icon.setContent("M2.5 3a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h2.5a1 1 0 0 1 1 1V4H2.5V3zm1 2h9l-.8 9.2a1.5 1.5 0 0 1-1.5 1.3H5.8a1.5 1.5 0 0 1-1.5-1.3L3.5 5z");
+        icon.setContent(
+                "M2.5 3a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h2.5a1 1 0 0 1 1 1V4H2.5V3zm1 2h9l-.8 9.2a1.5 1.5 0 0 1-1.5 1.3H5.8a1.5 1.5 0 0 1-1.5-1.3L3.5 5z");
         icon.getStyleClass().addAll("book-action-icon", "book-action-icon-delete");
         return icon;
     }
