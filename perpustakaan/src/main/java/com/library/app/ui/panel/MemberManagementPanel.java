@@ -248,13 +248,13 @@ public class MemberManagementPanel {
 
         TableColumn<Member, Member> contactColumn = new TableColumn<>("KONTAK");
         contactColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue()));
-        contactColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        contactColumn.setStyle("-fx-alignment: CENTER;");
         contactColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Member item, boolean empty) {
                 super.updateItem(item, empty);
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                setAlignment(Pos.CENTER_LEFT);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
@@ -270,6 +270,7 @@ public class MemberManagementPanel {
                 line1.setTextOverrun(OverrunStyle.ELLIPSIS);
                 line1.setMaxWidth(260);
                 line1.setTooltip(new Tooltip(email));
+                line1.setAlignment(Pos.CENTER);
 
                 Label line2 = new Label(phone);
                 line2.getStyleClass().add("member-contact-secondary");
@@ -277,10 +278,11 @@ public class MemberManagementPanel {
                 line2.setTextOverrun(OverrunStyle.ELLIPSIS);
                 line2.setMaxWidth(260);
                 line2.setTooltip(new Tooltip(phone));
+                line2.setAlignment(Pos.CENTER);
 
                 VBox wrapper = new VBox(2, line1, line2);
                 wrapper.getStyleClass().add("member-contact-wrapper");
-                wrapper.setAlignment(Pos.CENTER_LEFT);
+                wrapper.setAlignment(Pos.CENTER);
                 wrapper.setMaxWidth(260);
 
                 setText(null);
@@ -289,7 +291,7 @@ public class MemberManagementPanel {
         });
         contactColumn.setPrefWidth(300);
 
-        TableColumn<Member, String> majorColumn = new TableColumn<>("FAKULTAS");
+        TableColumn<Member, String> majorColumn = new TableColumn<>("FAKULTAS/JURUSAN");
         majorColumn.setCellValueFactory(cell -> new SimpleStringProperty(safe(itemMajor(cell.getValue()), "-")));
         majorColumn.setStyle("-fx-alignment: CENTER;");
         majorColumn.setCellFactory(column -> new TableCell<>() {

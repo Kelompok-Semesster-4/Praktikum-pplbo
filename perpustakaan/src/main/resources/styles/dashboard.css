@@ -1085,11 +1085,11 @@
 }
 
 .member-major-wrapper {
-  -fx-alignment: CENTER-LEFT;
+  -fx-alignment: CENTER;
 }
 
 .member-contact-wrapper {
-  -fx-alignment: CENTER-LEFT;
+  -fx-alignment: CENTER;
   -fx-spacing: 1;
 }
 
