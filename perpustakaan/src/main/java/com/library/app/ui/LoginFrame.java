@@ -28,6 +28,8 @@ public class LoginFrame {
     public void showOn(Stage stage) {
         this.stage = stage;
         stage.setTitle("Login - Sistem Manajemen Perpustakaan");
+        stage.setFullScreen(false);
+        stage.setMaximized(false);
         stage.setFullScreenExitHint("");
 
         // Container utama (Background abu-abu kebiruan)
@@ -170,9 +172,9 @@ public class LoginFrame {
             UserSession session = new UserSession(user);
 
             if (session.getRole() == Role.ADMIN) {
-                new AdminFrame().showDashboard(stage);
+                StageTransition.switchScene(stage, () -> new AdminFrame().showDashboard(stage));
             } else if (session.getRole() == Role.KIOSK) {
-                new KioskFrame(session).showOn(stage);
+                StageTransition.switchScene(stage, () -> new KioskFrame(session).showOn(stage));
             } else {
                 throw new IllegalStateException("Role pengguna tidak dikenali.");
             }

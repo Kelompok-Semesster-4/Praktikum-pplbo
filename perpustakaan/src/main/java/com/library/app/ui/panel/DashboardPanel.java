@@ -9,6 +9,8 @@ import com.library.app.service.DashboardService;
 import com.library.app.service.NotificationService;
 import com.library.app.ui.ManagementWindowLauncher;
 import com.library.app.ui.KioskFrame;
+import com.library.app.ui.LoginFrame;
+import com.library.app.ui.StageTransition;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -262,7 +264,7 @@ class AdminDashboardFxApp extends Application {
         VBox footerMenu = new VBox(6);
         footerMenu.getChildren().addAll(
                 createMenuButton("Mode Kiosk", "\uD83D\uDDA5", false, () -> openFxSection("Mode Kiosk")),
-                createMenuButton("Keluar", "\u238B", false, Platform::exit));
+            createMenuButton("Keluar", "\u238B", false, this::navigateToLogin));
 
         sidebar.getChildren().addAll(brandBox, adminDivider, roleBadge, menuContainer, spacer, footerMenu);
         return sidebar;
@@ -1372,11 +1374,31 @@ class AdminDashboardFxApp extends Application {
         }
 
         if (currentStage != null) {
-            new KioskFrame().showOn(currentStage);
+            Stage targetStage = currentStage;
+            new KioskFrame().showOn(targetStage);
             return;
         }
 
         new KioskFrame().setVisible(true);
+    }
+
+    private void navigateToLogin() {
+        Stage currentStage = null;
+        if (contentSwitcher != null && contentSwitcher.getScene() != null
+                && contentSwitcher.getScene().getWindow() instanceof Stage stage) {
+            currentStage = stage;
+        }
+
+        if (currentStage == null) {
+            Platform.exit();
+            return;
+        }
+
+        Stage targetStage = currentStage;
+        StageTransition.switchScene(targetStage, () -> {
+            targetStage.setFullScreen(false);
+            new LoginFrame().showOn(targetStage);
+        });
     }
 
     private void setActiveMenu(String menuName) {

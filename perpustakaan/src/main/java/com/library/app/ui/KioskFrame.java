@@ -176,8 +176,10 @@ public class KioskFrame {
     }
 
     private void handleLogout(Stage hostStage) {
-        hostStage.setFullScreen(false);
-        new LoginFrame().showOn(hostStage);
+        StageTransition.switchScene(hostStage, () -> {
+            hostStage.setFullScreen(false);
+            new LoginFrame().showOn(hostStage);
+        });
     }
 
     private void showVisitContent() {
