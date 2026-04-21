@@ -598,6 +598,10 @@ public class ReportPanel {
       return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
    }
 
+private String safeText(String value) {
+    return value == null || value.isBlank() ? "-" : value;
+}
+
    private String safe(String value) {
       return value == null || value.isBlank() ? "-" : value;
    }

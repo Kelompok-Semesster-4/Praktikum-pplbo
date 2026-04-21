@@ -123,13 +123,17 @@ class AdminDashboardFxApp extends Application {
     private final NotificationService notificationService = new NotificationService();
     private final UserDAO userDAO = new UserDAO();
     private final Map<String, Button> menuButtons = new LinkedHashMap<>();
+
     private Label topbarTitleLabel;
     private Button notificationButton;
     private Label notificationBadgeLabel;
     private Popup notificationPopup;
     private String activeNotificationFilter = "Semua";
+
     private StackPane contentSwitcher;
     private BookManagementPanel bookManagementSectionView;
+    private MemberManagementPanel memberManagementSectionView;
+    private LoanManagementPanel loanManagementSectionView;
     private ReportPanel reportSectionView;
     private AdminFeedbackRequestPanel feedbackRequestSectionView;
 
@@ -144,7 +148,8 @@ class AdminDashboardFxApp extends Application {
                 new LinkedHashMap<>());
         List<String[]> recentLoans = safeLoad(() -> dashboardService.getRecentLoans(6), Collections.emptyList());
         List<String[]> todayVisits = safeLoad(() -> dashboardService.getTodayVisits(6), Collections.emptyList());
-        String[] adminIdentity = safeLoad(this::loadAdminIdentity,
+        String[] adminIdentity = safeLoad(
+                this::loadAdminIdentity,
                 new String[] { "Admin Perpustakaan", "admin@perpus.ac.id", "A" });
 
         BorderPane root = new BorderPane();
@@ -156,12 +161,14 @@ class AdminDashboardFxApp extends Application {
         sceneRoot.getStyleClass().add("app-shell");
 
         Scene scene = new Scene(sceneRoot, 1366, 768);
+
         String stylesheet = getClass().getResource("/styles/dashboard.css") == null
                 ? null
                 : getClass().getResource("/styles/dashboard.css").toExternalForm();
         if (stylesheet != null) {
             scene.getStylesheets().add(stylesheet);
         }
+
         String reportStylesheet = getClass().getResource("/styles/report.css") == null
                 ? null
                 : getClass().getResource("/styles/report.css").toExternalForm();
@@ -176,6 +183,7 @@ class AdminDashboardFxApp extends Application {
         if (!stageAlreadyVisible) {
             stage.initStyle(StageStyle.DECORATED);
         }
+
         stage.setTitle("Sistem Manajemen Perpustakaan");
         stage.setWidth(1240);
         stage.setHeight(760);
@@ -244,8 +252,7 @@ class AdminDashboardFxApp extends Application {
                 createMenuButton("Manajemen Anggota", "\uD83D\uDC65", false, () -> openFxSection("Manajemen Anggota")),
                 createMenuButton("Peminjaman & Pengembalian", "\u21C4", false,
                         () -> openFxSection("Peminjaman & Pengembalian")),
-                createMenuButton("Laporan", "\uD83D\uDCCA", false,
-                        () -> openFxSection("Laporan")),
+                createMenuButton("Laporan", "\uD83D\uDCCA", false, () -> openFxSection("Laporan")),
                 createMenuButton("Feedback & Permintaan", "\uD83D\uDCAC", false,
                         () -> openFxSection("Feedback & Permintaan")));
 
@@ -267,17 +274,22 @@ class AdminDashboardFxApp extends Application {
         if (active) {
             button.getStyleClass().add("active");
         }
+
         HBox graphic = new HBox(10);
         graphic.setAlignment(Pos.CENTER_LEFT);
+
         Label icon = new Label(iconText);
         icon.getStyleClass().add("menu-icon");
+
         Label caption = new Label(text);
         caption.getStyleClass().add("menu-caption");
+
         graphic.getChildren().addAll(icon, caption);
         button.setGraphic(graphic);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.setOnAction(event -> onAction.run());
         button.setMaxWidth(Double.MAX_VALUE);
+
         menuButtons.put(text, button);
         return button;
     }
@@ -321,6 +333,7 @@ class AdminDashboardFxApp extends Application {
         VBox left = new VBox(2);
         topbarTitleLabel = new Label("Dashboard");
         topbarTitleLabel.getStyleClass().add("topbar-title");
+
         Label date = new Label(
                 capitalizeWords(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", ID_LOCALE))));
         date.getStyleClass().add("topbar-date");
@@ -331,6 +344,7 @@ class AdminDashboardFxApp extends Application {
 
         HBox right = new HBox(12);
         right.setAlignment(Pos.CENTER_RIGHT);
+
         notificationButton = new Button();
         notificationButton.getStyleClass().add("topbar-notification-button");
         notificationButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -346,6 +360,7 @@ class AdminDashboardFxApp extends Application {
         notificationGraphic.setAlignment(Pos.CENTER);
         StackPane.setAlignment(notificationBadgeLabel, Pos.TOP_RIGHT);
         StackPane.setMargin(notificationBadgeLabel, new Insets(-5, -4, 0, 0));
+
         notificationButton.setGraphic(notificationGraphic);
         notificationButton.setOnAction(event -> toggleNotificationPopup());
 
@@ -360,10 +375,12 @@ class AdminDashboardFxApp extends Application {
 
         VBox identity = new VBox(0);
         identity.setAlignment(Pos.CENTER_LEFT);
+
         Label adminName = new Label(safeValue(adminIdentity[0]));
         Label adminEmail = new Label(safeValue(adminIdentity[1]));
         adminName.getStyleClass().add("admin-name");
         adminEmail.getStyleClass().add("admin-email");
+
         identity.getChildren().addAll(adminName, adminEmail);
 
         HBox userCluster = new HBox(10, avatar, identity);
@@ -371,6 +388,7 @@ class AdminDashboardFxApp extends Application {
 
         right.getChildren().addAll(notificationButton, topbarDivider, userCluster);
         topBar.getChildren().addAll(left, spacer, right);
+
         return topBar;
     }
 
@@ -391,7 +409,6 @@ class AdminDashboardFxApp extends Application {
             notificationPopup.hide();
             return;
         }
-
         showNotificationPopup();
     }
 
@@ -416,35 +433,41 @@ class AdminDashboardFxApp extends Application {
         double popupWidth = 360;
         double x = bounds == null ? 0 : Math.max(12, bounds.getMaxX() - popupWidth);
         double y = bounds == null ? 0 : bounds.getMaxY() + 10;
+
         notificationPopup.show(notificationButton.getScene().getWindow(), x, y);
     }
 
     private VBox buildNotificationPopupContent(List<AppNotification> notifications, int totalCount) {
         VBox popup = new VBox(10);
         popup.setPrefWidth(388);
-        popup.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 16; " +
-                "-fx-border-color: #dfe5ef; -fx-border-radius: 16; " +
-                "-fx-effect: dropshadow(gaussian, rgba(10, 20, 40, 0.18), 18, 0.18, 0, 6); " +
-                "-fx-padding: 14;");
+        popup.setStyle(
+                "-fx-background-color: #ffffff; -fx-background-radius: 16; " +
+                        "-fx-border-color: #dfe5ef; -fx-border-radius: 16; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(10, 20, 40, 0.18), 18, 0.18, 0, 6); " +
+                        "-fx-padding: 14;");
 
         HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER_LEFT);
+
         Label title = new Label("Notifikasi");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #1f2c40;");
 
         Label count = new Label(String.valueOf(totalCount));
-        count.setStyle("-fx-background-color: #eef3ff; -fx-text-fill: #3668da; -fx-background-radius: 999; " +
-                "-fx-padding: 2 8 2 8; -fx-font-size: 11px; -fx-font-weight: 700;");
+        count.setStyle(
+                "-fx-background-color: #eef3ff; -fx-text-fill: #3668da; -fx-background-radius: 999; " +
+                        "-fx-padding: 2 8 2 8; -fx-font-size: 11px; -fx-font-weight: 700;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         header.getChildren().addAll(title, count, spacer);
 
         Button closeButton = new Button("\u2715");
-        closeButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #7d8796; -fx-cursor: hand; " +
-                "-fx-font-size: 12px; -fx-padding: 0 2 0 2;");
+        closeButton.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: #7d8796; -fx-cursor: hand; " +
+                        "-fx-font-size: 12px; -fx-padding: 0 2 0 2;");
         closeButton.setOnAction(event -> notificationPopup.hide());
         header.getChildren().add(closeButton);
+
         popup.getChildren().add(header);
         popup.getChildren().add(createNotificationFilterRow());
 
@@ -478,13 +501,13 @@ class AdminDashboardFxApp extends Application {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle(
-                "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; -fx-padding: 0 2 0 0;");
+                "-fx-background-color: transparent; -fx-background: transparent; " +
+                        "-fx-border-color: transparent; -fx-padding: 0 2 0 0;");
         scrollPane.setPrefViewportHeight(380);
         scrollPane.setMaxHeight(380);
         scrollPane.setMinHeight(140);
 
         popup.getChildren().add(scrollPane);
-
         return popup;
     }
 
@@ -497,8 +520,9 @@ class AdminDashboardFxApp extends Application {
         title.setStyle("-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #4a5a72;");
 
         Label amount = new Label(String.valueOf(count));
-        amount.setStyle("-fx-background-color: #eef3ff; -fx-text-fill: #356cde; -fx-background-radius: 999; " +
-                "-fx-padding: 1 7 1 7; -fx-font-size: 10px; -fx-font-weight: 700;");
+        amount.setStyle(
+                "-fx-background-color: #eef3ff; -fx-text-fill: #356cde; -fx-background-radius: 999; " +
+                        "-fx-padding: 1 7 1 7; -fx-font-size: 10px; -fx-font-weight: 700;");
 
         groupHeader.getChildren().addAll(title, amount);
         return groupHeader;
@@ -516,10 +540,11 @@ class AdminDashboardFxApp extends Application {
         icon.setMinSize(28, 28);
         icon.setPrefSize(28, 28);
         icon.setAlignment(Pos.CENTER);
-        icon.setStyle("-fx-background-color: " + notificationIconBackground(notification.getPriority()) + "; " +
-                "-fx-background-radius: 999; -fx-text-fill: " + notificationIconColor(notification.getPriority()) + "; "
-                +
-                "-fx-font-size: 12px; -fx-font-weight: 700;");
+        icon.setStyle(
+                "-fx-background-color: " + notificationIconBackground(notification.getPriority()) + "; " +
+                        "-fx-background-radius: 999; -fx-text-fill: "
+                        + notificationIconColor(notification.getPriority()) + "; " +
+                        "-fx-font-size: 12px; -fx-font-weight: 700;");
 
         VBox textBox = new VBox(2);
         textBox.setMinWidth(0);
@@ -556,6 +581,7 @@ class AdminDashboardFxApp extends Application {
                 handleNotificationAction(notification);
             }
         });
+
         return item;
     }
 
@@ -614,6 +640,7 @@ class AdminDashboardFxApp extends Application {
 
     private void openNotificationTarget(AppNotification notification) {
         String targetKey = notification.getTargetKey();
+
         if ("FX_BOOK_MANAGEMENT".equals(targetKey)) {
             openFxSection("Manajemen Buku");
             return;
@@ -626,16 +653,13 @@ class AdminDashboardFxApp extends Application {
             ManagementWindowLauncher.show("Manajemen Pengembalian", new ReturnPanel());
             return;
         }
+
         if ("SWING_LOAN".equals(targetKey)) {
             ManagementWindowLauncher.show("Manajemen Peminjaman", new LoanPanel());
             return;
         }
         if ("SWING_PROCUREMENT".equals(targetKey) || "SWING_FEEDBACK".equals(targetKey)) {
             openFxSection("Feedback & Permintaan");
-            return;
-        }
-        if ("SWING_MEMBER".equals(targetKey)) {
-            ManagementWindowLauncher.show("Manajemen Anggota", new MemberManagementPanel());
             return;
         }
 
@@ -664,6 +688,9 @@ class AdminDashboardFxApp extends Application {
         }
         if ("FX_BOOK_MANAGEMENT".equals(targetKey)) {
             return "\uD83D\uDCD5";
+        }
+        if ("FX_MEMBER_MANAGEMENT".equals(targetKey) || "SWING_MEMBER".equals(targetKey)) {
+            return "\uD83D\uDC65";
         }
         return "\uD83D\uDD14";
     }
@@ -703,8 +730,12 @@ class AdminDashboardFxApp extends Application {
         };
     }
 
-    private void showDashboardSection(DashboardSummary summary, LinkedHashMap<String, Integer> visitsPerMonth,
-            LinkedHashMap<String, int[]> loanTrend, List<String[]> recentLoans, List<String[]> todayVisits) {
+    private void showDashboardSection(
+            DashboardSummary summary,
+            LinkedHashMap<String, Integer> visitsPerMonth,
+            LinkedHashMap<String, int[]> loanTrend,
+            List<String[]> recentLoans,
+            List<String[]> todayVisits) {
         setTopbarTitle("Dashboard");
         if (contentSwitcher != null) {
             VBox dashboardContent = new VBox(18);
@@ -753,6 +784,30 @@ class AdminDashboardFxApp extends Application {
         bookManagementSectionView.refreshData();
     }
 
+    private void showMemberManagementSection() {
+        setTopbarTitle("Manajemen Anggota");
+        if (contentSwitcher == null) {
+            return;
+        }
+        if (memberManagementSectionView == null) {
+            memberManagementSectionView = new MemberManagementPanel();
+        }
+        contentSwitcher.getChildren().setAll(memberManagementSectionView.create());
+        memberManagementSectionView.refreshData();
+    }
+
+    private void showLoanManagementSection() {
+        setTopbarTitle("Peminjaman & Pengembalian");
+        if (contentSwitcher == null) {
+            return;
+        }
+        if (loanManagementSectionView == null) {
+            loanManagementSectionView = new LoanManagementPanel();
+        }
+        contentSwitcher.getChildren().setAll(loanManagementSectionView.create());
+        loanManagementSectionView.refreshData();
+    }
+
     private void setTopbarTitle(String title) {
         if (topbarTitleLabel != null) {
             topbarTitleLabel.setText(safeValue(title));
@@ -785,25 +840,17 @@ class AdminDashboardFxApp extends Application {
 
         grid.add(createStatCard("Total Buku", summary.getTotalBooks(), "Total judul katalog", "\uD83D\uDCD8",
                 "icon-blue"), 0, 0);
-        grid.add(
-                createStatCard("Total Anggota", summary.getTotalMembers(), "Anggota terdaftar", "\uD83D\uDC65",
-                        "icon-green"),
-                1,
-                0);
-        grid.add(
-                createStatCard("Peminjaman Aktif", summary.getActiveLoans(), "Sedang dipinjam", "\u21C4",
-                        "icon-orange"),
-                2,
-                0);
+        grid.add(createStatCard("Total Anggota", summary.getTotalMembers(), "Anggota terdaftar", "\uD83D\uDC65",
+                "icon-green"), 1, 0);
+        grid.add(createStatCard("Peminjaman Aktif", summary.getActiveLoans(), "Sedang dipinjam", "\u21C4",
+                "icon-orange"), 2, 0);
         grid.add(createStatCard("Kunjungan Hari Ini", summary.getVisitsToday(), "Tanggal " + LocalDate.now(),
-                "\uD83E\uDDD1",
-                "icon-purple"), 3, 0);
+                "\uD83E\uDDD1", "icon-purple"), 3, 0);
         grid.add(createStatCard("Buku Tersedia", summary.getAvailableCopies(),
                 "Dari " + summary.getTotalCopies() + " eksemplar", "\u2705", "icon-teal"), 4, 0);
-        grid.add(
-                createStatCard("Permintaan Pending", summary.getPendingRequests(), "Perlu ditinjau", "\uD83D\uDCE5",
-                        "icon-sand"),
-                5, 0);
+        grid.add(createStatCard("Permintaan Pending", summary.getPendingRequests(), "Perlu ditinjau", "\uD83D\uDCE5",
+                "icon-sand"), 5, 0);
+
         return grid;
     }
 
@@ -849,10 +896,13 @@ class AdminDashboardFxApp extends Application {
 
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
+
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("card-title");
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
         if ("Tren Peminjaman & Pengembalian".equals(title)) {
             header.getChildren().addAll(titleLabel, spacer, createChartLegend());
         } else {
@@ -869,9 +919,11 @@ class AdminDashboardFxApp extends Application {
 
         card.getChildren().addAll(header, chartWrapper);
         VBox.setVgrow(chart, Priority.ALWAYS);
+
         if (chart instanceof BarChart<?, ?> barChart) {
             Platform.runLater(() -> installBarValueLabels(barChart, labelLayer));
         }
+
         return card;
     }
 
@@ -887,10 +939,13 @@ class AdminDashboardFxApp extends Application {
     private Node createLegendChip(String text, String colorClass) {
         HBox chip = new HBox(6);
         chip.setAlignment(Pos.CENTER_LEFT);
+
         Label dot = new Label("\u25CF");
         dot.getStyleClass().addAll("legend-dot", colorClass);
+
         Label label = new Label(text);
         label.getStyleClass().add("legend-text");
+
         chip.getChildren().addAll(dot, label);
         return chip;
     }
@@ -917,6 +972,7 @@ class AdminDashboardFxApp extends Application {
         for (Map.Entry<String, Integer> entry : visitsPerMonth.entrySet()) {
             series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
         }
+
         chart.getData().add(series);
         return chart;
     }
@@ -941,6 +997,7 @@ class AdminDashboardFxApp extends Application {
 
         XYChart.Series<String, Number> loanSeries = new XYChart.Series<>();
         loanSeries.setName("Pinjam");
+
         XYChart.Series<String, Number> returnSeries = new XYChart.Series<>();
         returnSeries.setName("Kembali");
 
@@ -968,6 +1025,7 @@ class AdminDashboardFxApp extends Application {
                         Label valueLabel = new Label(String.valueOf(data.getYValue()));
                         valueLabel.getStyleClass().add("bar-value-label");
                         overlay.getChildren().add(valueLabel);
+
                         barNode.boundsInParentProperty().addListener(
                                 (boundsObservable, oldBounds, newBounds) -> positionBarValueLabel(barNode, valueLabel,
                                         overlay));
@@ -979,10 +1037,10 @@ class AdminDashboardFxApp extends Application {
                     Label valueLabel = new Label(String.valueOf(data.getYValue()));
                     valueLabel.getStyleClass().add("bar-value-label");
                     overlay.getChildren().add(valueLabel);
+
                     data.getNode().boundsInParentProperty().addListener(
                             (boundsObservable, oldBounds, newBounds) -> positionBarValueLabel(data.getNode(),
-                                    valueLabel,
-                                    overlay));
+                                    valueLabel, overlay));
                     positionBarValueLabel(data.getNode(), valueLabel, overlay);
                 }
             }
@@ -1003,8 +1061,10 @@ class AdminDashboardFxApp extends Application {
 
         Bounds sceneBounds = barNode.localToScene(barNode.getBoundsInLocal());
         Point2D topLeft = overlay.sceneToLocal(sceneBounds.getMinX(), sceneBounds.getMinY());
+
         valueLabel.applyCss();
         valueLabel.autosize();
+
         double x = topLeft.getX() + (sceneBounds.getWidth() - valueLabel.getWidth()) / 2.0;
         double y = topLeft.getY() - valueLabel.getHeight() - 4;
         valueLabel.relocate(x, Math.max(0, y));
@@ -1022,6 +1082,7 @@ class AdminDashboardFxApp extends Application {
     private Node createRecentLoanCard(List<String[]> rows) {
         VBox card = createListCard("Peminjaman Terkini", "Lihat semua",
                 () -> openFxSection("Peminjaman & Pengembalian"));
+
         VBox items = new VBox(2);
         if (rows.isEmpty()) {
             items.getChildren().add(createEmptyItem("Belum ada data peminjaman."));
@@ -1029,17 +1090,21 @@ class AdminDashboardFxApp extends Application {
             for (String[] row : rows) {
                 LoanBadge loanBadge = resolveLoanBadge(row[4], row[3]);
                 Label badge = createStatusBadge(loanBadge.label(), loanBadge.variant());
+
                 String iconClass = switch (loanBadge.variant()) {
                     case "success" -> "item-icon-loan-success";
                     case "warning" -> "item-icon-loan-warning";
                     default -> "item-icon-loan-active";
                 };
+
                 String iconText = switch (loanBadge.variant()) {
                     case "success" -> "\u2713";
                     case "warning" -> "!";
                     default -> "\u2197";
                 };
+
                 String dueDate = formatDate(row[3]);
+
                 Node item = createListItem(
                         iconText,
                         iconClass,
@@ -1050,6 +1115,7 @@ class AdminDashboardFxApp extends Application {
                 items.getChildren().add(item);
             }
         }
+
         card.getChildren().add(items);
         return card;
     }
@@ -1057,6 +1123,7 @@ class AdminDashboardFxApp extends Application {
     private Node createTodayVisitCard(List<String[]> rows) {
         VBox card = createListCard("Kunjungan Hari Ini", "Lihat semua",
                 () -> openFxSection("Kunjungan Hari Ini"));
+
         VBox items = new VBox(2);
         if (rows.isEmpty()) {
             items.getChildren().add(createEmptyItem("Belum ada kunjungan hari ini."));
@@ -1066,6 +1133,7 @@ class AdminDashboardFxApp extends Application {
                 String status = isInside ? "Di dalam" : "Selesai";
                 Label badge = createStatusBadge(status, isInside ? "success" : "muted");
                 String iconClass = "MEMBER".equalsIgnoreCase(row[2]) ? "item-icon-member" : "item-icon-guest";
+
                 Node item = createListItem(
                         "MEMBER".equalsIgnoreCase(row[2]) ? "\uD83C\uDF93" : "\uD83D\uDC64",
                         iconClass,
@@ -1076,6 +1144,7 @@ class AdminDashboardFxApp extends Application {
                 items.getChildren().add(item);
             }
         }
+
         card.getChildren().add(items);
         return card;
     }
@@ -1087,17 +1156,22 @@ class AdminDashboardFxApp extends Application {
 
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
+
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("card-title");
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
         Button action = new Button(actionText);
         action.getStyleClass().add("card-action-button");
         action.setOnAction(event -> actionHandler.run());
+
         header.getChildren().addAll(titleLabel, spacer, action);
 
         Separator separator = new Separator();
         separator.getStyleClass().add("card-separator");
+
         card.getChildren().addAll(header, separator);
         return card;
     }
@@ -1152,6 +1226,7 @@ class AdminDashboardFxApp extends Application {
         }
 
         String normalizedStatus = rawStatus.toUpperCase(Locale.ROOT);
+
         if (isReturnedStatus(normalizedStatus)) {
             return new LoanBadge("Selesai", "success");
         }
@@ -1199,8 +1274,10 @@ class AdminDashboardFxApp extends Application {
         if (value == null || value.isBlank()) {
             return "-";
         }
+
         String[] parts = value.split(" ");
         StringBuilder builder = new StringBuilder();
+
         for (String part : parts) {
             if (part.isBlank()) {
                 continue;
@@ -1212,6 +1289,7 @@ class AdminDashboardFxApp extends Application {
             }
             builder.append(capitalized);
         }
+
         return builder.toString();
     }
 
@@ -1238,11 +1316,13 @@ class AdminDashboardFxApp extends Application {
         String displayName = "Admin " + capitalizeWords(username.replace('.', ' ').replace('_', ' '));
         String email = username.toLowerCase(ID_LOCALE) + "@perpus.ac.id";
         String avatarText = username.substring(0, 1).toUpperCase(ID_LOCALE);
+
         return new String[] { displayName, email, avatarText };
     }
 
     private void openFxSection(String menuName) {
         setActiveMenu(menuName);
+
         if ("Dashboard".equals(menuName)) {
             showDashboardSection(
                     safeLoad(dashboardService::getSummary, new DashboardSummary()),
@@ -1252,10 +1332,22 @@ class AdminDashboardFxApp extends Application {
                     safeLoad(() -> dashboardService.getTodayVisits(6), Collections.emptyList()));
             return;
         }
+
         if ("Manajemen Buku".equals(menuName)) {
             showBookManagementSection();
             return;
         }
+
+        if ("Manajemen Anggota".equals(menuName)) {
+            showMemberManagementSection();
+            return;
+        }
+
+        if ("Peminjaman & Pengembalian".equals(menuName)) {
+            showLoanManagementSection();
+            return;
+        }
+
         if ("Laporan".equals(menuName)) {
             showReportSection();
             return;
@@ -1268,7 +1360,8 @@ class AdminDashboardFxApp extends Application {
             showKioskOnCurrentStage();
             return;
         }
-        showInfo("Menu " + menuName + " sedang dimigrasi ke JavaFX.");
+
+        showInfo("Menu " + menuName + " belum tersedia.");
     }
 
     private void showKioskOnCurrentStage() {
