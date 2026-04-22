@@ -7,7 +7,7 @@ public class FineRule {
 
     private FineRule() {
         this.defaultLoanDays = 7;
-        this.dailyFine = 1000;
+        this.dailyFine = 5000;
     }
 
     public static FineRule getInstance() {

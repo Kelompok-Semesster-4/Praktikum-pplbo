@@ -3,6 +3,7 @@ package com.library.app.ui.panel;
 import com.library.app.dao.LoanDAO;
 import com.library.app.model.Loan;
 import com.library.app.model.Visit;
+import com.library.app.model.enums.VisitPresenceStatus;
 import com.library.app.model.enums.VisitType;
 import com.library.app.service.LoanService;
 import com.library.app.service.VisitService;
@@ -17,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -25,11 +27,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +50,12 @@ public class LoanManagementPanel {
     }
 
     private static final Locale ID_LOCALE = Locale.forLanguageTag("id-ID");
+    private static final DateTimeFormatter UI_DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter MODAL_SOURCE_DATE_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter MODAL_DB_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter MODAL_RETURN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy", ID_LOCALE);
+    private static final DateTimeFormatter VISIT_TABLE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter VISIT_TABLE_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final double MODAL_WIDTH = 560;
     private static final double MODAL_HEIGHT = 360;
 
@@ -117,6 +129,7 @@ public class LoanManagementPanel {
         VBox titleBox = new VBox(4);
         Label titleLabel = new Label("Peminjaman & Pengembalian");
         titleLabel.getStyleClass().add("section-title");
+        subtitleLabel.setText("Kelola transaksi peminjaman, pengembalian, dan kunjungan");
         subtitleLabel.getStyleClass().add("section-subtitle");
         titleBox.getChildren().addAll(titleLabel, subtitleLabel);
 
@@ -128,12 +141,22 @@ public class LoanManagementPanel {
 
         header.getChildren().addAll(titleBox, spacer, primaryActionButton);
 
-        HBox tabsRow = new HBox(10);
+        HBox tabsRow = new HBox(0);
         tabsRow.getStyleClass().add("loan-tab-row");
         activeTabButton.getStyleClass().add("loan-tab-button");
         returnedTabButton.getStyleClass().add("loan-tab-button");
         memberVisitTabButton.getStyleClass().add("loan-tab-button");
         guestVisitTabButton.getStyleClass().add("loan-tab-button");
+
+        configureTabButtonGraphic(activeTabButton,
+            "M3 4h7a3 3 0 0 1 2 2v10a2 2 0 0 0-2-2H3z M21 4h-7a3 3 0 0 0-2 2v10a2 2 0 0 1 2-2h7z");
+        configureTabButtonGraphic(returnedTabButton,
+            "M4 5v6h6 M4 11a8 8 0 1 0 2.4-5.7");
+        configureTabButtonGraphic(memberVisitTabButton,
+            "M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M6 20a6 6 0 0 1 12 0");
+        configureTabButtonGraphic(guestVisitTabButton,
+            "M11 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6 M5 20a6 6 0 0 1 12 0 M18 8h4 M20 6v4");
+
         tabsRow.getChildren().addAll(
                 activeTabButton,
                 returnedTabButton,
@@ -146,21 +169,26 @@ public class LoanManagementPanel {
         toolbar.setAlignment(Pos.CENTER_LEFT);
         toolbar.setPadding(new Insets(14, 16, 14, 16));
 
-        searchField.setPromptText("Cari data...");
+        searchField.setPromptText("Cari nama, NIM, atau judul buku...");
         searchField.getStyleClass().add("loan-search-input");
-        HBox.setHgrow(searchField, Priority.ALWAYS);
-        toolbar.getChildren().add(searchField);
 
-        VBox tableCard = new VBox(10);
-        tableCard.getStyleClass().addAll("list-card", "loan-table-card");
+        SVGPath searchIconSvg = new SVGPath();
+        searchIconSvg.setContent("M11 19a8 8 0 1 1 5.293-2.707l4.207 4.207-1.414 1.414-4.207-4.207A7.963 7.963 0 0 1 11 19zm0-2a6 6 0 1 0 0-12 6 6 0 0 0 0 12z");
+        searchIconSvg.getStyleClass().add("loan-search-icon-svg");
+        StackPane iconWrapper = new StackPane(searchIconSvg);
+        iconWrapper.setMinWidth(20);
+
+        HBox searchBox = new HBox(8, iconWrapper, searchField);
+        searchBox.getStyleClass().add("loan-search-box");
+        searchBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(searchBox, Priority.ALWAYS);
+        HBox.setHgrow(searchField, Priority.ALWAYS);
+        toolbar.getChildren().add(searchBox);
+
+        VBox tableCard = new VBox(0);
+        tableCard.getStyleClass().addAll("loan-table-card");
         tableCard.setPadding(new Insets(0));
         VBox.setVgrow(tableCard, Priority.ALWAYS);
-
-        HBox tableHeader = new HBox();
-        tableHeader.setAlignment(Pos.CENTER_LEFT);
-        tableHeader.setPadding(new Insets(16, 16, 0, 16));
-        tableTitleLabel.getStyleClass().add("card-title");
-        tableHeader.getChildren().add(tableTitleLabel);
 
         mainTable.getStyleClass().add("loan-table");
         mainTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -172,11 +200,24 @@ public class LoanManagementPanel {
         emptyLabel.getStyleClass().add("empty-list");
         mainTable.setPlaceholder(new StackPane(emptyLabel));
 
-        tableCard.getChildren().addAll(tableHeader, mainTable);
+        tableCard.getChildren().add(mainTable);
 
         content.getChildren().addAll(header, tabsRow, toolbar, tableCard);
         VBox.setVgrow(tableCard, Priority.ALWAYS);
         return content;
+    }
+
+    private void configureTabButtonGraphic(Button button, String iconPath) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(iconPath);
+        icon.getStyleClass().add("loan-tab-icon-svg");
+
+        StackPane iconWrap = new StackPane(icon);
+        iconWrap.getStyleClass().add("loan-tab-icon-wrap");
+
+        button.setGraphic(iconWrap);
+        button.setContentDisplay(ContentDisplay.LEFT);
+        button.setGraphicTextGap(6);
     }
 
     private void configureTabButtons() {
@@ -254,12 +295,22 @@ public class LoanManagementPanel {
             String bookTitle = identity[3] == null ? "-" : identity[3].toString();
 
             String statusText;
+            String fineText;
             if (currentMode == LoanViewMode.ACTIVE) {
                 statusText = loan.getDueDate() != null && loan.getDueDate().isBefore(LocalDate.now())
                         ? "Terlambat"
                         : "Aktif";
+
+                if ("Terlambat".equals(statusText) && loan.getDueDate() != null) {
+                    long daysLate = DateUtil.calculateDaysDifference(loan.getDueDate(), LocalDate.now());
+                    long finePerDay = com.library.app.model.FineRule.getInstance().getFinePerDay();
+                    fineText = formatCurrency(BigDecimal.valueOf(daysLate * finePerDay));
+                } else {
+                    fineText = "-";
+                }
             } else {
                 statusText = "Dikembalikan";
+                fineText = formatCurrency(loan.getFineAmount());
             }
 
             rows.add(new LoanRow(
@@ -270,7 +321,7 @@ public class LoanManagementPanel {
                     formatDate(loan.getLoanDate()),
                     formatDate(loan.getDueDate()),
                     formatDate(loan.getReturnDate()),
-                    formatCurrency(loan.getFineAmount()),
+                    fineText,
                     statusText
             ));
         }
@@ -310,13 +361,15 @@ public class LoanManagementPanel {
                     return visit.getVisitType() == VisitType.GUEST;
                 })
                 .map(visit -> new VisitRow(
-                        formatDate(visit.getVisitDate()),
+                        formatVisitDate(visit.getVisitDate()),
                         visit.getVisitType() == VisitType.MEMBER ? "Mahasiswa" : "Tamu",
                         safeText(visit.getVisitorName()),
                         safeText(visit.getVisitorIdentifier()),
                         safeText(visit.getInstitution()),
                         safeText(visit.getPurpose()),
-                        visit.getVisitType() == VisitType.MEMBER ? "Di dalam" : "Tamu"
+                        formatVisitTime(visit.getCheckInTime()),
+                        formatVisitTime(visit.getCheckOutTime()),
+                        resolveVisitStatusText(visit)
                 ))
                 .toList();
 
@@ -337,7 +390,9 @@ public class LoanManagementPanel {
                         contains(row.name(), keyword) ||
                         contains(row.identifier(), keyword) ||
                         contains(row.institution(), keyword) ||
-                        contains(row.purpose(), keyword))
+                        contains(row.purpose(), keyword) ||
+                        contains(row.checkIn(), keyword) ||
+                        contains(row.checkOut(), keyword))
                 .toList();
 
         visibleVisitRows.setAll(filtered);
@@ -345,21 +400,14 @@ public class LoanManagementPanel {
     }
 
     private void updateSubtitle() {
-        if (currentMode == LoanViewMode.ACTIVE) {
-            subtitleLabel.setText(visibleRows.size() + " transaksi peminjaman aktif");
-        } else if (currentMode == LoanViewMode.RETURNED) {
-            subtitleLabel.setText(visibleRows.size() + " riwayat pengembalian");
-        } else if (currentMode == LoanViewMode.MEMBER_VISIT) {
-            subtitleLabel.setText(visibleVisitRows.size() + " kunjungan mahasiswa");
-        } else {
-            subtitleLabel.setText(visibleVisitRows.size() + " data tamu");
-        }
+        subtitleLabel.setText("Kelola transaksi peminjaman, pengembalian, dan kunjungan");
     }
 
     private void rebuildLoanTableColumns() {
         mainTable.getColumns().clear();
 
-        TableColumn<Object, LoanRow> memberColumn = new TableColumn<>("ANGGOTA");
+        TableColumn<Object, LoanRow> memberColumn = new TableColumn<>("PEMINJAM");
+        memberColumn.getStyleClass().add("loan-col-member");
         memberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((LoanRow) cell.getValue()));
         memberColumn.setCellFactory(column -> new TableCell<>() {
             @Override
@@ -370,40 +418,26 @@ public class LoanManagementPanel {
                     setText(null);
                     return;
                 }
-
                 Label name = new Label(item.memberName());
                 name.getStyleClass().add("loan-title-text");
-
-                Label code = new Label(item.memberCode());
+                Label code = new Label("NIM: " + item.memberCode());
                 code.getStyleClass().add("loan-meta-text");
-
                 VBox wrapper = new VBox(2, name, code);
                 wrapper.setAlignment(Pos.CENTER_LEFT);
                 wrapper.setPadding(new Insets(0, 0, 0, 8));
-
                 setGraphic(wrapper);
                 setText(null);
             }
         });
-        memberColumn.setPrefWidth(180);
+        memberColumn.setPrefWidth(200);
 
-        TableColumn<Object, String> copyColumn = new TableColumn<>("KODE EKSEMPLAR");
-        copyColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).copyCode()));
-        copyColumn.setCellFactory(column -> centeredTextCell("loan-code-text"));
-        copyColumn.setPrefWidth(120);
-
-        TableColumn<Object, String> titleColumn = new TableColumn<>("JUDUL");
+        TableColumn<Object, String> titleColumn = new TableColumn<>("BUKU");
         titleColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).bookTitle()));
         titleColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-
+                if (empty || item == null) { setGraphic(null); setText(null); return; }
                 Label label = new Label(item);
                 label.getStyleClass().add("loan-book-text");
                 label.setWrapText(true);
@@ -411,37 +445,100 @@ public class LoanManagementPanel {
                 setText(null);
             }
         });
-        titleColumn.setPrefWidth(220);
+        titleColumn.setPrefWidth(210);
+
+        TableColumn<Object, String> loanDateColumn = new TableColumn<>("TGL PINJAM");
+        loanDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).loanDate()));
+        loanDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+        loanDateColumn.setPrefWidth(105);
 
         if (currentMode == LoanViewMode.ACTIVE) {
-            TableColumn<Object, String> loanDateColumn = new TableColumn<>("PINJAM");
-            loanDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).loanDate()));
-            loanDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
-            loanDateColumn.setPrefWidth(110);
-
             TableColumn<Object, String> dueDateColumn = new TableColumn<>("JATUH TEMPO");
             dueDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).dueDate()));
             dueDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
-            dueDateColumn.setPrefWidth(120);
+            dueDateColumn.setPrefWidth(110);
 
             TableColumn<Object, String> statusColumn = createLoanStatusColumn();
-            mainTable.getColumns().setAll(
-                    memberColumn, copyColumn, titleColumn, loanDateColumn, dueDateColumn, statusColumn
-            );
-        } else {
-            TableColumn<Object, String> returnDateColumn = new TableColumn<>("DIKEMBALIKAN");
-            returnDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).returnDate()));
-            returnDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
-            returnDateColumn.setPrefWidth(120);
+            statusColumn.setPrefWidth(100);
 
             TableColumn<Object, String> fineColumn = new TableColumn<>("DENDA");
             fineColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).fineAmount()));
-            fineColumn.setCellFactory(column -> centeredTextCell("loan-fine-text"));
-            fineColumn.setPrefWidth(120);
+            fineColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); setText(null); return; }
+                    Label label;
+                    if (item.equals("-") || item.equals("Rp0") || item.equals("Rp0.00")) {
+                        label = new Label("-");
+                        label.getStyleClass().add("loan-fine-dash");
+                    } else {
+                        label = new Label("Rp " + item.replace("Rp", "").trim());
+                        label.getStyleClass().add("loan-fine-text");
+                    }
+                    HBox wrapper = new HBox(label);
+                    wrapper.setAlignment(Pos.CENTER);
+                    setGraphic(wrapper);
+                    setText(null);
+                }
+            });
+            fineColumn.setPrefWidth(100);
+
+            TableColumn<Object, LoanRow> actionColumn = new TableColumn<>("");
+            actionColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((LoanRow) cell.getValue()));
+            actionColumn.setSortable(false);
+            actionColumn.setReorderable(false);
+            actionColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(LoanRow item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); setText(null); return; }
+                    Button returnBtn = new Button("Proses Kembali");
+                    returnBtn.getStyleClass().add("loan-return-button");
+                    returnBtn.setOnAction(event -> openReturnModal(item));
+                    HBox wrapper = new HBox(returnBtn);
+                    wrapper.setAlignment(Pos.CENTER);
+                    setGraphic(wrapper);
+                    setText(null);
+                }
+            });
+            actionColumn.setPrefWidth(135);
+
+            mainTable.getColumns().setAll(
+                    memberColumn, titleColumn, loanDateColumn, dueDateColumn, statusColumn, fineColumn, actionColumn
+            );
+        } else {
+            TableColumn<Object, String> returnDateColumn = new TableColumn<>("TGL KEMBALI");
+            returnDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).returnDate()));
+            returnDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+            returnDateColumn.setPrefWidth(110);
+
+            TableColumn<Object, String> fineColumn = new TableColumn<>("DENDA");
+            fineColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).fineAmount()));
+            fineColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) { setGraphic(null); setText(null); return; }
+                    Label label;
+                    if (item.equals("-") || item.equals("Rp0") || item.equals("Rp0.00")) {
+                        label = new Label("-");
+                        label.getStyleClass().add("loan-fine-dash");
+                    } else {
+                        label = new Label("Rp " + item.replace("Rp", "").trim());
+                        label.getStyleClass().add("loan-fine-text");
+                    }
+                    HBox wrapper = new HBox(label);
+                    wrapper.setAlignment(Pos.CENTER);
+                    setGraphic(wrapper);
+                    setText(null);
+                }
+            });
+            fineColumn.setPrefWidth(110);
 
             TableColumn<Object, String> statusColumn = createLoanStatusColumn();
             mainTable.getColumns().setAll(
-                    memberColumn, copyColumn, titleColumn, returnDateColumn, fineColumn, statusColumn
+                    memberColumn, titleColumn, loanDateColumn, returnDateColumn, fineColumn, statusColumn
             );
         }
 
@@ -478,25 +575,68 @@ public class LoanManagementPanel {
     private void rebuildVisitTableColumns() {
         mainTable.getColumns().clear();
 
-        TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
-        dateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).date()));
-        dateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
-        dateColumn.setPrefWidth(110);
+        if (currentMode == LoanViewMode.MEMBER_VISIT) {
+            TableColumn<Object, String> visitorColumn = new TableColumn<>("PENGUNJUNG");
+            visitorColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
+            visitorColumn.setCellFactory(column -> visitTextCell("loan-title-text"));
+            visitorColumn.setPrefWidth(220);
 
-        TableColumn<Object, String> typeColumn = new TableColumn<>("TIPE");
-        typeColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).type()));
-        typeColumn.setCellFactory(column -> centeredTextCell("loan-code-text"));
-        typeColumn.setPrefWidth(110);
+            TableColumn<Object, String> nimColumn = new TableColumn<>("NIM");
+            nimColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).identifier()));
+            nimColumn.setCellFactory(column -> centeredTextCell("loan-code-text"));
+            nimColumn.setPrefWidth(150);
+
+            TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
+            dateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).date()));
+            dateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+            dateColumn.setPrefWidth(140);
+
+            TableColumn<Object, String> inColumn = new TableColumn<>("MASUK");
+            inColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkIn()));
+            inColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+            inColumn.setPrefWidth(120);
+
+            TableColumn<Object, String> outColumn = new TableColumn<>("KELUAR");
+            outColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkOut()));
+            outColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+            outColumn.setPrefWidth(120);
+
+            TableColumn<Object, String> statusColumn = new TableColumn<>("STATUS");
+            statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).status()));
+            statusColumn.setCellFactory(column -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                        setText(null);
+                        return;
+                    }
+
+                    Label badge = new Label(item);
+                    badge.getStyleClass().addAll("status-badge", resolveVisitStatusClass(item));
+
+                    HBox wrapper = new HBox(badge);
+                    wrapper.setAlignment(Pos.CENTER);
+
+                    setGraphic(wrapper);
+                    setText(null);
+                }
+            });
+            statusColumn.setPrefWidth(130);
+
+            mainTable.getColumns().setAll(
+                    visitorColumn, nimColumn, dateColumn, inColumn, outColumn, statusColumn
+            );
+
+            mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
+            return;
+        }
 
         TableColumn<Object, String> nameColumn = new TableColumn<>("NAMA");
         nameColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
         nameColumn.setCellFactory(column -> visitTextCell("loan-title-text"));
-        nameColumn.setPrefWidth(180);
-
-        TableColumn<Object, String> idColumn = new TableColumn<>("IDENTITAS");
-        idColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).identifier()));
-        idColumn.setCellFactory(column -> centeredTextCell("loan-code-text"));
-        idColumn.setPrefWidth(130);
+        nameColumn.setPrefWidth(190);
 
         TableColumn<Object, String> institutionColumn = new TableColumn<>("INSTANSI");
         institutionColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).institution()));
@@ -507,6 +647,21 @@ public class LoanManagementPanel {
         purposeColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).purpose()));
         purposeColumn.setCellFactory(column -> visitTextCell("loan-book-text"));
         purposeColumn.setPrefWidth(180);
+
+        TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
+        dateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).date()));
+        dateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+        dateColumn.setPrefWidth(120);
+
+        TableColumn<Object, String> inColumn = new TableColumn<>("MASUK");
+        inColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkIn()));
+        inColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+        inColumn.setPrefWidth(110);
+
+        TableColumn<Object, String> outColumn = new TableColumn<>("KELUAR");
+        outColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkOut()));
+        outColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
+        outColumn.setPrefWidth(110);
 
         TableColumn<Object, String> statusColumn = new TableColumn<>("STATUS");
         statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).status()));
@@ -521,7 +676,7 @@ public class LoanManagementPanel {
                 }
 
                 Label badge = new Label(item);
-                badge.getStyleClass().addAll("status-badge", "status-success");
+                badge.getStyleClass().addAll("status-badge", resolveVisitStatusClass(item));
 
                 HBox wrapper = new HBox(badge);
                 wrapper.setAlignment(Pos.CENTER);
@@ -533,7 +688,7 @@ public class LoanManagementPanel {
         statusColumn.setPrefWidth(110);
 
         mainTable.getColumns().setAll(
-                dateColumn, typeColumn, nameColumn, idColumn, institutionColumn, purposeColumn, statusColumn
+                nameColumn, institutionColumn, purposeColumn, dateColumn, inColumn, outColumn, statusColumn
         );
 
         mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
@@ -593,6 +748,21 @@ public class LoanManagementPanel {
         return "status-info";
     }
 
+    private String resolveVisitStatusText(Visit visit) {
+        VisitPresenceStatus status = visit.getVisitStatus();
+        if (status == VisitPresenceStatus.DI_DALAM) {
+            return "Di dalam";
+        }
+        return "Selesai";
+    }
+
+    private String resolveVisitStatusClass(String statusText) {
+        if ("Di dalam".equalsIgnoreCase(statusText)) {
+            return "status-success";
+        }
+        return "status-muted";
+    }
+
     private void openPrimaryModal() {
         if (modalOverlay != null) {
             return;
@@ -648,6 +818,148 @@ public class LoanManagementPanel {
         return root;
     }
 
+    private void openReturnModal(LoanRow loanRow) {
+        if (modalOverlay != null) return;
+        StackPane host = resolveModalHost();
+        if (host == null) return;
+        modalOverlay = buildReturnModal(loanRow);
+        modalHost = host;
+        modalHost.getChildren().add(modalOverlay);
+    }
+
+    private StackPane buildReturnModal(LoanRow loanRow) {
+        LocalDate today = LocalDate.now();
+        LocalDate dueDate = parseUiDate(loanRow.dueDate());
+
+        BigDecimal fine = dueDate != null
+                ? com.library.app.util.FineCalculator.processFine(dueDate, today)
+                : BigDecimal.ZERO;
+        boolean hasFinePenalty = fine != null && fine.compareTo(BigDecimal.ZERO) > 0;
+        long daysLate = (dueDate != null && hasFinePenalty)
+                ? com.library.app.util.DateUtil.calculateDaysDifference(dueDate, today)
+                : 0;
+        long finePerDay = com.library.app.model.FineRule.getInstance().getFinePerDay();
+
+        StackPane overlay = buildBaseModalOverlay();
+        VBox card = new VBox();
+        card.getStyleClass().add("loan-modal-card");
+        card.getStyleClass().add("loan-return-modal-card");
+        card.setPrefWidth(446);
+        card.setMaxWidth(446);
+        card.setMaxHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+
+        HBox header = new HBox();
+        header.getStyleClass().add("loan-modal-header");
+        Label titleLbl = new Label("Proses Pengembalian");
+        titleLbl.getStyleClass().add("loan-return-modal-title");
+        Region hSpacer = new Region();
+        HBox.setHgrow(hSpacer, Priority.ALWAYS);
+        Button closeBtn = new Button("×");
+        closeBtn.getStyleClass().add("loan-modal-close");
+        closeBtn.setOnAction(e -> closeModal());
+        header.getChildren().addAll(titleLbl, hSpacer, closeBtn);
+        card.getChildren().addAll(header, buildReturnModalDivider());
+
+        VBox body = new VBox(0);
+        body.getStyleClass().add("loan-return-modal-body");
+
+        VBox detailBox = new VBox(0);
+        detailBox.getStyleClass().add("loan-return-detail-box");
+        detailBox.getChildren().add(buildReturnDetailRow("Peminjam", loanRow.memberName(), true));
+        detailBox.getChildren().add(buildReturnDetailRow("Buku", loanRow.bookTitle(), true));
+        detailBox.getChildren().add(buildReturnDetailRow("Tgl Pinjam", toDbDateText(loanRow.loanDate()), false));
+        detailBox.getChildren().add(buildReturnDetailRow("Jatuh Tempo", toDbDateText(loanRow.dueDate()), false));
+        detailBox.getChildren().add(buildReturnDetailRow("Tgl Kembali", today.format(MODAL_RETURN_DATE_FORMAT), false));
+
+        body.getChildren().add(detailBox);
+
+        VBox infoBox;
+        if (hasFinePenalty) {
+            NumberFormat nf = NumberFormat.getInstance(Locale.forLanguageTag("id-ID"));
+            String fineFormatted = "Rp " + nf.format(fine);
+            String subText = "Terlambat " + daysLate + " hari × Rp " + nf.format(finePerDay) + "/hari";
+
+            Label warningIcon = new Label("⚠");
+            warningIcon.getStyleClass().add("loan-return-info-icon-warning");
+            Label fineTitle = new Label("Denda Keterlambatan");
+            fineTitle.getStyleClass().add("loan-return-fine-title");
+            Region fineRowSpacer = new Region();
+            HBox.setHgrow(fineRowSpacer, Priority.ALWAYS);
+            Label fineAmount = new Label(fineFormatted);
+            fineAmount.getStyleClass().add("loan-return-fine-amount");
+
+            HBox fineRow = new HBox(6, warningIcon, fineTitle, fineRowSpacer, fineAmount);
+            fineRow.setAlignment(Pos.CENTER_LEFT);
+
+            Label subLabel = new Label(subText);
+            subLabel.getStyleClass().add("loan-return-fine-sub");
+
+            infoBox = new VBox(6, fineRow, subLabel);
+            infoBox.getStyleClass().add("loan-return-info-warning");
+            infoBox.setPadding(new Insets(14, 16, 14, 16));
+        } else {
+            Label okIcon = new Label("✓");
+            okIcon.getStyleClass().add("loan-return-info-icon-ok");
+            Label okLabel = new Label("Tidak ada denda. Dikembalikan tepat waktu.");
+            okLabel.getStyleClass().add("loan-return-info-text");
+            HBox okRow = new HBox(8, okIcon, okLabel);
+            okRow.setAlignment(Pos.CENTER_LEFT);
+            okRow.setPadding(new Insets(12, 14, 12, 14));
+            infoBox = new VBox(okRow);
+            infoBox.getStyleClass().add("loan-return-info-ok");
+        }
+        infoBox.setMaxWidth(Double.MAX_VALUE);
+        VBox infoWrapper = new VBox(infoBox);
+        infoWrapper.setPadding(new Insets(14, 0, 0, 0));
+        body.getChildren().add(infoWrapper);
+        card.getChildren().addAll(body, buildReturnModalDivider());
+
+        HBox footer = new HBox(10);
+        footer.getStyleClass().add("loan-modal-footer");
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        Button cancelBtn = new Button("Batal");
+        cancelBtn.getStyleClass().addAll("loan-modal-button", "loan-modal-button-cancel");
+        cancelBtn.setOnAction(e -> closeModal());
+        Button confirmBtn = new Button("Konfirmasi Pengembalian");
+        confirmBtn.getStyleClass().addAll("loan-modal-button", "loan-modal-button-save");
+        confirmBtn.setOnAction(e -> {
+            try {
+                loanService.returnBook(loanRow.copyCode());
+                refreshData();
+                closeModal();
+                showInfo("Buku berhasil dikembalikan.");
+            } catch (Exception ex) {
+                showError(resolveErrorMessage(ex));
+            }
+        });
+        footer.getChildren().addAll(cancelBtn, confirmBtn);
+        card.getChildren().add(footer);
+
+        overlay.getChildren().add(card);
+        return overlay;
+    }
+
+    private Region buildReturnModalDivider() {
+        Region divider = new Region();
+        divider.getStyleClass().add("loan-return-modal-divider");
+        return divider;
+    }
+
+    private HBox buildReturnDetailRow(String key, String value, boolean valueBold) {
+        Label keyLabel = new Label(key);
+        keyLabel.getStyleClass().add("loan-return-detail-key");
+        keyLabel.setMinWidth(100);
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().add(valueBold ? "loan-return-detail-value-bold" : "loan-return-detail-value");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox row = new HBox(keyLabel, spacer, valueLabel);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPadding(new Insets(4, 0, 4, 0));
+        row.getStyleClass().add("loan-return-detail-row");
+        return row;
+    }
+
     private StackPane buildBorrowModal() {
         TextField memberCodeInput = createModalTextField("Masukkan kode anggota");
         TextField copyCodeInput = createModalTextField("Masukkan kode eksemplar");
@@ -688,7 +1000,7 @@ public class LoanManagementPanel {
         TextField purposeInput = createModalTextField("Masukkan keperluan");
 
         StackPane overlay = buildBaseModalOverlay();
-        VBox card = buildBaseModalCard("Absen Tamu Masuk");
+        VBox card = buildBaseModalCard("Absen Tamu");
 
         VBox body = new VBox(16);
         body.getStyleClass().add("loan-modal-body");
@@ -703,14 +1015,14 @@ public class LoanManagementPanel {
         saveButton.getStyleClass().addAll("loan-modal-button", "loan-modal-button-save");
         saveButton.setOnAction(event -> {
             try {
-                visitService.recordGuestVisit(
+                String message = visitService.recordGuestVisit(
                         guestNameInput.getText().trim(),
                         institutionInput.getText().trim(),
                         purposeInput.getText().trim()
                 );
                 refreshData();
                 closeModal();
-                showInfo("Data tamu berhasil dicatat.");
+                showInfo(message);
             } catch (Exception exception) {
                 showError(resolveErrorMessage(exception));
             }
@@ -802,6 +1114,34 @@ public class LoanManagementPanel {
         return date == null ? "-" : DateUtil.format(date);
     }
 
+    private String formatVisitDate(LocalDate date) {
+        return date == null ? "-" : date.format(VISIT_TABLE_DATE_FORMAT);
+    }
+
+    private String formatVisitTime(LocalTime time) {
+        return time == null ? "-" : time.format(VISIT_TABLE_TIME_FORMAT);
+    }
+
+    private LocalDate parseUiDate(String value) {
+        if (value == null || value.isBlank() || "-".equals(value)) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(value, UI_DATE_FORMAT);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private String toDbDateText(String uiDate) {
+        LocalDate parsed = parseUiDate(uiDate);
+        if (parsed == null) {
+            return "-";
+        }
+        return parsed.format(MODAL_DB_DATE_FORMAT);
+    }
+
     private String formatCurrency(BigDecimal value) {
         BigDecimal safeValue = value == null ? BigDecimal.ZERO : value;
         return "Rp" + safeValue.toPlainString();
@@ -827,11 +1167,11 @@ public class LoanManagementPanel {
     }
 
     private void showInfo(String message) {
-        FxFeedback.showSuccessToast(FxFeedback.resolveHost(root), message);
+        FxFeedback.showSuccessToastCentered(FxFeedback.resolveHost(root), message);
     }
 
     private void showError(String message) {
-        FxFeedback.showErrorToast(FxFeedback.resolveHost(root), message);
+        FxFeedback.showErrorToastCentered(FxFeedback.resolveHost(root), message);
     }
 
     private record LoanRow(
@@ -854,6 +1194,8 @@ public class LoanManagementPanel {
             String identifier,
             String institution,
             String purpose,
+            String checkIn,
+            String checkOut,
             String status
     ) {
     }

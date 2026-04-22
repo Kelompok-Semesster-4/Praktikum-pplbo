@@ -20,7 +20,7 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
     private final JTextField guestPurposeField = new JTextField();
 
     private final DefaultTableModel tableModel = new DefaultTableModel(
-            new Object[]{"Tanggal", "Tipe", "Status", "Nama", "Identitas", "Instansi", "Keperluan"}, 0);
+            new Object[]{"Tanggal", "Tipe", "Status", "Nama", "Identitas", "Instansi", "Keperluan", "Masuk", "Keluar"}, 0);
 
     public VisitPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -48,7 +48,7 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
         guestPanel.add(guestInstitutionField);
         guestPanel.add(new JLabel("Keperluan"));
         guestPanel.add(guestPurposeField);
-        JButton guestButton = new JButton("Simpan Guest");
+        JButton guestButton = new JButton("Proses Absen Tamu");
         guestButton.addActionListener(event -> recordGuestVisit());
         guestPanel.add(guestButton);
 
@@ -70,8 +70,12 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
 
     private void recordGuestVisit() {
         try {
-            visitService.recordGuestVisit(guestNameField.getText(), guestInstitutionField.getText(), guestPurposeField.getText());
-            UiUtil.showInfo(this, "Kunjungan guest berhasil dicatat.");
+            String message = visitService.recordGuestVisit(
+                    guestNameField.getText(),
+                    guestInstitutionField.getText(),
+                    guestPurposeField.getText()
+            );
+            UiUtil.showInfo(this, message);
             guestNameField.setText("");
             guestInstitutionField.setText("");
             guestPurposeField.setText("");
@@ -93,7 +97,9 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
                     visit.getVisitorName(),
                     visit.getVisitorIdentifier(),
                     visit.getInstitution(),
-                    visit.getPurpose()
+                    visit.getPurpose(),
+                    visit.getCheckInTime() == null ? "-" : visit.getCheckInTime().toString(),
+                    visit.getCheckOutTime() == null ? "-" : visit.getCheckOutTime().toString()
             });
         }
     }

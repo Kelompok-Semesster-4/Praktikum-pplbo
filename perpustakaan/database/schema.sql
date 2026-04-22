@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS visits (
     institution VARCHAR(150),
     purpose VARCHAR(255),
     visit_date DATE NOT NULL,
+    check_in_time TIME NULL,
+    check_out_time TIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES members(id)
 );

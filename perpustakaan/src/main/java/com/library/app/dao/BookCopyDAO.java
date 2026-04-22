@@ -94,6 +94,22 @@ public class BookCopyDAO {
         }
     }
 
+    public Optional<String> findFirstAvailableCopyCode(long bookId) {
+        String sql = "SELECT copy_code FROM book_copies WHERE book_id = ? AND status = 'AVAILABLE' ORDER BY copy_code LIMIT 1";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, bookId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(resultSet.getString("copy_code"));
+                }
+            }
+            return Optional.empty();
+        } catch (SQLException exception) {
+            throw new RuntimeException("Gagal mengambil eksemplar tersedia.", exception);
+        }
+    }
+
     public void deleteByBookId(long bookId) {
         String sql = "DELETE FROM book_copies WHERE book_id = ?";
         try (Connection connection = DBConnection.getConnection();

@@ -4,6 +4,7 @@ import com.library.app.model.enums.VisitPresenceStatus;
 import com.library.app.model.enums.VisitType;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Visit {
     private Long id;
@@ -15,12 +16,15 @@ public class Visit {
     private String institution;
     private String purpose;
     private LocalDate visitDate;
+    private LocalTime checkInTime;
+    private LocalTime checkOutTime;
 
     public Visit() {
     }
 
     public Visit(Long id, Long memberId, String visitorName, String visitorIdentifier, VisitType visitType,
-                 VisitPresenceStatus visitStatus, String institution, String purpose, LocalDate visitDate) {
+                 VisitPresenceStatus visitStatus, String institution, String purpose, LocalDate visitDate,
+                 LocalTime checkInTime, LocalTime checkOutTime) {
         this.id = id;
         this.memberId = memberId;
         this.visitorName = visitorName;
@@ -30,6 +34,8 @@ public class Visit {
         this.institution = institution;
         this.purpose = purpose;
         this.visitDate = visitDate;
+        this.checkInTime = checkInTime;
+        this.checkOutTime = checkOutTime;
     }
 
     public Long getId() {
@@ -68,6 +74,14 @@ public class Visit {
         return visitDate;
     }
 
+    public LocalTime getCheckInTime() {
+        return checkInTime;
+    }
+
+    public LocalTime getCheckOutTime() {
+        return checkOutTime;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -102,5 +116,13 @@ public class Visit {
 
     public void setVisitDate(LocalDate visitDate) {
         this.visitDate = visitDate;
+    }
+
+    public void setCheckInTime(LocalTime checkInTime) {
+        this.checkInTime = checkInTime;
+    }
+
+    public void setCheckOutTime(LocalTime checkOutTime) {
+        this.checkOutTime = checkOutTime;
     }
 }

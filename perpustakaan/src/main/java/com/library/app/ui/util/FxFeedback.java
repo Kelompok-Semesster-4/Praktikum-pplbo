@@ -39,14 +39,22 @@ public final class FxFeedback {
     }
 
     public static void showSuccessToast(StackPane host, String message) {
-        showToast(host, message, true);
+        showToast(host, message, true, Pos.TOP_RIGHT, new Insets(22, 22, 0, 0), false);
     }
 
     public static void showErrorToast(StackPane host, String message) {
-        showToast(host, message, false);
+        showToast(host, message, false, Pos.TOP_RIGHT, new Insets(22, 22, 0, 0), false);
     }
 
-    private static void showToast(StackPane host, String message, boolean success) {
+    public static void showSuccessToastCentered(StackPane host, String message) {
+        showToast(host, message, true, Pos.CENTER, Insets.EMPTY, true);
+    }
+
+    public static void showErrorToastCentered(StackPane host, String message) {
+        showToast(host, message, false, Pos.CENTER, Insets.EMPTY, true);
+    }
+
+    private static void showToast(StackPane host, String message, boolean success, Pos alignment, Insets margin, boolean compact) {
         if (host == null) {
             return;
         }
@@ -56,8 +64,13 @@ public final class FxFeedback {
         HBox toast = new HBox(12);
         toast.getProperties().put("fx-toast", true);
         toast.getStyleClass().addAll("fx-toast", success ? "fx-toast-success" : "fx-toast-error");
+        if (compact) {
+            toast.getStyleClass().add("fx-toast-compact");
+        }
         toast.setAlignment(Pos.CENTER_LEFT);
-        toast.setMaxWidth(380);
+        toast.setFillHeight(false);
+        toast.setMaxWidth(360);
+        toast.setMaxHeight(Region.USE_PREF_SIZE);
         toast.setOpacity(0);
 
         Label icon = new Label(success ? "✓" : "✕");
@@ -66,6 +79,7 @@ public final class FxFeedback {
         Label text = new Label(message == null ? "" : message);
         text.getStyleClass().add("fx-toast-text");
         text.setWrapText(true);
+        text.setMaxWidth(250);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -76,8 +90,8 @@ public final class FxFeedback {
 
         toast.getChildren().addAll(icon, text, spacer, closeButton);
 
-        StackPane.setAlignment(toast, Pos.TOP_RIGHT);
-        StackPane.setMargin(toast, new Insets(22, 22, 0, 0));
+        StackPane.setAlignment(toast, alignment == null ? Pos.TOP_RIGHT : alignment);
+        StackPane.setMargin(toast, margin == null ? Insets.EMPTY : margin);
         host.getChildren().add(toast);
 
         FadeTransition fadeIn = new FadeTransition(Duration.millis(180), toast);

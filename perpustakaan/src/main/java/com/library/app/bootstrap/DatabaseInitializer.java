@@ -82,6 +82,8 @@ public final class DatabaseInitializer {
                         institution VARCHAR(150),
                         purpose VARCHAR(255),
                         visit_date DATE NOT NULL,
+                        check_in_time TIME NULL,
+                        check_out_time TIME NULL,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (member_id) REFERENCES members(id)
                     )
@@ -166,11 +168,26 @@ public final class DatabaseInitializer {
             ensureColumnExists(connection, "feedbacks", "response_note", "ALTER TABLE feedbacks ADD COLUMN response_note TEXT NULL AFTER status");
             ensureColumnExists(connection, "feedbacks", "responded_at", "ALTER TABLE feedbacks ADD COLUMN responded_at TIMESTAMP NULL AFTER created_at");
             ensureColumnExists(connection, "visits", "visit_status", "ALTER TABLE visits ADD COLUMN visit_status VARCHAR(20) NOT NULL DEFAULT 'SELESAI' AFTER visit_type");
+            ensureColumnExists(connection, "visits", "check_in_time", "ALTER TABLE visits ADD COLUMN check_in_time TIME NULL AFTER visit_date");
+            ensureColumnExists(connection, "visits", "check_out_time", "ALTER TABLE visits ADD COLUMN check_out_time TIME NULL AFTER check_in_time");
+            normalizeOpenVisitStatus(connection);
             ensureColumnExists(connection, "procurement_requests", "publisher", "ALTER TABLE procurement_requests ADD COLUMN publisher VARCHAR(150) NULL AFTER author");
             ensureColumnExists(connection, "procurement_requests", "publication_year", "ALTER TABLE procurement_requests ADD COLUMN publication_year INT NULL AFTER publisher");
             ensureColumnExists(connection, "procurement_requests", "isbn", "ALTER TABLE procurement_requests ADD COLUMN isbn VARCHAR(30) NULL AFTER publication_year");
         } catch (SQLException exception) {
             throw new IllegalStateException("Gagal memperbarui struktur tabel database.", exception);
+        }
+    }
+
+    private static void normalizeOpenVisitStatus(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    UPDATE visits
+                    SET visit_status = 'SELESAI',
+                        check_out_time = COALESCE(check_out_time, '23:59:00')
+                    WHERE visit_status = 'DI_DALAM'
+                      AND visit_date < CURDATE()
+                    """);
         }
     }
 
