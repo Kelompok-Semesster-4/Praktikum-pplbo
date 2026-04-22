@@ -14,6 +14,7 @@ import com.library.app.ui.StageTransition;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.animation.PauseTransition;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -44,6 +45,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
@@ -112,6 +114,8 @@ public class DashboardPanel extends JPanel implements RefreshablePanel {
 class AdminDashboardFxApp extends Application {
     private static final int MONTH_RANGE = 7;
     private static final int NOTIFICATION_LIMIT = 80;
+    private static final double DASHBOARD_LIST_VIEWPORT_HEIGHT = 300;
+    private static final Duration DASHBOARD_LIST_SCROLLBAR_HIDE_DELAY = Duration.millis(850);
     private static final Locale ID_LOCALE = Locale.forLanguageTag("id-ID");
     private static final List<String> NOTIFICATION_FILTER_OPTIONS = List.of(
             "Semua",
@@ -1122,7 +1126,7 @@ class AdminDashboardFxApp extends Application {
             }
         }
 
-        card.getChildren().add(items);
+        card.getChildren().add(createScrollableListBody(items));
         return card;
     }
 
@@ -1151,7 +1155,7 @@ class AdminDashboardFxApp extends Application {
             }
         }
 
-        card.getChildren().add(items);
+        card.getChildren().add(createScrollableListBody(items));
         return card;
     }
 
@@ -1159,6 +1163,8 @@ class AdminDashboardFxApp extends Application {
         VBox card = new VBox(10);
         card.getStyleClass().add("list-card");
         card.setPadding(new Insets(16));
+        card.setFillWidth(true);
+        card.setMaxWidth(Double.MAX_VALUE);
 
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
@@ -1182,12 +1188,64 @@ class AdminDashboardFxApp extends Application {
         return card;
     }
 
+    private Node createScrollableListBody(VBox items) {
+        items.getStyleClass().add("dashboard-list-items");
+        items.setFillWidth(true);
+
+        ScrollPane listScrollPane = new ScrollPane(items);
+        listScrollPane.getStyleClass().addAll("dashboard-list-scroll", "app-scroll");
+        listScrollPane.setFitToWidth(true);
+        listScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        listScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        listScrollPane.setPannable(true);
+        listScrollPane.setMinHeight(0);
+        listScrollPane.setPrefViewportHeight(DASHBOARD_LIST_VIEWPORT_HEIGHT);
+        configureAutoHideListScrollbar(listScrollPane);
+        VBox.setVgrow(listScrollPane, Priority.ALWAYS);
+        return listScrollPane;
+    }
+
+    private void configureAutoHideListScrollbar(ScrollPane listScrollPane) {
+        PauseTransition hideTimer = new PauseTransition(DASHBOARD_LIST_SCROLLBAR_HIDE_DELAY);
+        hideTimer.setOnFinished(event -> setListScrollbarVisible(listScrollPane, false));
+
+        Runnable showScrollbar = () -> {
+            setListScrollbarVisible(listScrollPane, true);
+            hideTimer.playFromStart();
+        };
+
+        listScrollPane.setOnMouseEntered(event -> showScrollbar.run());
+        listScrollPane.setOnMouseMoved(event -> showScrollbar.run());
+        listScrollPane.setOnMousePressed(event -> showScrollbar.run());
+        listScrollPane.setOnScroll(event -> showScrollbar.run());
+        listScrollPane.setOnMouseExited(event -> hideTimer.playFromStart());
+        listScrollPane.focusedProperty().addListener((observable, oldValue, isFocused) -> {
+            if (isFocused) {
+                showScrollbar.run();
+            } else {
+                hideTimer.playFromStart();
+            }
+        });
+        listScrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> showScrollbar.run());
+
+        Platform.runLater(() -> setListScrollbarVisible(listScrollPane, false));
+    }
+
+    private void setListScrollbarVisible(ScrollPane listScrollPane, boolean visible) {
+        double opacity = visible ? 1.0 : 0.0;
+        for (Node node : listScrollPane.lookupAll(".scroll-bar:vertical")) {
+            node.setOpacity(opacity);
+            node.setMouseTransparent(!visible);
+        }
+    }
+
     private Node createListItem(String iconText, String iconClass, String title, String subtitle, String meta,
             Label badge) {
         HBox row = new HBox(12);
         row.getStyleClass().add("list-item");
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(8, 0, 8, 0));
+        row.setMaxWidth(Double.MAX_VALUE);
 
         Label icon = new Label(iconText);
         icon.getStyleClass().addAll("list-item-icon", iconClass);
@@ -1217,6 +1275,7 @@ class AdminDashboardFxApp extends Application {
         label.getStyleClass().add("empty-list");
         VBox wrapper = new VBox(label);
         wrapper.setPadding(new Insets(10, 0, 8, 0));
+        wrapper.setMaxWidth(Double.MAX_VALUE);
         return wrapper;
     }
 
