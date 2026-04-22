@@ -91,7 +91,7 @@ public class BookManagementPanel {
 }
 
     private VBox buildContent() {
-        VBox content = new VBox(18);
+        VBox content = new VBox(16);
         content.getStyleClass().add("book-management-content");
         content.setPadding(Insets.EMPTY);
         content.setFillWidth(true);

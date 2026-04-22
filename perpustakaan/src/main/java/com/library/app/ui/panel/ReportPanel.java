@@ -72,7 +72,7 @@ public class ReportPanel {
    public Node create() {
       VBox content = new VBox(16);
       content.getStyleClass().add("report-content");
-      content.setPadding(new Insets(16, 24, 24, 24));
+      content.setPadding(Insets.EMPTY);
       content.setFillWidth(true);
 
       HBox header = new HBox();
