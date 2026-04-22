@@ -48,7 +48,6 @@ public class MemberManagementPanel {
     private static final Locale ID_LOCALE = Locale.forLanguageTag("id-ID");
     private static final double ADD_MEMBER_MODAL_WIDTH = 760;
     private static final double ADD_MEMBER_MODAL_HEIGHT = 520;
-    private static final double MEMBER_TABLE_HEADER_HEIGHT = 44;
 
     private final MemberService memberService = new MemberService();
     private final ObservableList<Member> members = FXCollections.observableArrayList();
@@ -68,6 +67,7 @@ public class MemberManagementPanel {
             VBox content = buildContent();
             root = new StackPane(content);
             root.getStyleClass().add("member-management-root");
+            root.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             StackPane.setAlignment(content, Pos.TOP_LEFT);
 
             bindFilterEvents();
@@ -94,9 +94,11 @@ public class MemberManagementPanel {
     }
 
     private VBox buildContent() {
-        VBox content = new VBox(18);
+        VBox content = new VBox(16);
         content.getStyleClass().add("member-management-content");
         content.setPadding(Insets.EMPTY);
+        content.setFillWidth(true);
+        content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         HBox header = new HBox();
         header.getStyleClass().add("member-section-header");
@@ -150,11 +152,13 @@ public class MemberManagementPanel {
         VBox tableCard = new VBox(10);
         tableCard.getStyleClass().addAll("list-card", "member-table-card");
         tableCard.setPadding(new Insets(0));
+        VBox.setVgrow(tableCard, Priority.ALWAYS);
 
         memberTable.getStyleClass().add("member-table");
         memberTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         memberTable.setFixedCellSize(56);
         memberTable.setFocusTraversable(false);
+        VBox.setVgrow(memberTable, Priority.ALWAYS);
 
         Label emptyLabel = new Label("Belum ada data anggota yang dapat ditampilkan.");
         emptyLabel.getStyleClass().add("empty-list");
@@ -170,10 +174,7 @@ public class MemberManagementPanel {
     private void bindFilterEvents() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> applyFilters());
         typeFilter.valueProperty().addListener((observable, oldValue, newValue) -> applyFilters());
-        filteredMembers.addListener((ListChangeListener<Member>) change -> {
-            updateSubtitle();
-            updateTableHeight();
-        });
+        filteredMembers.addListener((ListChangeListener<Member>) change -> updateSubtitle());
     }
 
     private void configureTable() {
@@ -421,18 +422,6 @@ public class MemberManagementPanel {
                 statusColumn,
                 actionColumn
         );
-
-        updateTableHeight();
-    }
-
-    private void updateTableHeight() {
-        double rowHeight = memberTable.getFixedCellSize() > 0 ? memberTable.getFixedCellSize() : 56;
-        int rowCount = Math.max(filteredMembers.size(), 1);
-        double tableHeight = MEMBER_TABLE_HEADER_HEIGHT + (rowCount * rowHeight) + 2;
-
-        memberTable.setMinHeight(tableHeight);
-        memberTable.setPrefHeight(tableHeight);
-        memberTable.setMaxHeight(tableHeight);
     }
 
     private Button createIconActionButton(Node icon, String variantClass, String tooltipText) {

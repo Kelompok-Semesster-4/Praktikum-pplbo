@@ -918,7 +918,7 @@
 }
 
 .member-section-header {
-    -fx-padding: 4 0 0 0;
+  -fx-padding: 0;
 }
 
 .member-add-button {
@@ -983,16 +983,6 @@
     -fx-background-color: transparent;
   -fx-background-insets: 0;
   -fx-border-color: transparent;
-  -fx-padding: 0;
-}
-
-.member-table .scroll-bar:vertical,
-.member-table .scroll-bar:horizontal {
-  -fx-pref-width: 0;
-  -fx-pref-height: 0;
-  -fx-max-width: 0;
-  -fx-max-height: 0;
-  -fx-opacity: 0;
   -fx-padding: 0;
 }
 
@@ -1260,11 +1250,11 @@
 }
 
 .loan-section-header {
-    -fx-padding: 4 0 0 0;
+  -fx-padding: 0;
 }
 
 .loan-tab-row {
-    -fx-padding: 2 0 0 0;
+  -fx-padding: 0;
     -fx-spacing: 10;
 }
 

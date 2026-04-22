@@ -303,9 +303,9 @@ class AdminDashboardFxApp extends Application {
             List<String[]> recentLoans,
             List<String[]> todayVisits,
             String[] adminIdentity) {
-        VBox content = new VBox(18);
+        VBox content = new VBox(16);
         content.getStyleClass().add("content-body");
-        content.setPadding(new Insets(16, 24, 24, 24));
+        content.setPadding(new Insets(16, 24, 16, 24));
         content.setFillWidth(true);
 
         contentSwitcher = new StackPane();
@@ -334,7 +334,7 @@ class AdminDashboardFxApp extends Application {
         HBox topBar = new HBox();
         topBar.getStyleClass().add("topbar-fixed");
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(16, 40, 16, 24));
+        topBar.setPadding(new Insets(16, 24, 16, 24));
 
         VBox left = new VBox(2);
         topbarTitleLabel = new Label("Dashboard");

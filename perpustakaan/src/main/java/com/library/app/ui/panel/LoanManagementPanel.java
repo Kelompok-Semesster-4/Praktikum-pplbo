@@ -80,6 +80,7 @@ public class LoanManagementPanel {
             VBox content = buildContent();
             root = new StackPane(content);
             root.getStyleClass().add("loan-management-root");
+            root.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             StackPane.setAlignment(content, Pos.TOP_LEFT);
 
             configureTabButtons();
@@ -103,9 +104,11 @@ public class LoanManagementPanel {
     }
 
     private VBox buildContent() {
-        VBox content = new VBox(18);
+        VBox content = new VBox(16);
         content.getStyleClass().add("loan-management-content");
         content.setPadding(Insets.EMPTY);
+        content.setFillWidth(true);
+        content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
