@@ -15,7 +15,7 @@ public class BookService {
     private final LoanDAO loanDAO = new LoanDAO();
 
     public Book addBook(String isbn, String title, String author, String publisher,
-                        int publicationYear, String category, String shelfCode, int totalCopies) {
+                        int publicationYear, String category, String shelfCode, String coverUrl, int totalCopies) {
         ValidationUtil.requireNotBlank(isbn, "ISBN wajib diisi.");
         ValidationUtil.requireNotBlank(title, "Judul buku wajib diisi.");
         ValidationUtil.requireNotBlank(author, "Penulis wajib diisi.");
@@ -30,6 +30,7 @@ public class BookService {
         book.setPublicationYear(publicationYear);
         book.setCategory(category == null ? "" : category.trim());
         book.setShelfCode(shelfCode == null ? "" : shelfCode.trim());
+        book.setCoverUrl(coverUrl == null ? "" : coverUrl.trim());
         bookDAO.save(book);
         bookCopyDAO.saveCopies(book.getId(), totalCopies);
         return book;
@@ -40,7 +41,7 @@ public class BookService {
     }
 
     public void updateBook(long bookId, String isbn, String title, String author, String publisher,
-                           int publicationYear, String category, String shelfCode) {
+                           int publicationYear, String category, String shelfCode, String coverUrl) {
         if (bookId <= 0) {
             throw new IllegalArgumentException("Data buku tidak valid.");
         }
@@ -58,6 +59,7 @@ public class BookService {
         book.setPublicationYear(publicationYear);
         book.setCategory(category == null ? "" : category.trim());
         book.setShelfCode(shelfCode == null ? "" : shelfCode.trim());
+        book.setCoverUrl(coverUrl == null ? "" : coverUrl.trim());
         bookDAO.update(book);
     }
 

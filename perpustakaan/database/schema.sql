@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS books (
     publication_year INT NOT NULL,
     category VARCHAR(100),
     shelf_code VARCHAR(30),
+    cover_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

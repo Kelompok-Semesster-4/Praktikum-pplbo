@@ -857,6 +857,53 @@
   -fx-spacing: 18;
 }
 
+.book-modal-body-scroll,
+.book-modal-body-scroll > .viewport {
+  -fx-background-color: transparent;
+  -fx-background-insets: 0;
+  -fx-padding: 0;
+}
+
+.book-modal-body-scroll {
+  -fx-border-color: transparent;
+  -fx-background: transparent;
+}
+
+.book-modal-body-scroll .scroll-bar:vertical {
+  -fx-background-color: transparent;
+  -fx-pref-width: 10;
+  -fx-padding: 0 2 0 2;
+}
+
+.book-modal-body-scroll .scroll-bar:vertical .track {
+  -fx-background-color: rgba(219, 227, 239, 0.35);
+  -fx-background-radius: 999;
+}
+
+.book-modal-body-scroll .scroll-bar:vertical .thumb {
+  -fx-background-color: rgba(148, 163, 184, 0.55);
+  -fx-background-radius: 999;
+}
+
+.book-modal-body-scroll .scroll-bar:vertical .thumb:hover {
+  -fx-background-color: rgba(100, 116, 139, 0.75);
+}
+
+.book-modal-body-scroll .scroll-bar:vertical .increment-button,
+.book-modal-body-scroll .scroll-bar:vertical .decrement-button,
+.book-modal-body-scroll .scroll-bar:vertical .increment-arrow,
+.book-modal-body-scroll .scroll-bar:vertical .decrement-arrow {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+  -fx-shape: "";
+}
+
+.book-modal-body-scroll .scroll-bar:horizontal {
+  -fx-pref-height: 0;
+  -fx-max-height: 0;
+  -fx-opacity: 0;
+}
+
 .book-modal-row {
   -fx-spacing: 22;
 }
@@ -1238,6 +1285,53 @@
 
 .member-modal-body {
     -fx-padding: 0 24 18 24;
+}
+
+.member-modal-body-scroll,
+.member-modal-body-scroll > .viewport {
+  -fx-background-color: transparent;
+  -fx-background-insets: 0;
+  -fx-padding: 0;
+}
+
+.member-modal-body-scroll {
+  -fx-border-color: transparent;
+  -fx-background: transparent;
+}
+
+.member-modal-body-scroll .scroll-bar:vertical {
+  -fx-background-color: transparent;
+  -fx-pref-width: 10;
+  -fx-padding: 0 2 0 2;
+}
+
+.member-modal-body-scroll .scroll-bar:vertical .track {
+  -fx-background-color: rgba(219, 227, 239, 0.35);
+  -fx-background-radius: 999;
+}
+
+.member-modal-body-scroll .scroll-bar:vertical .thumb {
+  -fx-background-color: rgba(148, 163, 184, 0.55);
+  -fx-background-radius: 999;
+}
+
+.member-modal-body-scroll .scroll-bar:vertical .thumb:hover {
+  -fx-background-color: rgba(100, 116, 139, 0.75);
+}
+
+.member-modal-body-scroll .scroll-bar:vertical .increment-button,
+.member-modal-body-scroll .scroll-bar:vertical .decrement-button,
+.member-modal-body-scroll .scroll-bar:vertical .increment-arrow,
+.member-modal-body-scroll .scroll-bar:vertical .decrement-arrow {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+  -fx-shape: "";
+}
+
+.member-modal-body-scroll .scroll-bar:horizontal {
+  -fx-pref-height: 0;
+  -fx-max-height: 0;
+  -fx-opacity: 0;
 }
 
 .member-modal-label {

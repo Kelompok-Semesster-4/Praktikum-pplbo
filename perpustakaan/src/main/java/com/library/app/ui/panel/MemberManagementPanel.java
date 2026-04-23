@@ -29,6 +29,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -766,7 +767,7 @@ public class MemberManagementPanel {
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -873,7 +874,7 @@ public class MemberManagementPanel {
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -1006,6 +1007,18 @@ public class MemberManagementPanel {
         footer.getStyleClass().add("member-modal-footer");
         footer.setAlignment(Pos.CENTER_RIGHT);
         return footer;
+    }
+
+    private ScrollPane buildModalBodyScroller(VBox body) {
+        ScrollPane scroller = new ScrollPane(body);
+        scroller.setFitToWidth(true);
+        scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroller.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroller.getStyleClass().add("member-modal-body-scroll");
+        scroller.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
+        scroller.setMinHeight(0);
+        VBox.setVgrow(scroller, Priority.ALWAYS);
+        return scroller;
     }
 
     private Button createCancelModalButton() {

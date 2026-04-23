@@ -1,73 +1,79 @@
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\bootstrap\DatabaseInitializer.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\config\DBConfig.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\config\DBConnection.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\BookCopyDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\BookDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\DashboardDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\FeedbackDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\LoanDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\MemberDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\NotificationDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\ProcurementRequestDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\ResultSetMapper.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\UserDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\dao\VisitDAO.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\Main.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\AppNotification.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\Book.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\BookCatalogItem.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\BookCopy.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\DashboardSummary.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\CopyStatus.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\LoanStatus.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\MemberType.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\RequestStatus.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\Role.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\enums\VisitType.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\Feedback.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\FineRule.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\Loan.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\Member.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\OverdueLoanReportItem.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\ProcurementRequest.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\ReportSummary.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\User.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\model\Visit.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\AuthService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\BookService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\DashboardService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\FeedbackService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\LoanService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\MemberService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\NotificationService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\ProcurementService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\service\VisitService.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\session\UserSession.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\AdminFrame.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\BaseMainFrame.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\fx\LibraryFxApp.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\KioskFrame.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\LoginFrame.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\ManagementWindowLauncher.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\BookManagementPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\DashboardPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\FeedbackPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\KioskDashboardPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\KioskIconFactory.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\KioskVisitFxPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\KioskVisitPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\LoanManagementPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\LoanPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\MemberManagementPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\ProcurementPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\RefreshablePanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\ReportPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\ReturnPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\SearchBookPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\panel\VisitPanel.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\ui\util\FxFeedback.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\util\DateUtil.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\util\FineCalculator.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\util\PasswordUtil.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\util\UiUtil.java
-D:\Kuliah\Semester 5\PLBO\Praktikum-pplbo\perpustakaan\src\main\java\com\library\app\util\ValidationUtil.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/Main.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/bootstrap/DatabaseInitializer.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/config/DBConfig.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/config/DBConnection.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/BookCopyDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/BookDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/DashboardDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/FeedbackDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/LoanDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/MemberDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/NotificationDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/ProcurementRequestDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/ResultSetMapper.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/UserDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/dao/VisitDAO.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/AppNotification.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/Book.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/BookCatalogItem.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/BookCopy.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/DashboardSummary.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/Feedback.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/FineRule.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/Loan.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/Member.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/OverdueLoanReportItem.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/ProcurementRequest.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/ReportSummary.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/User.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/Visit.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/CopyStatus.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/FeedbackStatus.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/LoanStatus.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/MemberType.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/RequestStatus.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/Role.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/VisitPresenceStatus.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/model/enums/VisitType.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/AuthService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/BookService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/DashboardService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/FeedbackService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/LoanService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/MemberService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/NotificationService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/ProcurementService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/service/VisitService.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/session/UserSession.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/AdminFrame.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/BaseMainFrame.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/KioskFrame.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/LoginFrame.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/ManagementWindowLauncher.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/StageTransition.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/fx/LibraryFxApp.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/AdminFeedbackRequestPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/BookManagementPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/DashboardPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/FeedbackPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskDashboardPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskFeedbackFxPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskIconFactory.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskProcurementFxPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskSearchBookPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/KioskVisitPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/LoanManagementPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/LoanPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/MemberManagementPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/ProcurementPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/RefreshablePanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/ReportPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/ReturnPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/SearchBookPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/panel/VisitPanel.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/ui/util/FxFeedback.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/util/DateUtil.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/util/FineCalculator.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/util/PasswordUtil.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/util/UiUtil.java
+/home/g/Documents/Praktikum-pplbo/perpustakaan/src/main/java/com/library/app/util/ValidationUtil.java

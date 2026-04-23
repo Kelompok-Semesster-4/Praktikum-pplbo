@@ -9,12 +9,13 @@ public class Book {
     private int publicationYear;
     private String category;
     private String shelfCode;
+    private String coverUrl;
 
     public Book() {
     }
 
     public Book(Long id, String isbn, String title, String author, String publisher,
-                int publicationYear, String category, String shelfCode) {
+            int publicationYear, String category, String shelfCode, String coverUrl) {
         this.id = id;
         this.isbn = isbn;
         this.title = title;
@@ -23,6 +24,7 @@ public class Book {
         this.publicationYear = publicationYear;
         this.category = category;
         this.shelfCode = shelfCode;
+        this.coverUrl = coverUrl;
     
     }
 
@@ -58,6 +60,10 @@ public class Book {
         return shelfCode;
     }
 
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -88,5 +94,9 @@ public class Book {
 
     public void setShelfCode(String shelfCode) {
         this.shelfCode = shelfCode;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 }

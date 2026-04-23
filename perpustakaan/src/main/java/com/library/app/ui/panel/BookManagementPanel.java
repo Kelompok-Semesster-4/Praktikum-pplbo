@@ -32,6 +32,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -609,6 +612,7 @@ public class BookManagementPanel {
         TextField copiesInput = createModalTextField("");
         copiesInput.setText("1");
         TextField shelfInput = createModalTextField("");
+        TextField coverUrlInput = createModalTextField("https://...");
         ComboBox<String> categoryInput = createModalCategoryField();
 
         StackPane overlay = buildBaseModalOverlay();
@@ -621,6 +625,7 @@ public class BookManagementPanel {
         body.getChildren().add(buildModalTwoColumnRow("Pengarang", authorInput, "Penerbit", publisherInput));
         body.getChildren().add(buildModalTwoColumnRow("ISBN", isbnInput, "Tahun Terbit", yearInput));
         body.getChildren().add(buildModalTwoColumnRow("Jumlah Eksemplar", copiesInput, "Lokasi Rak", shelfInput));
+        body.getChildren().add(buildModalTwoColumnRow("URL Sampul", coverUrlInput, "Preview Sampul", createCoverPreviewInput(coverUrlInput)));
         body.getChildren().add(buildModalHalfRow("Kategori", categoryInput));
 
         HBox footer = buildModalFooter();
@@ -648,6 +653,7 @@ public class BookManagementPanel {
                         publicationYear,
                         categoryValue,
                         normalizeInput(shelfInput.getText()),
+                        normalizeInput(coverUrlInput.getText()),
                         totalCopies
                 );
 
@@ -660,7 +666,7 @@ public class BookManagementPanel {
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -675,6 +681,7 @@ public class BookManagementPanel {
                 ? ""
                 : String.valueOf(selectedBook.getPublicationYear()));
         TextField shelfInput = createModalTextField("", selectedBook.getShelfCode());
+        TextField coverUrlInput = createModalTextField("", selectedBook.getCoverUrl());
         ComboBox<String> categoryInput = createModalCategoryField();
 
         String currentCategory = normalizedCategory(selectedBook);
@@ -691,6 +698,7 @@ public class BookManagementPanel {
         body.getChildren().add(buildModalField("Judul Buku", titleInput));
         body.getChildren().add(buildModalTwoColumnRow("Pengarang", authorInput, "Penerbit", publisherInput));
         body.getChildren().add(buildModalTwoColumnRow("ISBN", isbnInput, "Tahun Terbit", yearInput));
+        body.getChildren().add(buildModalTwoColumnRow("URL Sampul", coverUrlInput, "Preview Sampul", createCoverPreviewInput(coverUrlInput)));
         body.getChildren().add(buildModalHalfRow("Kategori", categoryInput));
         body.getChildren().add(buildModalHalfRow("Lokasi Rak", shelfInput));
 
@@ -718,7 +726,8 @@ public class BookManagementPanel {
                         normalizeInput(publisherInput.getText()),
                         publicationYear,
                         categoryValue,
-                        normalizeInput(shelfInput.getText())
+                        normalizeInput(shelfInput.getText()),
+                        normalizeInput(coverUrlInput.getText())
                 );
 
                 refreshData();
@@ -730,7 +739,7 @@ public class BookManagementPanel {
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -782,6 +791,18 @@ public class BookManagementPanel {
         footer.getStyleClass().add("book-modal-footer");
         footer.setAlignment(Pos.CENTER_RIGHT);
         return footer;
+    }
+
+    private ScrollPane buildModalBodyScroller(VBox body) {
+        ScrollPane scroller = new ScrollPane(body);
+        scroller.setFitToWidth(true);
+        scroller.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroller.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroller.getStyleClass().add("book-modal-body-scroll");
+        scroller.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
+        scroller.setMinHeight(0);
+        VBox.setVgrow(scroller, Priority.ALWAYS);
+        return scroller;
     }
 
     private Button createCancelModalButton() {
@@ -873,6 +894,72 @@ public class BookManagementPanel {
         HBox.setHgrow(leftField, Priority.ALWAYS);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         return row;
+    }
+
+    private Node createCoverPreviewInput(TextField coverUrlInput) {
+        StackPane previewPane = new StackPane();
+        previewPane.setMinSize(112, 150);
+        previewPane.setPrefSize(112, 150);
+        previewPane.setMaxSize(112, 150);
+        previewPane.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #dbe2ea; -fx-border-radius: 10; -fx-background-radius: 10;");
+
+        Label hintLabel = new Label();
+        hintLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #6b7280;");
+        hintLabel.setWrapText(true);
+
+        VBox container = new VBox(8, previewPane, hintLabel);
+        container.setAlignment(Pos.TOP_LEFT);
+
+        coverUrlInput.textProperty().addListener((obs, oldValue, newValue) ->
+                updateCoverPreview(newValue, previewPane, hintLabel));
+        updateCoverPreview(coverUrlInput.getText(), previewPane, hintLabel);
+
+        return container;
+    }
+
+    private void updateCoverPreview(String rawUrl, StackPane previewPane, Label hintLabel) {
+        String url = normalizeInput(rawUrl);
+        previewPane.getProperties().put("coverPreviewUrl", url);
+
+        if (url.isBlank()) {
+            Label placeholder = new Label("Belum ada\npreview");
+            placeholder.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
+            placeholder.setAlignment(Pos.CENTER);
+            placeholder.setWrapText(true);
+            previewPane.getChildren().setAll(placeholder);
+            hintLabel.setText("Isi URL sampul untuk melihat preview.");
+            return;
+        }
+
+        Label loading = new Label("Memuat...");
+        loading.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
+        previewPane.getChildren().setAll(loading);
+        hintLabel.setText("Sedang memuat gambar...");
+
+        Image image = new Image(url, true);
+
+        image.errorProperty().addListener((obs, oldValue, isError) -> {
+            if (!isError || !url.equals(previewPane.getProperties().get("coverPreviewUrl"))) {
+                return;
+            }
+            Label failed = new Label("URL tidak valid");
+            failed.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 12px; -fx-font-weight: 600;");
+            previewPane.getChildren().setAll(failed);
+            hintLabel.setText("Gagal memuat sampul. Periksa URL gambar.");
+        });
+
+        image.progressProperty().addListener((obs, oldValue, progress) -> {
+            if (progress.doubleValue() < 1.0 || image.isError() || !url.equals(previewPane.getProperties().get("coverPreviewUrl"))) {
+                return;
+            }
+
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(108);
+            imageView.setFitHeight(146);
+            imageView.setPreserveRatio(true);
+            previewPane.getChildren().setAll(imageView);
+            hintLabel.setText("Preview sampul aktif.");
+        });
     }
 
     private int parseInt(String rawValue, String errorMessage) {

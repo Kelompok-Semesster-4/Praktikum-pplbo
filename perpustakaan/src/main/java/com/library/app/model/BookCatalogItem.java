@@ -8,6 +8,7 @@ public class BookCatalogItem {
     private String publisher;
     private String category;
     private String shelfCode;
+    private String coverUrl;
     private int publicationYear;
     private int totalCopies;
     private int availableCopies;
@@ -38,6 +39,10 @@ public class BookCatalogItem {
 
     public String getShelfCode() {
         return shelfCode;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
     }
 
     public int getPublicationYear() {
@@ -78,6 +83,10 @@ public class BookCatalogItem {
 
     public void setShelfCode(String shelfCode) {
         this.shelfCode = shelfCode;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 
     public void setPublicationYear(int publicationYear) {
