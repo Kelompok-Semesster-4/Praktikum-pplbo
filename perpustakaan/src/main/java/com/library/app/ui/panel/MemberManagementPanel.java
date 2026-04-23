@@ -854,7 +854,7 @@ public class MemberManagementPanel {
                 refreshData();
                 memberTable.refresh();
                 closeMemberDialog();
-                showBookStyleInfo("Anggota berhasil diperbarui.");
+                showSuccessToast("Anggota berhasil diperbarui.");
             } catch (Exception exception) {
                 String errorMessage = resolveErrorMessage(exception);
 

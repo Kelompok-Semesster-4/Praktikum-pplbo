@@ -723,7 +723,7 @@ public class BookManagementPanel {
 
                 refreshData();
                 closeAddBookDialog();
-                showInfo("Buku berhasil diperbarui.");
+                showSuccessToast("Buku berhasil diperbarui.");
             } catch (Exception exception) {
                 showError(resolveErrorMessage(exception));
             }
