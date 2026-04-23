@@ -10,8 +10,8 @@ import java.util.List;
 
 public class BookDAO {
     public void save(Book book) {
-        String sql = "INSERT INTO books(isbn, title, author, publisher, publication_year, category, shelf_code) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO books(isbn, title, author, publisher, publication_year, category, shelf_code, cover_url) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, book.getIsbn());
@@ -21,6 +21,7 @@ public class BookDAO {
             statement.setInt(5, book.getPublicationYear());
             statement.setString(6, book.getCategory());
             statement.setString(7, book.getShelfCode());
+            statement.setString(8, book.getCoverUrl());
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -34,12 +35,12 @@ public class BookDAO {
 
     public List<BookCatalogItem> searchCatalog(String keyword) {
         List<BookCatalogItem> items = new ArrayList<>();
-        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year, " +
+        String sql = "SELECT b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.cover_url, b.publication_year, " +
                 "COUNT(c.id) AS total_copies, " +
                 "SUM(CASE WHEN c.status = 'AVAILABLE' THEN 1 ELSE 0 END) AS available_copies " +
                 "FROM books b LEFT JOIN book_copies c ON c.book_id = b.id " +
                 "WHERE b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ? " +
-                "GROUP BY b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.publication_year " +
+            "GROUP BY b.id, b.isbn, b.title, b.author, b.publisher, b.category, b.shelf_code, b.cover_url, b.publication_year " +
                 "ORDER BY b.title";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -57,6 +58,7 @@ public class BookDAO {
                     item.setPublisher(resultSet.getString("publisher"));
                     item.setCategory(resultSet.getString("category"));
                     item.setShelfCode(resultSet.getString("shelf_code"));
+                    item.setCoverUrl(resultSet.getString("cover_url"));
                     item.setPublicationYear(resultSet.getInt("publication_year"));
                     item.setTotalCopies(resultSet.getInt("total_copies"));
                     item.setAvailableCopies(resultSet.getInt("available_copies"));
@@ -71,7 +73,7 @@ public class BookDAO {
 
     public void update(Book book) {
         String sql = "UPDATE books SET isbn = ?, title = ?, author = ?, publisher = ?, publication_year = ?, " +
-                "category = ?, shelf_code = ? WHERE id = ?";
+                "category = ?, shelf_code = ?, cover_url = ? WHERE id = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, book.getIsbn());
@@ -81,7 +83,8 @@ public class BookDAO {
             statement.setInt(5, book.getPublicationYear());
             statement.setString(6, book.getCategory());
             statement.setString(7, book.getShelfCode());
-            statement.setLong(8, book.getId());
+            statement.setString(8, book.getCoverUrl());
+            statement.setLong(9, book.getId());
 
             int updated = statement.executeUpdate();
             if (updated == 0) {

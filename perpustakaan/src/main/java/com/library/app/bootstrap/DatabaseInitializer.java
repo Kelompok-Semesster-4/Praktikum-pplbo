@@ -57,6 +57,7 @@ public final class DatabaseInitializer {
                         publication_year INT NOT NULL,
                         category VARCHAR(100),
                         shelf_code VARCHAR(30),
+                        cover_url VARCHAR(500),
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                     """);
@@ -174,6 +175,7 @@ public final class DatabaseInitializer {
             ensureColumnExists(connection, "procurement_requests", "publisher", "ALTER TABLE procurement_requests ADD COLUMN publisher VARCHAR(150) NULL AFTER author");
             ensureColumnExists(connection, "procurement_requests", "publication_year", "ALTER TABLE procurement_requests ADD COLUMN publication_year INT NULL AFTER publisher");
             ensureColumnExists(connection, "procurement_requests", "isbn", "ALTER TABLE procurement_requests ADD COLUMN isbn VARCHAR(30) NULL AFTER publication_year");
+            ensureColumnExists(connection, "books", "cover_url", "ALTER TABLE books ADD COLUMN cover_url VARCHAR(500) NULL AFTER shelf_code");
         } catch (SQLException exception) {
             throw new IllegalStateException("Gagal memperbarui struktur tabel database.", exception);
         }

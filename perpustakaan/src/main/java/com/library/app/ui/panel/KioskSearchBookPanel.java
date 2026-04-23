@@ -151,6 +151,7 @@ public class KioskSearchBookPanel {
 
                             for (BookCatalogItem item : items) {
                                 HBox card = createBookCard(
+                                    item.getCoverUrl(),
                                     item.getIsbn(), 
                                     item.getTitle(), 
                                     item.getAuthor(), 
@@ -203,7 +204,8 @@ public class KioskSearchBookPanel {
         return wrapper;
     }
 
-    private HBox createBookCard(String isbn,
+    private HBox createBookCard(String coverUrl,
+                                String isbn,
                                 String title,
                                 String author,
                                 String publisher,
@@ -212,7 +214,7 @@ public class KioskSearchBookPanel {
                                 String shelf,
                                 int availableCopies
                                 ) {
-        StackPane cover = createCover(isbn);
+                    StackPane cover = createCover(coverUrl, isbn);
         
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("book-card-title");
@@ -257,7 +259,7 @@ public class KioskSearchBookPanel {
         return card;
     }
 
-    private StackPane createCover(String isbn) {
+    private StackPane createCover(String coverUrl, String isbn) {
         StackPane coverArea = new StackPane();
         coverArea.setMinSize(60, 80);
         coverArea.setPrefSize(60, 80);
@@ -266,8 +268,14 @@ public class KioskSearchBookPanel {
         Node fallbackIcon = KioskIconFactory.createBookIcon(Color.web("#3b82f6"));
         coverArea.getChildren().add(fallbackIcon);
 
-        if (isbn != null && !isbn.trim().isEmpty()) {
-            String url = "https://covers.openlibrary.org/b/isbn/" + isbn + "-M.jpg?default=false";
+        String url = null;
+        if (coverUrl != null && !coverUrl.trim().isEmpty()) {
+            url = coverUrl.trim();
+        } else if (isbn != null && !isbn.trim().isEmpty()) {
+            url = "https://covers.openlibrary.org/b/isbn/" + isbn + "-M.jpg?default=false";
+        }
+
+        if (url != null && !url.isBlank()) {
             Image coverImage = new Image(url, true);
 
             coverImage.progressProperty().addListener((observable, oldValue, newValue) -> {
