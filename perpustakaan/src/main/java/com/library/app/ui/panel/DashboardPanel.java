@@ -7,7 +7,6 @@ import com.library.app.model.User;
 import com.library.app.model.enums.Role;
 import com.library.app.service.DashboardService;
 import com.library.app.service.NotificationService;
-import com.library.app.ui.ManagementWindowLauncher;
 import com.library.app.ui.KioskFrame;
 import com.library.app.ui.LoginFrame;
 import com.library.app.ui.StageTransition;
@@ -268,7 +267,7 @@ class AdminDashboardFxApp extends Application {
         VBox footerMenu = new VBox(6);
         footerMenu.getChildren().addAll(
                 createMenuButton("Mode Kiosk", "\uD83D\uDDA5", false, () -> openFxSection("Mode Kiosk")),
-            createMenuButton("Keluar", "\u238B", false, this::navigateToLogin));
+                createMenuButton("Keluar", "\u238B", false, this::navigateToLogin));
 
         sidebar.getChildren().addAll(brandBox, adminDivider, roleBadge, menuContainer, spacer, footerMenu);
         return sidebar;
@@ -650,26 +649,35 @@ class AdminDashboardFxApp extends Application {
 
     private void openNotificationTarget(AppNotification notification) {
         String targetKey = notification.getTargetKey();
+        String type = notification.getType();
 
-        if ("FX_BOOK_MANAGEMENT".equals(targetKey)) {
+        if ("LOW_STOCK".equalsIgnoreCase(type) || "FX_BOOK_MANAGEMENT".equals(targetKey)) {
             openFxSection("Manajemen Buku");
             return;
         }
-        if ("FX_FEEDBACK_REQUEST".equals(targetKey)) {
-            openFxSection("Feedback & Permintaan");
-            return;
-        }
-        if ("SWING_RETURN".equals(targetKey)) {
-            ManagementWindowLauncher.show("Manajemen Pengembalian", new ReturnPanel());
+
+        if ("FEEDBACK".equalsIgnoreCase(type) || "SWING_FEEDBACK".equals(targetKey)) {
+            showFeedbackRequestSection();
+            if (feedbackRequestSectionView != null) {
+                feedbackRequestSectionView.showFeedbackTab();
+            }
             return;
         }
 
-        if ("SWING_LOAN".equals(targetKey)) {
-            ManagementWindowLauncher.show("Manajemen Peminjaman", new LoanPanel());
+        if ("PROCUREMENT".equalsIgnoreCase(type)
+                || "FX_FEEDBACK_REQUEST".equals(targetKey)
+                || "SWING_PROCUREMENT".equals(targetKey)) {
+            showFeedbackRequestSection();
+            if (feedbackRequestSectionView != null) {
+                feedbackRequestSectionView.showProcurementTab();
+            }
             return;
         }
-        if ("SWING_PROCUREMENT".equals(targetKey) || "SWING_FEEDBACK".equals(targetKey)) {
-            openFxSection("Feedback & Permintaan");
+
+        if ("OVERDUE_LOAN".equalsIgnoreCase(type)
+                || "SWING_RETURN".equals(targetKey)
+                || "SWING_LOAN".equals(targetKey)) {
+            showLoanManagementSection();
             return;
         }
 
