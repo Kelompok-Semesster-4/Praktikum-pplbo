@@ -4,6 +4,7 @@ import com.library.app.dao.FeedbackDAO;
 import com.library.app.model.Feedback;
 import com.library.app.model.Member;
 import com.library.app.model.enums.FeedbackStatus;
+import com.library.app.util.GlobalEventPublisher;
 import com.library.app.util.ValidationUtil;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class FeedbackService {
         feedbackDAO.save(feedback);
 
         notificationService.createFeedbackNotification(feedback);
+        GlobalEventPublisher.publishFeedbackUpdated();
         return feedback;
     }
 

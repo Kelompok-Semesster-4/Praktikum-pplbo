@@ -4,6 +4,7 @@ import com.library.app.dao.ProcurementRequestDAO;
 import com.library.app.model.Member;
 import com.library.app.model.ProcurementRequest;
 import com.library.app.model.enums.RequestStatus;
+import com.library.app.util.GlobalEventPublisher;
 import com.library.app.util.ValidationUtil;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ public class ProcurementService {
         requestDAO.save(request);
 
         notificationService.createProcurementNotification(request);
+        GlobalEventPublisher.publishProcurementUpdated();
         return request;
     }
 

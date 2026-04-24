@@ -66,6 +66,10 @@ public class AdminFeedbackRequestPanel {
         if (!initialized) {
             root.setPadding(Insets.EMPTY);
             root.setCenter(buildContent());
+            
+            com.library.app.util.GlobalEventPublisher.addFeedbackListener(this::refreshData);
+            com.library.app.util.GlobalEventPublisher.addProcurementListener(this::refreshData);
+            
             initialized = true;
         }
         refreshData();
