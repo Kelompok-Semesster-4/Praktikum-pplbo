@@ -834,6 +834,14 @@ class AdminDashboardFxApp extends Application {
         }
     }
 
+    private void showLoanManagementReturnedSection() {
+        setActiveMenu("Peminjaman & Pengembalian");
+        showLoanManagementSection();
+        if (loanManagementSectionView != null) {
+            loanManagementSectionView.showReturnedLoanTab();
+        }
+    }
+
     private void setTopbarTitle(String title) {
         if (topbarTitleLabel != null) {
             topbarTitleLabel.setText(safeValue(title));
@@ -1107,7 +1115,7 @@ class AdminDashboardFxApp extends Application {
 
     private Node createRecentLoanCard(List<String[]> rows) {
         VBox card = createListCard("Peminjaman Terkini", "Lihat semua",
-                () -> openFxSection("Peminjaman & Pengembalian"));
+                this::showLoanManagementReturnedSection);
 
         VBox items = new VBox(2);
         if (rows.isEmpty()) {
