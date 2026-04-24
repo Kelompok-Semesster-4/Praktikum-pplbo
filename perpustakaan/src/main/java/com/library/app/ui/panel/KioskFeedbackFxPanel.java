@@ -189,7 +189,7 @@ public class KioskFeedbackFxPanel {
             headerBox,
             formFields
         );
-        formBox.getStyleClass().add("visit-form-box");
+        formBox.getStyleClass().addAll("visit-form-box", "feedback-feature-card");
         formBox.setAlignment(Pos.CENTER);
         formBox.setFillWidth(false);
         formBox.setPrefWidth(FEEDBACK_CARD_WIDTH);

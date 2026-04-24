@@ -106,7 +106,7 @@ public class KioskVisitPanel {
         formFields.setMaxWidth(VISIT_FORM_WIDTH);
 
         VBox formBox = new VBox(8, headerBox, formFields);
-        formBox.getStyleClass().add("visit-form-box");
+        formBox.getStyleClass().addAll("visit-form-box", "visit-feature-card");
         formBox.setAlignment(Pos.CENTER);
         formBox.setFillWidth(false);
         formBox.setPrefWidth(VISIT_CARD_WIDTH);

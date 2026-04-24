@@ -185,13 +185,25 @@
   -fx-spacing: 8;
   -fx-max-width: 560;
   -fx-padding: 28 30 22 30;
-  -fx-background-color: linear-gradient(to bottom right, #ffffff 0%, #f8fbff 55%, #fdf7ff 100%);
+  -fx-background-color: #ffffff;
   -fx-background-radius: 18;
   -fx-background-insets: 0;
   -fx-border-color: #dbe7ff;
   -fx-border-width: 1;
   -fx-border-radius: 18;
   -fx-effect: dropshadow(gaussian, rgba(30, 41, 59, 0.10), 20, 0.10, 0, 8);
+}
+
+.visit-feature-card {
+  -fx-background-color: linear-gradient(to bottom right, #ffffff 0%, #f6faff 56%, #f3f8ff 100%);
+  -fx-border-color: #d6e7ff;
+  -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.06), 22, 0.12, 0, 9);
+}
+
+.feedback-feature-card {
+  -fx-background-color: linear-gradient(to bottom right, #ffffff 0%, #fffbf2 56%, #fff8ea 100%);
+  -fx-border-color: #f5e3b5;
+  -fx-effect: dropshadow(gaussian, rgba(217, 119, 6, 0.06), 22, 0.12, 0, 9);
 }
 
 .visit-label {

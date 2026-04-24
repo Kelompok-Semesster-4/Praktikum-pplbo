@@ -115,13 +115,18 @@ public class KioskSearchBookPanel {
         ScrollPane scroller = new ScrollPane(resultsContainer);
         scroller.setFitToWidth(true);
         scroller.getStyleClass().addAll("search-book-scroller", "app-scroll");
+        scroller.setFitToHeight(true);
+        scroller.setPrefHeight(340);
+        scroller.setMaxHeight(Double.MAX_VALUE);
 
         VBox bookLists = new VBox(emptyBox);
         bookLists.setAlignment(Pos.CENTER);
         bookLists.setPrefHeight(340);
         bookLists.setPrefWidth(SEARCH_FIELD_WIDTH + 46);
         bookLists.setMaxWidth(SEARCH_FIELD_WIDTH + 46);
+        bookLists.setFillWidth(true);
         VBox.setVgrow(bookLists, Priority.ALWAYS);
+        VBox.setVgrow(scroller, Priority.ALWAYS);
 
         PauseTransition pause = new PauseTransition(Duration.millis(500));
 
@@ -131,6 +136,7 @@ public class KioskSearchBookPanel {
                 String query = newValue == null ? "" : newValue.trim();
                 if (query.length() < 2) {
                     resultsContainer.getChildren().clear();
+                    bookLists.setAlignment(Pos.CENTER);
                     bookLists.getChildren().setAll(emptyBox);
                     closeCoverPreview();
                     return;
@@ -157,6 +163,7 @@ public class KioskSearchBookPanel {
                         return;
                     }
                     resultsContainer.getChildren().clear();
+                    bookLists.setAlignment(Pos.CENTER);
                     bookLists.getChildren().setAll(noResultBox);
                 });
 
@@ -240,8 +247,10 @@ public class KioskSearchBookPanel {
         }
 
         if (items.isEmpty()) {
+            bookLists.setAlignment(Pos.CENTER);
             bookLists.getChildren().setAll(noResultBox);
         } else {
+            bookLists.setAlignment(Pos.TOP_CENTER);
             bookLists.getChildren().setAll(scroller);
         }
     }

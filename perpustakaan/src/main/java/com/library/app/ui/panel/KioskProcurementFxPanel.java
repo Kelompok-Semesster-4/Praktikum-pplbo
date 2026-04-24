@@ -3,13 +3,15 @@ package com.library.app.ui.panel;
 import com.library.app.model.Member;
 import com.library.app.service.MemberService;
 import com.library.app.service.ProcurementService;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -19,10 +21,12 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 public class KioskProcurementFxPanel {
     private final MemberService memberService = new MemberService();
@@ -150,7 +154,30 @@ public class KioskProcurementFxPanel {
 
         Button submitButton = new Button("Ajukan Usulan");
         submitButton.getStyleClass().addAll("visit-submit-button", "procurement-submit-button");
-        submitButton.setOnAction(event -> submit());
+
+        Label toastIcon = new Label("✓");
+        toastIcon.getStyleClass().add("visit-inline-toast-icon");
+
+        Label toastMessage = new Label();
+        toastMessage.getStyleClass().add("visit-inline-toast-message");
+        toastMessage.setWrapText(true);
+
+        Region toastSpacer = new Region();
+        HBox.setHgrow(toastSpacer, Priority.ALWAYS);
+
+        Label toastClose = new Label("✕");
+        toastClose.getStyleClass().add("visit-inline-toast-close");
+
+        HBox inlineToast = new HBox(10, toastIcon, toastMessage, toastSpacer, toastClose);
+        inlineToast.getStyleClass().addAll("visit-inline-toast", "visit-inline-toast-success");
+        inlineToast.setAlignment(Pos.CENTER_LEFT);
+        inlineToast.setVisible(false);
+        inlineToast.setManaged(false);
+        inlineToast.setOpacity(0);
+        inlineToast.setMaxWidth(Double.MAX_VALUE);
+
+        toastClose.setOnMouseClicked(event -> hideInlineToast(inlineToast));
+        submitButton.setOnAction(event -> submit(inlineToast, toastIcon, toastMessage));
 
         HBox actionRow = new HBox(submitButton);
         actionRow.setAlignment(Pos.CENTER);
@@ -163,7 +190,7 @@ public class KioskProcurementFxPanel {
         HBox backRow = new HBox(backLabel);
         backRow.setAlignment(Pos.CENTER);
 
-        card.getChildren().addAll(headerBox, grid, reasonBox, helper, actionRow, backRow);
+        card.getChildren().addAll(headerBox, grid, reasonBox, helper, inlineToast, actionRow, backRow);
         wrapper.getChildren().add(card);
         return wrapper;
     }
@@ -180,7 +207,7 @@ public class KioskProcurementFxPanel {
         }
     }
 
-    private void submit() {
+    private void submit(HBox inlineToast, Label toastIcon, Label toastMessage) {
         try {
             if (selectedMember == null) {
                 lookupMember();
@@ -202,14 +229,17 @@ public class KioskProcurementFxPanel {
                     isbnField.getText(),
                     reasonArea.getText());
 
-            new Alert(
-                    Alert.AlertType.INFORMATION,
+            showInlineToast(
+                    inlineToast,
+                    toastIcon,
+                    toastMessage,
                     "Usulan buku berhasil dikirim. Admin akan meninjau permintaan Anda.",
-                    ButtonType.OK).showAndWait();
+                    true
+            );
 
             clearForm();
         } catch (IllegalArgumentException exception) {
-            new Alert(Alert.AlertType.ERROR, exception.getMessage(), ButtonType.OK).showAndWait();
+            showInlineToast(inlineToast, toastIcon, toastMessage, exception.getMessage(), false);
         }
     }
 
@@ -267,4 +297,55 @@ public class KioskProcurementFxPanel {
         return area;
     }
 
+    private void showInlineToast(HBox toast, Label iconLabel, Label messageLabel, String message, boolean success) {
+        toast.getStyleClass().removeAll("visit-inline-toast-success", "visit-inline-toast-error");
+        toast.getStyleClass().add(success ? "visit-inline-toast-success" : "visit-inline-toast-error");
+
+        iconLabel.setText(success ? "✓" : "✕");
+        messageLabel.setText(message == null ? "" : message);
+
+        toast.setManaged(true);
+        toast.setVisible(true);
+        toast.setOpacity(0);
+        toast.setTranslateY(8);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(220), toast);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        TranslateTransition slideIn = new TranslateTransition(Duration.millis(220), toast);
+        slideIn.setFromY(8);
+        slideIn.setToY(0);
+
+        ParallelTransition in = new ParallelTransition(fadeIn, slideIn);
+        in.play();
+
+        if (success) {
+            PauseTransition delay = new PauseTransition(Duration.millis(3000));
+            delay.setOnFinished(event -> hideInlineToast(toast));
+            delay.play();
+        }
+    }
+
+    private void hideInlineToast(HBox toast) {
+        if (!toast.isVisible()) {
+            return;
+        }
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(180), toast);
+        fadeOut.setFromValue(toast.getOpacity());
+        fadeOut.setToValue(0);
+
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(180), toast);
+        slideOut.setFromY(toast.getTranslateY());
+        slideOut.setToY(6);
+
+        ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
+        out.setOnFinished(event -> {
+            toast.setVisible(false);
+            toast.setManaged(false);
+            toast.setTranslateY(0);
+        });
+        out.play();
+    }
 }
