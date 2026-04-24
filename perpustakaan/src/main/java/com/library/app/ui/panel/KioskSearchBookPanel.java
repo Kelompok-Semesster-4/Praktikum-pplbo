@@ -1,5 +1,6 @@
 package com.library.app.ui.panel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.library.app.model.BookCatalogItem;
@@ -12,13 +13,16 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -29,6 +33,15 @@ public class KioskSearchBookPanel {
     private final BookService bookService = new BookService();
     private static final double SEARCH_CARD_WIDTH = 620;
     private static final double SEARCH_FIELD_WIDTH = 500;
+    private static final double THUMBNAIL_WIDTH = 60;
+    private static final double THUMBNAIL_HEIGHT = 80;
+    private static final double PREVIEW_WIDTH = 240;
+    private static final double PREVIEW_HEIGHT = 340;
+
+    private StackPane coverPreviewOverlay;
+    private StackPane coverPreviewImageShell;
+    private Label coverPreviewTitleLabel;
+    private Label coverPreviewSubtitleLabel;
 
     public Node createContent(Runnable onBack) {
         VBox content = new VBox(10);
@@ -87,33 +100,12 @@ public class KioskSearchBookPanel {
             }
         });
 
-        Node bigSearchIcon = KioskIconFactory.createSearchIcon(Color.web("#059669"));
-        bigSearchIcon.setScaleX(1.5);
-        bigSearchIcon.setScaleY(1.5);
-
-        StackPane bigSearchIconShell = new StackPane(bigSearchIcon);
-        bigSearchIconShell.getStyleClass().add("search-feature-empty-icon-shell");
-        bigSearchIconShell.setAlignment(Pos.CENTER);
-        bigSearchIconShell.setMinSize(50, 50);
-        bigSearchIconShell.setPrefSize(50, 50);
-        bigSearchIconShell.setMaxSize(50, 50);
-        StackPane.setAlignment(bigSearchIconShell, Pos.CENTER);
-
-        Label hint = new Label("Ketik minimal 2 karakter untuk mencari");
-        hint.getStyleClass().add("search-feature-hint");
-        hint.setTextAlignment(TextAlignment.CENTER);
-
-        VBox emptyBox = new VBox(15);
-        emptyBox.setAlignment(Pos.CENTER);
-        emptyBox.setPadding(new Insets(28, 0, 28, 0));
-        emptyBox.getChildren().addAll(bigSearchIconShell, hint);
-
-        Label noResultLabel = new Label("Buku tidak ditemukan.");
-        noResultLabel.getStyleClass().add("search-feature-hint");
-
-        VBox noResultBox = new VBox(15, bigSearchIconShell, noResultLabel);
-        noResultBox.setAlignment(Pos.CENTER);
-        noResultBox.setPadding(new Insets(28, 0, 28, 0));
+        VBox emptyBox = buildSearchStateBox(
+                "Ketik minimal 2 karakter untuk mencari",
+                Color.web("#059669"));
+        VBox noResultBox = buildSearchStateBox(
+                "Buku tidak ditemukan.",
+                Color.web("#059669"));
 
         VBox resultsContainer = new VBox(15);
         resultsContainer.getStyleClass().add("search-feature-results");
@@ -134,51 +126,47 @@ public class KioskSearchBookPanel {
         PauseTransition pause = new PauseTransition(Duration.millis(500));
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            pause.stop();
             pause.setOnFinished(event -> {
-                if (newValue == null || newValue.trim().length() < 2) {
-                    bookLists.getChildren().setAll(emptyBox);
+                String query = newValue == null ? "" : newValue.trim();
+                if (query.length() < 2) {
                     resultsContainer.getChildren().clear();
+                    bookLists.getChildren().setAll(emptyBox);
+                    closeCoverPreview();
                     return;
                 }
 
-                Task<Void> search = new Task<Void>() {
+                Task<List<BookCatalogItem>> searchTask = new Task<>() {
                     @Override
-                    protected Void call() throws Exception {
-                        List<BookCatalogItem> items = bookService.searchCatalog(newValue);
-
-                        Platform.runLater(() -> {
-                            resultsContainer.getChildren().clear();
-
-                            for (BookCatalogItem item : items) {
-                                HBox card = createBookCard(
-                                    item.getCoverUrl(),
-                                    item.getIsbn(), 
-                                    item.getTitle(), 
-                                    item.getAuthor(), 
-                                    item.getPublisher(), 
-                                    String.valueOf(item.getPublicationYear()), 
-                                    item.getCategory(), 
-                                    item.getShelfCode(), 
-                                    item.getAvailableCopies());
-                                
-                                resultsContainer.getChildren().add(card);
-                            }
-                            if (items.isEmpty()) {
-                                bookLists.getChildren().setAll(noResultBox);
-                            } else {
-                                bookLists.getChildren().setAll(scroller);
-                            }
-                        });
-
-                        return null;
+                    protected List<BookCatalogItem> call() {
+                        return bookService.searchCatalog(query);
                     }
                 };
-                new Thread(search).start();
-            });
 
+                searchTask.setOnSucceeded(taskEvent -> {
+                    String currentQuery = searchField.getText() == null ? "" : searchField.getText().trim();
+                    if (!query.equals(currentQuery)) {
+                        return;
+                    }
+                    renderSearchResults(searchTask.getValue(), resultsContainer, bookLists, scroller, noResultBox);
+                });
+
+                searchTask.setOnFailed(taskEvent -> {
+                    String currentQuery = searchField.getText() == null ? "" : searchField.getText().trim();
+                    if (!query.equals(currentQuery)) {
+                        return;
+                    }
+                    resultsContainer.getChildren().clear();
+                    bookLists.getChildren().setAll(noResultBox);
+                });
+
+                Thread searchThread = new Thread(searchTask, "kiosk-search-book");
+                searchThread.setDaemon(true);
+                searchThread.start();
+            });
             pause.playFromStart();
         });
-        
+
         Label back = new Label("Kembali");
         back.getStyleClass().add("visit-back-link");
         back.setCursor(Cursor.HAND);
@@ -193,7 +181,7 @@ public class KioskSearchBookPanel {
         card.setFillWidth(false);
         card.setPrefWidth(SEARCH_CARD_WIDTH);
         card.setMaxWidth(SEARCH_CARD_WIDTH);
-        
+
         VBox.setMargin(headerBox, new Insets(2, 0, 8, 0));
         VBox.setMargin(backRow, new Insets(8, 0, 0, 0));
 
@@ -201,7 +189,61 @@ public class KioskSearchBookPanel {
 
         StackPane wrapper = new StackPane(content);
         wrapper.setPadding(new Insets(20, 16, 22, 16));
+
+        coverPreviewOverlay = buildCoverPreviewOverlay();
+        wrapper.getChildren().add(coverPreviewOverlay);
+
         return wrapper;
+    }
+
+    private VBox buildSearchStateBox(String message, Color iconColor) {
+        Node bigSearchIcon = KioskIconFactory.createSearchIcon(iconColor);
+        bigSearchIcon.setScaleX(1.5);
+        bigSearchIcon.setScaleY(1.5);
+
+        StackPane bigSearchIconShell = new StackPane(bigSearchIcon);
+        bigSearchIconShell.getStyleClass().add("search-feature-empty-icon-shell");
+        bigSearchIconShell.setAlignment(Pos.CENTER);
+        bigSearchIconShell.setMinSize(50, 50);
+        bigSearchIconShell.setPrefSize(50, 50);
+        bigSearchIconShell.setMaxSize(50, 50);
+        StackPane.setAlignment(bigSearchIconShell, Pos.CENTER);
+
+        Label messageLabel = new Label(message);
+        messageLabel.getStyleClass().add("search-feature-hint");
+        messageLabel.setTextAlignment(TextAlignment.CENTER);
+
+        VBox stateBox = new VBox(15, bigSearchIconShell, messageLabel);
+        stateBox.setAlignment(Pos.CENTER);
+        stateBox.setPadding(new Insets(28, 0, 28, 0));
+        return stateBox;
+    }
+
+    private void renderSearchResults(List<BookCatalogItem> items,
+                                     VBox resultsContainer,
+                                     VBox bookLists,
+                                     ScrollPane scroller,
+                                     Node noResultBox) {
+        resultsContainer.getChildren().clear();
+
+        for (BookCatalogItem item : items) {
+            resultsContainer.getChildren().add(createBookCard(
+                    item.getCoverUrl(),
+                    item.getIsbn(),
+                    item.getTitle(),
+                    item.getAuthor(),
+                    item.getPublisher(),
+                    String.valueOf(item.getPublicationYear()),
+                    item.getCategory(),
+                    item.getShelfCode(),
+                    item.getAvailableCopies()));
+        }
+
+        if (items.isEmpty()) {
+            bookLists.getChildren().setAll(noResultBox);
+        } else {
+            bookLists.getChildren().setAll(scroller);
+        }
     }
 
     private HBox createBookCard(String coverUrl,
@@ -212,29 +254,31 @@ public class KioskSearchBookPanel {
                                 String year,
                                 String category,
                                 String shelf,
-                                int availableCopies
-                                ) {
-                    StackPane cover = createCover(coverUrl, isbn);
-        
-        Label titleLabel = new Label(title);
+                                int availableCopies) {
+        StackPane cover = createCover(coverUrl, isbn);
+
+        Label titleLabel = new Label(safeText(title, "Judul buku tidak tersedia"));
         titleLabel.getStyleClass().add("book-card-title");
         titleLabel.setWrapText(true);
         titleLabel.setMaxWidth(Double.MAX_VALUE);
 
-        Label subtitleLabel = new Label(author + " • " + publisher + " • " + year);
+        String subtitleText = buildBookMeta(author, publisher, year);
+        Label subtitleLabel = new Label(subtitleText);
         subtitleLabel.getStyleClass().add("book-card-subtitle");
         subtitleLabel.setWrapText(true);
         subtitleLabel.setMaxWidth(Double.MAX_VALUE);
+        subtitleLabel.setManaged(!subtitleText.isBlank());
+        subtitleLabel.setVisible(!subtitleText.isBlank());
 
         VBox details = new VBox(8);
         details.setAlignment(Pos.CENTER_LEFT);
         details.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(details, Priority.ALWAYS);
 
-        Label categoryPill = new Label(category);
+        Label categoryPill = new Label(safeText(category, "Kategori"));
         categoryPill.getStyleClass().add("book-card-category");
 
-        Label shelfLabel = new Label(shelf);
+        Label shelfLabel = new Label(safeText(shelf, "Lokasi rak belum diatur"));
         shelfLabel.getStyleClass().add("book-card-shelf");
 
         Label availableCopiesLabel = new Label(availableCopies + " tersedia");
@@ -245,54 +289,222 @@ public class KioskSearchBookPanel {
         HBox infoRow = new HBox(15);
         infoRow.setAlignment(Pos.CENTER_LEFT);
         infoRow.setMaxWidth(Double.MAX_VALUE);
-
         infoRow.getChildren().addAll(categoryPill, shelfLabel, availableCopiesLabel);
+
         details.getChildren().addAll(titleLabel, subtitleLabel, infoRow);
 
         HBox card = new HBox(15);
         card.setPadding(new Insets(15));
         card.setAlignment(Pos.CENTER_LEFT);
         card.getStyleClass().add("search-book-card");
+        card.setCursor(Cursor.HAND);
         card.setMaxWidth(Double.MAX_VALUE);
         card.setMinHeight(110);
         card.getChildren().addAll(cover, details);
+        card.setOnMouseClicked(event -> openCoverPreview(coverUrl, isbn, title, author, publisher, year));
         return card;
     }
 
     private StackPane createCover(String coverUrl, String isbn) {
         StackPane coverArea = new StackPane();
-        coverArea.setMinSize(60, 80);
-        coverArea.setPrefSize(60, 80);
+        coverArea.setMinSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+        coverArea.setPrefSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+        coverArea.setMaxSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
         coverArea.getStyleClass().add("book-card-cover");
-
-        Node fallbackIcon = KioskIconFactory.createBookIcon(Color.web("#3b82f6"));
-        coverArea.getChildren().add(fallbackIcon);
-
-        String url = null;
-        if (coverUrl != null && !coverUrl.trim().isEmpty()) {
-            url = coverUrl.trim();
-        } else if (isbn != null && !isbn.trim().isEmpty()) {
-            url = "https://covers.openlibrary.org/b/isbn/" + isbn + "-M.jpg?default=false";
-        }
-
-        if (url != null && !url.isBlank()) {
-            Image coverImage = new Image(url, true);
-
-            coverImage.progressProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue.doubleValue() == 1.0 && !coverImage.isError()) {
-                    Platform.runLater(() -> {
-                        ImageView img = new ImageView(coverImage);
-                        img.setFitWidth(60);
-                        img.setFitHeight(80);
-                        img.setPreserveRatio(true);
-
-                        coverArea.getChildren().clear();
-                        coverArea.getChildren().add(img);
-                    });
-                }
-            });
-        }
-
+        updateCoverDisplay(coverArea, resolveCoverUrl(coverUrl, isbn), THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, false);
         return coverArea;
+    }
+
+    private StackPane buildCoverPreviewOverlay() {
+        StackPane overlay = new StackPane();
+        overlay.getStyleClass().add("cover-preview-overlay");
+        overlay.setVisible(false);
+        overlay.setManaged(false);
+        overlay.setOnMouseClicked(event -> closeCoverPreview());
+
+        Label headingLabel = new Label("Preview Cover");
+        headingLabel.getStyleClass().add("cover-preview-heading");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button closeButton = new Button("x");
+        closeButton.getStyleClass().add("cover-preview-close");
+        closeButton.setOnAction(event -> closeCoverPreview());
+
+        HBox header = new HBox(12, headingLabel, spacer, closeButton);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        coverPreviewImageShell = new StackPane();
+        coverPreviewImageShell.getStyleClass().add("cover-preview-image-shell");
+        coverPreviewImageShell.setMinSize(0, 0);
+        coverPreviewImageShell.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        coverPreviewTitleLabel = new Label();
+        coverPreviewTitleLabel.getStyleClass().add("cover-preview-title");
+        coverPreviewTitleLabel.setWrapText(true);
+        coverPreviewTitleLabel.setTextAlignment(TextAlignment.CENTER);
+        coverPreviewTitleLabel.setAlignment(Pos.CENTER);
+        coverPreviewTitleLabel.setMaxWidth(Double.MAX_VALUE);
+
+        coverPreviewSubtitleLabel = new Label();
+        coverPreviewSubtitleLabel.getStyleClass().add("cover-preview-subtitle");
+        coverPreviewSubtitleLabel.setWrapText(true);
+        coverPreviewSubtitleLabel.setTextAlignment(TextAlignment.CENTER);
+        coverPreviewSubtitleLabel.setAlignment(Pos.CENTER);
+        coverPreviewSubtitleLabel.setMaxWidth(Double.MAX_VALUE);
+
+        Label helperLabel = new Label("Klik area luar untuk menutup.");
+        helperLabel.getStyleClass().add("cover-preview-hint");
+
+        VBox card = new VBox(18, header, coverPreviewImageShell, coverPreviewTitleLabel, coverPreviewSubtitleLabel, helperLabel);
+        card.getStyleClass().add("cover-preview-card");
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setMaxWidth(360);
+        card.setMaxHeight(Region.USE_PREF_SIZE);
+        card.addEventFilter(MouseEvent.MOUSE_CLICKED, MouseEvent::consume);
+
+        overlay.getChildren().add(card);
+        updateCoverDisplay(coverPreviewImageShell, "", PREVIEW_WIDTH, PREVIEW_HEIGHT, true);
+        return overlay;
+    }
+
+    private void openCoverPreview(String coverUrl,
+                                  String isbn,
+                                  String title,
+                                  String author,
+                                  String publisher,
+                                  String year) {
+        if (coverPreviewOverlay == null || coverPreviewImageShell == null) {
+            return;
+        }
+
+        coverPreviewTitleLabel.setText(safeText(title, "Judul buku tidak tersedia"));
+
+        String subtitleText = buildBookMeta(author, publisher, year);
+        coverPreviewSubtitleLabel.setText(subtitleText);
+        coverPreviewSubtitleLabel.setManaged(!subtitleText.isBlank());
+        coverPreviewSubtitleLabel.setVisible(!subtitleText.isBlank());
+
+        updateCoverDisplay(coverPreviewImageShell, resolveCoverUrl(coverUrl, isbn), PREVIEW_WIDTH, PREVIEW_HEIGHT, true);
+
+        coverPreviewOverlay.setManaged(true);
+        coverPreviewOverlay.setVisible(true);
+        coverPreviewOverlay.toFront();
+    }
+
+    private void closeCoverPreview() {
+        if (coverPreviewOverlay == null) {
+            return;
+        }
+        coverPreviewOverlay.setVisible(false);
+        coverPreviewOverlay.setManaged(false);
+    }
+
+    private void updateCoverDisplay(StackPane container,
+                                    String imageUrl,
+                                    double fitWidth,
+                                    double fitHeight,
+                                    boolean previewMode) {
+        String resolvedUrl = imageUrl == null ? "" : imageUrl.trim();
+        container.getProperties().put("coverImageUrl", resolvedUrl);
+        container.getChildren().setAll(previewMode ? createPreviewFallback() : createThumbnailFallback());
+
+        if (resolvedUrl.isBlank()) {
+            return;
+        }
+
+        Image coverImage = new Image(resolvedUrl, true);
+        if (coverImage.getProgress() >= 1.0 && !coverImage.isError()) {
+            setLoadedImage(container, coverImage, fitWidth, fitHeight, resolvedUrl);
+            return;
+        }
+
+        coverImage.progressProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() >= 1.0 && !coverImage.isError()) {
+                Platform.runLater(() -> setLoadedImage(container, coverImage, fitWidth, fitHeight, resolvedUrl));
+            }
+        });
+
+        coverImage.errorProperty().addListener((observable, wasError, isError) -> {
+            if (Boolean.TRUE.equals(isError)
+                    && resolvedUrl.equals(container.getProperties().get("coverImageUrl"))) {
+                Platform.runLater(() -> container.getChildren().setAll(
+                        previewMode ? createPreviewFallback() : createThumbnailFallback()));
+            }
+        });
+    }
+
+    private void setLoadedImage(StackPane container,
+                                Image image,
+                                double fitWidth,
+                                double fitHeight,
+                                String resolvedUrl) {
+        if (!resolvedUrl.equals(container.getProperties().get("coverImageUrl"))) {
+            return;
+        }
+
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(fitWidth);
+        imageView.setFitHeight(fitHeight);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        container.getChildren().setAll(imageView);
+    }
+
+    private Node createThumbnailFallback() {
+        StackPane fallback = new StackPane(KioskIconFactory.createBookIcon(Color.web("#3b82f6")));
+        fallback.setAlignment(Pos.CENTER);
+        return fallback;
+    }
+
+    private Node createPreviewFallback() {
+        Node fallbackIcon = KioskIconFactory.createBookIcon(Color.web("#3b82f6"));
+        fallbackIcon.setScaleX(2.8);
+        fallbackIcon.setScaleY(2.8);
+
+        Label placeholderLabel = new Label("Cover tidak tersedia");
+        placeholderLabel.getStyleClass().add("cover-preview-placeholder-text");
+
+        VBox placeholder = new VBox(12, fallbackIcon, placeholderLabel);
+        placeholder.getStyleClass().add("cover-preview-placeholder");
+        placeholder.setAlignment(Pos.CENTER);
+        return placeholder;
+    }
+
+    private String resolveCoverUrl(String coverUrl, String isbn) {
+        if (coverUrl != null && !coverUrl.trim().isEmpty()) {
+            return coverUrl.trim();
+        }
+        if (isbn != null && !isbn.trim().isEmpty()) {
+            return "https://covers.openlibrary.org/b/isbn/" + isbn.trim() + "-L.jpg?default=false";
+        }
+        return "";
+    }
+
+    private String buildBookMeta(String author, String publisher, String year) {
+        List<String> parts = new ArrayList<>();
+
+        if (author != null && !author.trim().isEmpty()) {
+            parts.add(author.trim());
+        }
+        if (publisher != null && !publisher.trim().isEmpty()) {
+            parts.add(publisher.trim());
+        }
+        if (year != null) {
+            String cleanedYear = year.trim();
+            if (!cleanedYear.isEmpty() && !"0".equals(cleanedYear)) {
+                parts.add(cleanedYear);
+            }
+        }
+
+        return String.join(" | ", parts);
+    }
+
+    private String safeText(String value, String fallback) {
+        if (value == null || value.trim().isEmpty()) {
+            return fallback;
+        }
+        return value.trim();
     }
 }

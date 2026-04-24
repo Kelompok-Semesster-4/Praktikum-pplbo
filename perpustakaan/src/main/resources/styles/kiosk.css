@@ -491,11 +491,13 @@
     -fx-border-radius: 12;
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.04), 10, 0.1, 0, 3);
-  -fx-padding: 0;
+    -fx-padding: 0;
+    -fx-cursor: hand;
 }
 
 .search-book-card:hover {
     -fx-border-color: #9fd7bd;
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.10), 16, 0.18, 0, 6);
 }
 
 .search-book-scroller {
@@ -538,7 +540,85 @@
 
 .book-card-cover {
     -fx-background-color: #f0fdfa;
+    -fx-border-color: #d7efe4;
+    -fx-border-radius: 4;
     -fx-background-radius: 4;
+}
+
+.cover-preview-overlay {
+    -fx-background-color: rgba(9, 25, 21, 0.64);
+    -fx-alignment: center;
+    -fx-padding: 24;
+}
+
+.cover-preview-card {
+    -fx-background-color: linear-gradient(to bottom right, #ffffff 0%, #f1fbf7 56%, #f7fcff 100%);
+    -fx-background-radius: 24;
+    -fx-border-color: #cde8dc;
+    -fx-border-width: 1;
+    -fx-border-radius: 24;
+    -fx-padding: 20 22 22 22;
+    -fx-spacing: 18;
+    -fx-effect: dropshadow(gaussian, rgba(8, 35, 28, 0.28), 30, 0.24, 0, 12);
+}
+
+.cover-preview-heading {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #123628;
+}
+
+.cover-preview-close {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #5f6c82;
+    -fx-font-size: 20px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-min-width: 34;
+    -fx-pref-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-height: 34;
+}
+
+.cover-preview-close:hover {
+    -fx-text-fill: #123628;
+}
+
+.cover-preview-image-shell {
+    -fx-background-color: #edfdf7;
+    -fx-border-color: #d1f2e4;
+    -fx-border-width: 1;
+    -fx-border-radius: 18;
+    -fx-background-radius: 18;
+    -fx-padding: 0;
+}
+
+.cover-preview-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+}
+
+.cover-preview-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+}
+
+.cover-preview-hint {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+}
+
+.cover-preview-placeholder {
+    -fx-alignment: center;
+    -fx-spacing: 12;
+}
+
+.cover-preview-placeholder-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
 }
 
 .procurement-card {
