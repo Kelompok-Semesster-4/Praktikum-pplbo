@@ -244,8 +244,7 @@ class AdminDashboardFxApp extends Application {
         Node roleIcon = createSidebarSvgIcon(
                 "M12 4.2a3 3 0 1 1 0 6a3 3 0 0 1 0-6zm0 7.6c-2.7 0-5.1 1.36-6.55 3.44c-.33.47-.17 1.12.34 1.38A14.1 14.1 0 0 0 12 18.1c2.2 0 4.3-.5 6.2-1.48c.5-.26.66-.9.34-1.38A7.98 7.98 0 0 0 12 11.8zm6.4-5.4l.55 1.2l1.28.18l-.94.92l.23 1.3l-1.12-.63l-1.12.63l.23-1.3l-.94-.92l1.28-.18zm0 8.2l.55 1.2l1.28.18l-.94.92l.23 1.3l-1.12-.63l-1.12.63l.23-1.3l-.94-.92l1.28-.18z",
                 "sidebar-badge-icon-svg",
-                12
-        );
+                12);
         roleIconWrap.getChildren().add(roleIcon);
 
         Label roleText = new Label("Administrator");
@@ -259,8 +258,7 @@ class AdminDashboardFxApp extends Application {
                 createMenuButton("Dashboard", createSidebarSvgIcon(
                         "M4 4h7v7H4z M13 4h7v5h-7z M4 13h7v7H4z M13 11h7v9h-7z",
                         "menu-icon-svg",
-                        15
-                ), true, () -> openFxSection("Dashboard")),
+                        15), true, () -> openFxSection("Dashboard")),
                 createMenuButton("Manajemen Buku", "\uD83D\uDCDA", false, () -> openFxSection("Manajemen Buku")),
                 createMenuButton("Manajemen Anggota", "\uD83D\uDC65", false, () -> openFxSection("Manajemen Anggota")),
                 createMenuButton("Peminjaman & Pengembalian", "\u21C4", false,
@@ -277,13 +275,11 @@ class AdminDashboardFxApp extends Application {
                 createMenuButton("Mode Kiosk", createSidebarSvgIcon(
                         "M4 6h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6v2h3v1.5H7V21h3v-2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2v9h16V8z",
                         "menu-icon-svg",
-                        15
-                ), false, () -> openFxSection("Mode Kiosk")),
+                        15), false, () -> openFxSection("Mode Kiosk")),
                 createMenuButton("Keluar", createSidebarSvgIcon(
                         "M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4v-2H6V6h4zm3.2 3.8l1.4 1.4l-1.8 1.8H20v2h-7.2l1.8 1.8l-1.4 1.4L9 12z",
                         "menu-icon-svg",
-                        15
-                ), false, this::navigateToLogin));
+                        15), false, this::navigateToLogin));
 
         sidebar.getChildren().addAll(brandBox, adminDivider, roleBadge, menuContainer, spacer, footerMenu);
         return sidebar;
@@ -917,27 +913,26 @@ class AdminDashboardFxApp extends Application {
         }
 
         grid.add(createStatCard("Total Buku", summary.getTotalBooks(), "Total judul katalog",
-            createStatSvgIcon(
-                "M4 5.5h5.5A3.5 3.5 0 0 1 13 9v10a2.8 2.8 0 0 0-2.8-2.8H4zm16 0h-5.5A3.5 3.5 0 0 0 11 9v10a2.8 2.8 0 0 1 2.8-2.8H20z",
-                "icon-blue"
-            ),
-            "icon-blue"), 0, 0);
+                createStatSvgIcon(
+                        "M4 5.5h5.5A3.5 3.5 0 0 1 13 9v10a2.8 2.8 0 0 0-2.8-2.8H4zm16 0h-5.5A3.5 3.5 0 0 0 11 9v10a2.8 2.8 0 0 1 2.8-2.8H20z",
+                        "icon-blue"),
+                "icon-blue"), 0, 0);
         grid.add(createStatCard("Total Anggota", summary.getTotalMembers(), "Anggota terdaftar", "\uD83D\uDC65",
                 "icon-green"), 1, 0);
         grid.add(createStatCard("Peminjaman Aktif", summary.getActiveLoans(), "Sedang dipinjam", "\u21C4",
                 "icon-orange"), 2, 0);
         grid.add(createStatCard("Kunjungan Hari Ini", summary.getVisitsToday(), "Tanggal " + LocalDate.now(),
-            createStatSvgIcon(
-                "M12 5a3 3 0 1 1 0 6a3 3 0 0 1 0-6zm0 7.8c-3.1 0-5.8 1.54-7.46 3.88c-.38.53-.18 1.27.4 1.56A15.77 15.77 0 0 0 12 20c2.52 0 4.93-.58 7.06-1.76c.58-.29.78-1.03.4-1.56C17.8 14.34 15.1 12.8 12 12.8z",
-                "icon-purple"
-            ), "icon-purple"), 3, 0);
+                createStatSvgIcon(
+                        "M12 5a3 3 0 1 1 0 6a3 3 0 0 1 0-6zm0 7.8c-3.1 0-5.8 1.54-7.46 3.88c-.38.53-.18 1.27.4 1.56A15.77 15.77 0 0 0 12 20c2.52 0 4.93-.58 7.06-1.76c.58-.29.78-1.03.4-1.56C17.8 14.34 15.1 12.8 12 12.8z",
+                        "icon-purple"),
+                "icon-purple"), 3, 0);
         grid.add(createStatCard("Buku Tersedia", summary.getAvailableCopies(),
                 "Dari " + summary.getTotalCopies() + " eksemplar", "\u2705", "icon-teal"), 4, 0);
         grid.add(createStatCard("Permintaan Pending", summary.getPendingRequests(), "Perlu ditinjau",
-            createStatSvgIcon(
-                "M5 6h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 6zm0 2.2v.8l7 4.9l7-4.9v-.8zm14 8v-5l-6.43 4.5a1 1 0 0 1-1.14 0L5 11.2v5z",
-                "icon-sand"
-            ), "icon-sand"), 5, 0);
+                createStatSvgIcon(
+                        "M5 6h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 6zm0 2.2v.8l7 4.9l7-4.9v-.8zm14 8v-5l-6.43 4.5a1 1 0 0 1-1.14 0L5 11.2v5z",
+                        "icon-sand"),
+                "icon-sand"), 5, 0);
 
         return grid;
     }
