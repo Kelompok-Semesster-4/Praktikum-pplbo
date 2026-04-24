@@ -677,7 +677,8 @@ public class AdminFeedbackRequestPanel {
 
     private String textAreaStyle() {
         return "-fx-background-color: white; -fx-background-radius: 16; -fx-border-radius: 16;" +
-                "-fx-border-color: #CBD5E1; -fx-padding: 12; -fx-font-size: 13px; -fx-text-fill: #0F172A;";
+                "-fx-border-color: #CBD5E1; -fx-padding: 12; -fx-font-size: 13px; -fx-text-fill: #0F172A;" +
+                "-fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-box-border: transparent; -fx-control-inner-background: white;";
     }
 
     private String statusChipStyle(String background, String foreground) {
