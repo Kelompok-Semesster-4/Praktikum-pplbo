@@ -1,6 +1,10 @@
 package com.library.app.ui.panel;
 
 import com.library.app.service.FeedbackService;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -10,11 +14,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 public class KioskFeedbackFxPanel {
     private final FeedbackService feedbackService = new FeedbackService();
@@ -50,6 +57,13 @@ public class KioskFeedbackFxPanel {
         subtitle.setMaxWidth(500);
         subtitle.setAlignment(Pos.CENTER);
         subtitle.setTextAlignment(TextAlignment.CENTER);
+
+        Label senderNameLabel = new Label("Nama Pengirim");
+        senderNameLabel.getStyleClass().add("visit-label");
+
+        TextField senderNameField = new TextField();
+        senderNameField.getStyleClass().add("visit-input");
+        senderNameField.setPromptText("Masukkan nama Anda");
 
         Label ratingLabel = new Label("Rating");
         ratingLabel.getStyleClass().add("visit-label");
@@ -113,6 +127,9 @@ public class KioskFeedbackFxPanel {
 
         Button submitButton = new Button("Kirim Feedback");
         submitButton.getStyleClass().addAll("visit-submit-button", "feedback-submit-button");
+        senderNameField.setPrefWidth(FEEDBACK_FORM_WIDTH);
+        senderNameField.setMaxWidth(FEEDBACK_FORM_WIDTH);
+
         subjectField.setPrefWidth(FEEDBACK_FORM_WIDTH);
         subjectField.setMaxWidth(FEEDBACK_FORM_WIDTH);
 
@@ -122,17 +139,32 @@ public class KioskFeedbackFxPanel {
         submitButton.setPrefWidth(FEEDBACK_FORM_WIDTH);
         submitButton.setMaxWidth(FEEDBACK_FORM_WIDTH);
 
-        Label statusLabel = new Label();
-        statusLabel.getStyleClass().add("visit-status-label");
-        statusLabel.setTextAlignment(TextAlignment.CENTER);
-        statusLabel.setWrapText(true);
-        statusLabel.setVisible(false);
-        statusLabel.setManaged(false);
-        statusLabel.setPrefWidth(FEEDBACK_FORM_WIDTH);
-        statusLabel.setMaxWidth(FEEDBACK_FORM_WIDTH);
+        Label toastIcon = new Label("✓");
+        toastIcon.getStyleClass().add("visit-inline-toast-icon");
+
+        Label toastMessage = new Label();
+        toastMessage.getStyleClass().add("visit-inline-toast-message");
+        toastMessage.setWrapText(true);
+
+        Region toastSpacer = new Region();
+        HBox.setHgrow(toastSpacer, Priority.ALWAYS);
+
+        Label toastClose = new Label("✕");
+        toastClose.getStyleClass().add("visit-inline-toast-close");
+
+        HBox inlineToast = new HBox(10, toastIcon, toastMessage, toastSpacer, toastClose);
+        inlineToast.getStyleClass().addAll("visit-inline-toast", "visit-inline-toast-success");
+        inlineToast.setAlignment(Pos.CENTER_LEFT);
+        inlineToast.setVisible(false);
+        inlineToast.setManaged(false);
+        inlineToast.setOpacity(0);
+        inlineToast.setPrefWidth(FEEDBACK_FORM_WIDTH);
+        inlineToast.setMaxWidth(FEEDBACK_FORM_WIDTH);
+
+        toastClose.setOnMouseClicked(event -> hideInlineToast(inlineToast));
 
         submitButton.setOnAction(event ->
-                submitFeedback(subjectField, messageArea, statusLabel, starBoxes, stars)
+                submitFeedback(senderNameField, subjectField, messageArea, inlineToast, toastIcon, toastMessage, starBoxes, stars)
         );
 
         VBox headerBox = new VBox(8, iconShell, title, subtitle);
@@ -140,11 +172,12 @@ public class KioskFeedbackFxPanel {
 
         VBox formFields = new VBox(
             8,
+            senderNameLabel, senderNameField,
             ratingLabel, ratingStars,
             subjectLabel, subjectField,
             messageLabel, messageArea,
             submitButton,
-            statusLabel
+            inlineToast
         );
         formFields.setAlignment(Pos.CENTER_LEFT);
         formFields.setFillWidth(true);
@@ -219,35 +252,90 @@ public class KioskFeedbackFxPanel {
         }
     }
 
-    private void submitFeedback(TextField subjectField,
+    private void submitFeedback(TextField senderNameField,
+                                TextField subjectField,
                                 TextArea messageArea,
-                                Label statusLabel,
+                                HBox inlineToast,
+                                Label toastIcon,
+                                Label toastMessage,
                                 StackPane[] starBoxes,
                                 Label[] stars) {
-        statusLabel.getStyleClass().removeAll("visit-status-success", "visit-status-error");
-
         try {
             feedbackService.registerFeedback(
-                    "",
+                    senderNameField.getText(),
                     subjectField.getText(),
                     selectedRating,
                     messageArea.getText()
             );
 
-            statusLabel.getStyleClass().add("visit-status-success");
-            statusLabel.setText("Feedback berhasil dikirim. Terima kasih atas masukan Anda.");
+            showInlineToast(
+                    inlineToast,
+                    toastIcon,
+                    toastMessage,
+                    "Feedback berhasil dikirim. Terima kasih atas masukan Anda.",
+                    true
+            );
 
+            senderNameField.clear();
             subjectField.clear();
             messageArea.clear();
             selectedRating = 0;
             messageLabelRef.setText("Pesan (0/500)");
             updateStars(starBoxes, stars, selectedRating);
         } catch (Exception exception) {
-            statusLabel.getStyleClass().add("visit-status-error");
-            statusLabel.setText(exception.getMessage());
+            showInlineToast(inlineToast, toastIcon, toastMessage, exception.getMessage(), false);
+        }
+    }
+
+    private void showInlineToast(HBox toast, Label iconLabel, Label messageLabel, String message, boolean success) {
+        toast.getStyleClass().removeAll("visit-inline-toast-success", "visit-inline-toast-error");
+        toast.getStyleClass().add(success ? "visit-inline-toast-success" : "visit-inline-toast-error");
+
+        iconLabel.setText(success ? "✓" : "✕");
+        messageLabel.setText(message == null ? "" : message);
+
+        toast.setManaged(true);
+        toast.setVisible(true);
+        toast.setOpacity(0);
+        toast.setTranslateY(8);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(220), toast);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        TranslateTransition slideIn = new TranslateTransition(Duration.millis(220), toast);
+        slideIn.setFromY(8);
+        slideIn.setToY(0);
+
+        ParallelTransition in = new ParallelTransition(fadeIn, slideIn);
+        in.play();
+
+        if (success) {
+            PauseTransition delay = new PauseTransition(Duration.millis(3000));
+            delay.setOnFinished(event -> hideInlineToast(toast));
+            delay.play();
+        }
+    }
+
+    private void hideInlineToast(HBox toast) {
+        if (!toast.isVisible()) {
+            return;
         }
 
-        statusLabel.setManaged(true);
-        statusLabel.setVisible(true);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(180), toast);
+        fadeOut.setFromValue(toast.getOpacity());
+        fadeOut.setToValue(0);
+
+        TranslateTransition slideOut = new TranslateTransition(Duration.millis(180), toast);
+        slideOut.setFromY(toast.getTranslateY());
+        slideOut.setToY(6);
+
+        ParallelTransition out = new ParallelTransition(fadeOut, slideOut);
+        out.setOnFinished(event -> {
+            toast.setVisible(false);
+            toast.setManaged(false);
+            toast.setTranslateY(0);
+        });
+        out.play();
     }
 }
