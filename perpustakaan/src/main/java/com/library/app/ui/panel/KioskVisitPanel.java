@@ -47,7 +47,7 @@ public class KioskVisitPanel {
         Label title = new Label("Absen Masuk / Keluar");
         title.getStyleClass().add("visit-title");
 
-        Label subtitle = new Label("Scan pertama untuk masuk, scan kedua untuk keluar (selesai).\nMasukkan NIM/NIS/NIDN Anda.");
+        Label subtitle = new Label("Scan akan bergantian masuk dan keluar.\nSetelah keluar, Anda bisa scan lagi untuk masuk pada jam berikutnya.");
         subtitle.getStyleClass().add("visit-subtitle");
         subtitle.setTextAlignment(TextAlignment.CENTER);
         subtitle.setWrapText(true);

@@ -24,19 +24,7 @@ public class VisitService {
 
         Visit latestVisit = visitDAO.findLatestMemberVisit(member.getId()).orElse(null);
         if (latestVisit == null || latestVisit.getVisitDate() == null || latestVisit.getVisitDate().isBefore(today)) {
-            Visit visit = new Visit();
-            visit.setMemberId(member.getId());
-            visit.setVisitorName(member.getName());
-            visit.setVisitorIdentifier(member.getMemberCode());
-            visit.setVisitType(VisitType.MEMBER);
-            visit.setVisitStatus(VisitPresenceStatus.DI_DALAM);
-            visit.setInstitution(member.getMemberType().name());
-            visit.setPurpose("Kunjungan perpustakaan");
-            visit.setVisitDate(today);
-            visit.setCheckInTime(LocalTime.now().withSecond(0).withNano(0));
-            visit.setCheckOutTime(null);
-            visitDAO.save(visit);
-            return "Absen masuk berhasil. Status kunjungan: Di dalam.";
+            return createMemberCheckIn(member, today);
         }
 
         if (latestVisit.getVisitDate().isAfter(today)) {
@@ -48,7 +36,7 @@ public class VisitService {
             return "Absen keluar berhasil. Status kunjungan: Selesai.";
         }
 
-        throw new IllegalArgumentException("Kunjungan anggota hari ini sudah selesai.");
+        return createMemberCheckIn(member, today);
     }
 
     public String recordGuestVisit(String guestName, String institution, String purpose) {
@@ -113,5 +101,21 @@ public class VisitService {
         visitDAO.closeOpenMemberVisitsBefore(LocalDate.now());
         visitDAO.closeOpenGuestVisitsBefore(LocalDate.now());
         return visitDAO.findRecent(50);
+    }
+
+    private String createMemberCheckIn(Member member, LocalDate visitDate) {
+        Visit visit = new Visit();
+        visit.setMemberId(member.getId());
+        visit.setVisitorName(member.getName());
+        visit.setVisitorIdentifier(member.getMemberCode());
+        visit.setVisitType(VisitType.MEMBER);
+        visit.setVisitStatus(VisitPresenceStatus.DI_DALAM);
+        visit.setInstitution(member.getMemberType().name());
+        visit.setPurpose("Kunjungan perpustakaan");
+        visit.setVisitDate(visitDate);
+        visit.setCheckInTime(LocalTime.now().withSecond(0).withNano(0));
+        visit.setCheckOutTime(null);
+        visitDAO.save(visit);
+        return "Absen masuk berhasil. Status kunjungan: Di dalam.";
     }
 }

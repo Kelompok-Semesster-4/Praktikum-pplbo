@@ -34,7 +34,7 @@ public class VisitPanel extends JPanel implements RefreshablePanel {
 
         JPanel memberPanel = new JPanel(new GridLayout(0, 1, 6, 6));
         memberPanel.setBorder(BorderFactory.createTitledBorder("Absen Member (Masuk/Keluar)"));
-        memberPanel.add(new JLabel("Masukkan NIM/NIS/NIDN (scan 2x: masuk lalu keluar)"));
+        memberPanel.add(new JLabel("Masukkan NIM/NIS/NIDN (scan bergantian: masuk, keluar, masuk, keluar, dst.)"));
         memberPanel.add(memberCodeField);
         JButton memberButton = new JButton("Proses Absen Masuk/Keluar");
         memberButton.addActionListener(event -> recordMemberVisit());
