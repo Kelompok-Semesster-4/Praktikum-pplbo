@@ -53,20 +53,7 @@ public class VisitService {
         Visit latestVisit = visitDAO.findLatestGuestVisitToday(normalizedGuestName, normalizedInstitution).orElse(null);
 
         if (latestVisit == null) {
-            ValidationUtil.requireNotBlank(purpose, "Keperluan tamu wajib diisi.");
-
-            Visit visit = new Visit();
-            visit.setVisitorName(normalizedGuestName);
-            visit.setVisitorIdentifier("-");
-            visit.setVisitType(VisitType.GUEST);
-            visit.setVisitStatus(VisitPresenceStatus.DI_DALAM);
-            visit.setInstitution(normalizedInstitution);
-            visit.setPurpose(purpose.trim());
-            visit.setVisitDate(today);
-            visit.setCheckInTime(LocalTime.now().withSecond(0).withNano(0));
-            visit.setCheckOutTime(null);
-            visitDAO.save(visit);
-            return "Absen tamu masuk berhasil. Status kunjungan: Di dalam.";
+            return createGuestCheckIn(normalizedGuestName, normalizedInstitution, purpose, today);
         }
 
         if (latestVisit.getVisitStatus() == VisitPresenceStatus.DI_DALAM) {
@@ -74,7 +61,7 @@ public class VisitService {
             return "Absen tamu keluar berhasil. Status kunjungan: Selesai.";
         }
 
-        throw new IllegalArgumentException("Absen tamu hari ini sudah selesai.");
+        return createGuestCheckIn(normalizedGuestName, normalizedInstitution, purpose, today);
     }
 
     public String completeGuestVisit(long visitId) {
@@ -117,5 +104,22 @@ public class VisitService {
         visit.setCheckOutTime(null);
         visitDAO.save(visit);
         return "Absen masuk berhasil. Status kunjungan: Di dalam.";
+    }
+
+    private String createGuestCheckIn(String guestName, String institution, String purpose, LocalDate visitDate) {
+        ValidationUtil.requireNotBlank(purpose, "Keperluan tamu wajib diisi.");
+
+        Visit visit = new Visit();
+        visit.setVisitorName(guestName);
+        visit.setVisitorIdentifier("-");
+        visit.setVisitType(VisitType.GUEST);
+        visit.setVisitStatus(VisitPresenceStatus.DI_DALAM);
+        visit.setInstitution(institution);
+        visit.setPurpose(purpose.trim());
+        visit.setVisitDate(visitDate);
+        visit.setCheckInTime(LocalTime.now().withSecond(0).withNano(0));
+        visit.setCheckOutTime(null);
+        visitDAO.save(visit);
+        return "Absen tamu masuk berhasil. Status kunjungan: Di dalam.";
     }
 }
