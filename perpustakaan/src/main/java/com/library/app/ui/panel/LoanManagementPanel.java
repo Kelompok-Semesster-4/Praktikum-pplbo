@@ -600,7 +600,8 @@ public class LoanManagementPanel {
         if (currentMode == LoanViewMode.MEMBER_VISIT) {
             TableColumn<Object, String> visitorColumn = new TableColumn<>("PENGUNJUNG");
             visitorColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
-            visitorColumn.setCellFactory(column -> visitTextCell("loan-title-text"));
+            visitorColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+            visitorColumn.setCellFactory(column -> leftAlignedVisitTextCell("loan-title-text"));
             visitorColumn.setPrefWidth(220);
 
             TableColumn<Object, String> nimColumn = new TableColumn<>("NIM");
@@ -638,17 +639,18 @@ public class LoanManagementPanel {
 
         TableColumn<Object, String> nameColumn = new TableColumn<>("NAMA");
         nameColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
-        nameColumn.setCellFactory(column -> visitTextCell("loan-title-text"));
+        nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+        nameColumn.setCellFactory(column -> leftAlignedVisitTextCell("loan-title-text"));
         nameColumn.setPrefWidth(190);
 
         TableColumn<Object, String> institutionColumn = new TableColumn<>("INSTANSI");
         institutionColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).institution()));
-        institutionColumn.setCellFactory(column -> visitTextCell("loan-book-text"));
+        institutionColumn.setCellFactory(column -> centeredWrappedTextCell("loan-book-text"));
         institutionColumn.setPrefWidth(160);
 
         TableColumn<Object, String> purposeColumn = new TableColumn<>("KEPERLUAN");
         purposeColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).purpose()));
-        purposeColumn.setCellFactory(column -> visitTextCell("loan-book-text"));
+        purposeColumn.setCellFactory(column -> centeredWrappedTextCell("loan-book-text"));
         purposeColumn.setPrefWidth(180);
 
         TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
@@ -786,6 +788,54 @@ public class LoanManagementPanel {
                 label.setWrapText(true);
 
                 setGraphic(label);
+                setText(null);
+            }
+        };
+    }
+
+    private TableCell<Object, String> leftAlignedVisitTextCell(String styleClass) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label label = new Label(item);
+                label.getStyleClass().add(styleClass);
+                label.setWrapText(true);
+
+                HBox wrapper = new HBox(label);
+                wrapper.setAlignment(Pos.CENTER_LEFT);
+
+                setGraphic(wrapper);
+                setText(null);
+            }
+        };
+    }
+
+    private TableCell<Object, String> centeredWrappedTextCell(String styleClass) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label label = new Label(item);
+                label.getStyleClass().add(styleClass);
+                label.setWrapText(true);
+
+                HBox wrapper = new HBox(label);
+                wrapper.setAlignment(Pos.CENTER);
+
+                setGraphic(wrapper);
                 setText(null);
             }
         };
