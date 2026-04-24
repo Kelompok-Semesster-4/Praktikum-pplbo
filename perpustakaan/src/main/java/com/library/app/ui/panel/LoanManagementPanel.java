@@ -116,6 +116,15 @@ public class LoanManagementPanel {
         updateSubtitle();
     }
 
+    public void showReturnedLoanTab() {
+        if (root == null) {
+            create();
+        }
+        searchField.clear();
+        switchMode(LoanViewMode.RETURNED);
+        mainTable.requestFocus();
+    }
+
     public void showMemberVisitTab() {
         if (root == null) {
             create();
