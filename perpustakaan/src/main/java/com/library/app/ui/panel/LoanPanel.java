@@ -151,6 +151,7 @@ public class LoanPanel extends JPanel implements RefreshablePanel {
 
         loanTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         loanTable.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+        loanTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         loanTable.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
         loanTable.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
     }

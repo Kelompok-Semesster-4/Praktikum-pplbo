@@ -461,7 +461,9 @@ public class LoanManagementPanel {
                 Label label = new Label(item);
                 label.getStyleClass().add("loan-book-text");
                 label.setWrapText(true);
-                setGraphic(label);
+                HBox wrapper = new HBox(label);
+                wrapper.setAlignment(Pos.CENTER);
+                setGraphic(wrapper);
                 setText(null);
             }
         });
@@ -504,7 +506,7 @@ public class LoanManagementPanel {
             });
             fineColumn.setPrefWidth(100);
 
-            TableColumn<Object, LoanRow> actionColumn = new TableColumn<>("");
+            TableColumn<Object, LoanRow> actionColumn = new TableColumn<>("AKSI");
             actionColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((LoanRow) cell.getValue()));
             actionColumn.setSortable(false);
             actionColumn.setReorderable(false);
