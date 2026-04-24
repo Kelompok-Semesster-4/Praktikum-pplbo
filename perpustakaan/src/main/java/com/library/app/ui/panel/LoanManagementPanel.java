@@ -112,6 +112,7 @@ public class LoanManagementPanel {
             loadVisitRows();
             applyVisitSearchFilter();
         }
+        mainTable.refresh();
         updateSubtitle();
     }
 
@@ -341,7 +342,7 @@ public class LoanManagementPanel {
 
         if (keyword.isBlank()) {
             visibleRows.setAll(allRows);
-            mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleRows)));
+            updateMainTableItems();
             return;
         }
 
@@ -354,7 +355,7 @@ public class LoanManagementPanel {
                 .toList();
 
         visibleRows.setAll(filtered);
-        mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleRows)));
+        updateMainTableItems();
     }
 
     private void loadVisitRows() {
@@ -391,7 +392,7 @@ public class LoanManagementPanel {
 
         if (keyword.isBlank()) {
             visibleVisitRows.setAll(allVisitRows);
-            mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
+            updateMainTableItems();
             return;
         }
 
@@ -406,7 +407,7 @@ public class LoanManagementPanel {
                 .toList();
 
         visibleVisitRows.setAll(filtered);
-        mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
+        updateMainTableItems();
     }
 
     private void updateSubtitle() {
@@ -552,7 +553,7 @@ public class LoanManagementPanel {
             );
         }
 
-        mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleRows)));
+        updateMainTableItems();
     }
 
     private TableColumn<Object, String> createLoanStatusColumn() {
@@ -620,7 +621,7 @@ public class LoanManagementPanel {
                     visitorColumn, nimColumn, dateColumn, inColumn, outColumn, statusColumn
             );
 
-            mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
+            updateMainTableItems();
             return;
         }
 
@@ -663,7 +664,18 @@ public class LoanManagementPanel {
                 nameColumn, institutionColumn, purposeColumn, dateColumn, inColumn, outColumn, statusColumn
         );
 
-        mainTable.setItems(FXCollections.observableArrayList(new ArrayList<>(visibleVisitRows)));
+        updateMainTableItems();
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void updateMainTableItems() {
+        ObservableList source = (currentMode == LoanViewMode.ACTIVE || currentMode == LoanViewMode.RETURNED)
+                ? visibleRows
+                : visibleVisitRows;
+        if (mainTable.getItems() != source) {
+            mainTable.setItems(source);
+        }
+        mainTable.refresh();
     }
 
     private TableCell<Object, String> createVisitStatusCell() {
@@ -869,6 +881,8 @@ public class LoanManagementPanel {
                 ? com.library.app.util.DateUtil.calculateDaysDifference(dueDate, today)
                 : 0;
         long finePerDay = com.library.app.model.FineRule.getInstance().getFinePerDay();
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
         VBox card = new VBox();
@@ -954,16 +968,21 @@ public class LoanManagementPanel {
         confirmBtn.getStyleClass().addAll("loan-modal-button", "loan-modal-button-save");
         confirmBtn.setOnAction(e -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 loanService.returnBook(loanRow.copyCode());
                 refreshData();
                 closeModal();
-                showInfo("Buku berhasil dikembalikan.");
+                FxFeedback.showSuccessToast(
+                        FxFeedback.resolveHost(root),
+                        "Buku berhasil dikembalikan.",
+                        new Insets(84, 24, 0, 0)
+                );
             } catch (Exception ex) {
-                showError(resolveErrorMessage(ex));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(ex));
             }
         });
         footer.getChildren().addAll(cancelBtn, confirmBtn);
-        card.getChildren().add(footer);
+        card.getChildren().addAll(errorToast, footer);
 
         overlay.getChildren().add(card);
         return overlay;
@@ -993,6 +1012,8 @@ public class LoanManagementPanel {
     private StackPane buildBorrowModal() {
         TextField memberCodeInput = createModalTextField("Masukkan kode anggota");
         TextField isbnInput = createModalTextField("Masukkan ISBN buku");
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
         VBox card = buildBaseModalCard("Catat Peminjaman");
@@ -1002,6 +1023,11 @@ public class LoanManagementPanel {
         body.getChildren().add(buildModalField("Kode Anggota", memberCodeInput));
         body.getChildren().add(buildModalField("ISBN Buku", isbnInput));
 
+        memberCodeInput.textProperty().addListener((obs, oldValue, newValue) ->
+                hideModalInlineError(errorToast, errorMessageLabel));
+        isbnInput.textProperty().addListener((obs, oldValue, newValue) ->
+                hideModalInlineError(errorToast, errorMessageLabel));
+
         HBox footer = buildModalFooter();
 
         Button cancelButton = createCancelModalButton();
@@ -1009,17 +1035,18 @@ public class LoanManagementPanel {
         saveButton.getStyleClass().addAll("loan-modal-button", "loan-modal-button-save");
         saveButton.setOnAction(event -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 loanService.borrowBook(memberCodeInput.getText().trim(), isbnInput.getText().trim());
                 refreshData();
                 closeModal();
                 showInfo("Transaksi peminjaman berhasil.");
             } catch (Exception exception) {
-                showError(resolveErrorMessage(exception));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(exception));
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(body, errorToast, footer);
         overlay.getChildren().add(card);
         return overlay;
     }
@@ -1028,6 +1055,8 @@ public class LoanManagementPanel {
         TextField guestNameInput = createModalTextField("Masukkan nama tamu");
         TextField institutionInput = createModalTextField("Masukkan instansi / asal");
         TextField purposeInput = createModalTextField("Masukkan keperluan");
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
         VBox card = buildBaseModalCard("Absen Tamu");
@@ -1038,6 +1067,13 @@ public class LoanManagementPanel {
         body.getChildren().add(buildModalField("Instansi", institutionInput));
         body.getChildren().add(buildModalField("Keperluan", purposeInput));
 
+        guestNameInput.textProperty().addListener((obs, oldValue, newValue) ->
+                hideModalInlineError(errorToast, errorMessageLabel));
+        institutionInput.textProperty().addListener((obs, oldValue, newValue) ->
+                hideModalInlineError(errorToast, errorMessageLabel));
+        purposeInput.textProperty().addListener((obs, oldValue, newValue) ->
+                hideModalInlineError(errorToast, errorMessageLabel));
+
         HBox footer = buildModalFooter();
 
         Button cancelButton = createCancelModalButton();
@@ -1045,6 +1081,7 @@ public class LoanManagementPanel {
         saveButton.getStyleClass().addAll("loan-modal-button", "loan-modal-button-save");
         saveButton.setOnAction(event -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 String message = visitService.recordGuestVisit(
                         guestNameInput.getText().trim(),
                         institutionInput.getText().trim(),
@@ -1054,12 +1091,12 @@ public class LoanManagementPanel {
                 closeModal();
                 showInfo(message);
             } catch (Exception exception) {
-                showError(resolveErrorMessage(exception));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(exception));
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(body, errorToast, footer);
         overlay.getChildren().add(card);
         return overlay;
     }
@@ -1100,6 +1137,61 @@ public class LoanManagementPanel {
         header.getChildren().addAll(titleLabel, spacer, closeButton);
         card.getChildren().add(header);
         return card;
+    }
+
+    private HBox createModalInlineErrorToast() {
+        Label iconLabel = new Label("✕");
+        iconLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: 700;");
+
+        Label closeLabel = new Label("✕");
+        closeLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-cursor: hand;");
+
+        Label messageLabel = new Label();
+        messageLabel.setWrapText(true);
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
+        messageLabel.setStyle("-fx-text-fill: #991b1b; -fx-font-size: 12px;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox toast = new HBox(10, iconLabel, messageLabel, spacer, closeLabel);
+        toast.setAlignment(Pos.CENTER_LEFT);
+        toast.setVisible(false);
+        toast.setManaged(false);
+        toast.setFillHeight(true);
+        toast.setPrefWidth(MODAL_WIDTH - 48);
+        toast.setMaxWidth(MODAL_WIDTH - 48);
+        HBox.setHgrow(toast, Priority.ALWAYS);
+        VBox.setMargin(toast, new Insets(6, 24, 2, 24));
+        toast.setStyle(
+                "-fx-background-color: #fef2f2; " +
+                "-fx-border-color: #fecaca; " +
+                "-fx-border-width: 1; " +
+                "-fx-border-radius: 12; " +
+                "-fx-background-radius: 12; " +
+                "-fx-padding: 12 14 12 14;"
+        );
+        toast.getProperties().put("messageLabel", messageLabel);
+        closeLabel.setOnMouseClicked(event -> hideModalInlineError(toast, messageLabel));
+        return toast;
+    }
+
+    private void showModalInlineError(HBox toast, Label messageLabel, String message) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText(message == null ? "" : message);
+        toast.setManaged(true);
+        toast.setVisible(true);
+    }
+
+    private void hideModalInlineError(HBox toast, Label messageLabel) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText("");
+        toast.setVisible(false);
+        toast.setManaged(false);
     }
 
     private HBox buildModalFooter() {
@@ -1197,11 +1289,20 @@ public class LoanManagementPanel {
     }
 
     private void showInfo(String message) {
-        FxFeedback.showSuccessToastCentered(FxFeedback.resolveHost(root), message);
+        FxFeedback.showSuccessToast(
+                FxFeedback.resolveHost(root),
+                message,
+                new Insets(84, 24, 0, 0)
+        );
     }
 
     private void showError(String message) {
-        FxFeedback.showErrorToastCentered(FxFeedback.resolveHost(root), message);
+        FxFeedback.showErrorToast(
+                root,
+                message,
+                Pos.TOP_CENTER,
+                new Insets(20, 0, 0, 0)
+        );
     }
 
     private record LoanRow(

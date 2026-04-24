@@ -44,8 +44,16 @@ public final class FxFeedback {
         showToast(host, message, true, Pos.TOP_RIGHT, new Insets(22, 22, 0, 0), false);
     }
 
+    public static void showSuccessToast(StackPane host, String message, Insets margin) {
+        showToast(host, message, true, Pos.TOP_RIGHT, margin, false);
+    }
+
     public static void showErrorToast(StackPane host, String message) {
         showToast(host, message, false, Pos.TOP_RIGHT, new Insets(22, 22, 0, 0), false);
+    }
+
+    public static void showErrorToast(StackPane host, String message, Pos alignment, Insets margin) {
+        showToast(host, message, false, alignment, margin, false);
     }
 
     public static void showSuccessToastCentered(StackPane host, String message) {

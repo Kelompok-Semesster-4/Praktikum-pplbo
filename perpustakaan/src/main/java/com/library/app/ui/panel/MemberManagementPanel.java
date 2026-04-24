@@ -686,6 +686,8 @@ public class MemberManagementPanel {
 
         Label codeErrorLabel = FxFeedback.createFieldErrorLabel();
         Label nameErrorLabel = FxFeedback.createFieldErrorLabel();
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
         VBox card = buildBaseModalCard("Tambah Anggota Baru");
@@ -711,6 +713,7 @@ public class MemberManagementPanel {
         saveButton.setOnAction(event -> {
             FxFeedback.clearFieldError(codeInput, codeErrorLabel);
             FxFeedback.clearFieldError(nameInput, nameErrorLabel);
+            hideModalInlineError(errorToast, errorMessageLabel);
 
             String memberCode = normalizeInput(codeInput.getText());
             String memberName = normalizeInput(nameInput.getText());
@@ -761,12 +764,12 @@ public class MemberManagementPanel {
                     return;
                 }
 
-                showError(errorMessage);
+                showModalInlineError(errorToast, errorMessageLabel, errorMessage);
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(buildModalBodyScroller(body), footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), errorToast, footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -791,6 +794,8 @@ public class MemberManagementPanel {
 
         Label codeErrorLabel = FxFeedback.createFieldErrorLabel();
         Label nameErrorLabel = FxFeedback.createFieldErrorLabel();
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
         VBox card = buildBaseModalCard("Edit Anggota");
@@ -816,6 +821,7 @@ public class MemberManagementPanel {
         saveButton.setOnAction(event -> {
             FxFeedback.clearFieldError(codeInput, codeErrorLabel);
             FxFeedback.clearFieldError(nameInput, nameErrorLabel);
+            hideModalInlineError(errorToast, errorMessageLabel);
 
             String memberCode = normalizeInput(codeInput.getText());
             String memberName = normalizeInput(nameInput.getText());
@@ -854,7 +860,7 @@ public class MemberManagementPanel {
                 refreshData();
                 memberTable.refresh();
                 closeMemberDialog();
-                showSuccessToast("Anggota berhasil diperbarui.");
+                showInfo("Anggota berhasil diperbarui.");
             } catch (Exception exception) {
                 String errorMessage = resolveErrorMessage(exception);
 
@@ -868,12 +874,12 @@ public class MemberManagementPanel {
                     return;
                 }
 
-                showError(errorMessage);
+                showModalInlineError(errorToast, errorMessageLabel, errorMessage);
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(buildModalBodyScroller(body), footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), errorToast, footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -902,20 +908,23 @@ public class MemberManagementPanel {
 
         Button deleteButton = new Button("Hapus");
         deleteButton.getStyleClass().addAll("member-modal-button", "member-modal-button-danger");
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
         deleteButton.setOnAction(event -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 memberService.deleteMember(member.getId());
                 refreshData();
                 memberTable.refresh();
                 closeMemberDialog();
-                showSuccessToast("Anggota berhasil dihapus.");
+                showInfo("Anggota berhasil dihapus.");
             } catch (Exception exception) {
-                showErrorToast(resolveErrorMessage(exception));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(exception));
             }
         });
 
         footer.getChildren().addAll(cancelButton, deleteButton);
-        card.getChildren().addAll(body, footer);
+        card.getChildren().addAll(body, errorToast, footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -999,6 +1008,59 @@ public class MemberManagementPanel {
         card.getChildren().add(header);
 
         return card;
+    }
+
+    private HBox createModalInlineErrorToast() {
+        Label iconLabel = new Label("✕");
+        iconLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: 700;");
+
+        Label closeLabel = new Label("✕");
+        closeLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-cursor: hand;");
+
+        Label messageLabel = new Label();
+        messageLabel.setWrapText(true);
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
+        messageLabel.setStyle("-fx-text-fill: #991b1b; -fx-font-size: 12px;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox toast = new HBox(10, iconLabel, messageLabel, spacer, closeLabel);
+        toast.setAlignment(Pos.CENTER_LEFT);
+        toast.setVisible(false);
+        toast.setManaged(false);
+        toast.setPrefWidth(ADD_MEMBER_MODAL_WIDTH - 64);
+        toast.setMaxWidth(ADD_MEMBER_MODAL_WIDTH - 64);
+        VBox.setMargin(toast, new Insets(6, 24, 2, 24));
+        toast.setStyle(
+                "-fx-background-color: #fef2f2; " +
+                "-fx-border-color: #fecaca; " +
+                "-fx-border-width: 1; " +
+                "-fx-border-radius: 12; " +
+                "-fx-background-radius: 12; " +
+                "-fx-padding: 10 12 10 12;"
+        );
+        toast.getProperties().put("messageLabel", messageLabel);
+        closeLabel.setOnMouseClicked(event -> hideModalInlineError(toast, messageLabel));
+        return toast;
+    }
+
+    private void showModalInlineError(HBox toast, Label messageLabel, String message) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText(message == null ? "" : message);
+        toast.setManaged(true);
+        toast.setVisible(true);
+    }
+
+    private void hideModalInlineError(HBox toast, Label messageLabel) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText("");
+        toast.setVisible(false);
+        toast.setManaged(false);
     }
 
     private HBox buildModalFooter() {
@@ -1110,9 +1172,9 @@ public class MemberManagementPanel {
             memberService.deleteMember(member.getId());
             refreshData();
             memberTable.refresh();
-            showSuccessToast("Anggota berhasil dihapus.");
+            showInfo("Anggota berhasil dihapus.");
         } catch (Exception exception) {
-            showErrorToast(resolveErrorMessage(exception));
+            showError(resolveErrorMessage(exception));
         }
     }
 
@@ -1355,7 +1417,11 @@ public class MemberManagementPanel {
     }
 
     private void showInfo(String message) {
-        FxFeedback.showSuccessToast(FxFeedback.resolveHost(root), message);
+        FxFeedback.showSuccessToast(
+                FxFeedback.resolveHost(root),
+                message,
+                new Insets(84, 24, 0, 0)
+        );
     }
 
     private void showError(String message) {

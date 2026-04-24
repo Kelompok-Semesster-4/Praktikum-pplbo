@@ -2,6 +2,7 @@ package com.library.app.ui.panel;
 
 import com.library.app.model.BookCatalogItem;
 import com.library.app.service.BookService;
+import com.library.app.ui.util.FxFeedback;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -568,9 +569,9 @@ public class BookManagementPanel {
         try {
             bookService.deleteBook(selectedBook.getBookId());
             refreshData();
-            showSuccessToast("Buku berhasil dihapus.");
+            showInfo("Buku berhasil dihapus.");
         } catch (Exception exception) {
-            showErrorToast(resolveErrorMessage(exception));
+            showError(resolveErrorMessage(exception));
         }
     }
 
@@ -614,6 +615,8 @@ public class BookManagementPanel {
         TextField shelfInput = createModalTextField("");
         TextField coverUrlInput = createModalTextField("https://...");
         ComboBox<String> categoryInput = createModalCategoryField();
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         StackPane overlay = buildBaseModalOverlay();
 
@@ -637,6 +640,7 @@ public class BookManagementPanel {
 
         saveButton.setOnAction(event -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 int publicationYear = parseInt(yearInput.getText(), "Tahun terbit harus berupa angka.");
                 int totalCopies = parseInt(copiesInput.getText(), "Jumlah eksemplar harus berupa angka.");
                 String categoryValue = normalizeInput(categoryInput.getValue());
@@ -661,12 +665,12 @@ public class BookManagementPanel {
                 closeAddBookDialog();
                 showInfo("Buku berhasil disimpan.");
             } catch (Exception exception) {
-                showError(resolveErrorMessage(exception));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(exception));
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(buildModalBodyScroller(body), footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), errorToast, footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -683,6 +687,8 @@ public class BookManagementPanel {
         TextField shelfInput = createModalTextField("", selectedBook.getShelfCode());
         TextField coverUrlInput = createModalTextField("", selectedBook.getCoverUrl());
         ComboBox<String> categoryInput = createModalCategoryField();
+        HBox errorToast = createModalInlineErrorToast();
+        Label errorMessageLabel = (Label) errorToast.getProperties().get("messageLabel");
 
         String currentCategory = normalizedCategory(selectedBook);
         if (!categoryInput.getItems().contains(currentCategory)) {
@@ -711,6 +717,7 @@ public class BookManagementPanel {
 
         saveButton.setOnAction(event -> {
             try {
+                hideModalInlineError(errorToast, errorMessageLabel);
                 int publicationYear = parseInt(yearInput.getText(), "Tahun terbit harus berupa angka.");
                 String categoryValue = normalizeInput(categoryInput.getValue());
 
@@ -732,14 +739,14 @@ public class BookManagementPanel {
 
                 refreshData();
                 closeAddBookDialog();
-                showSuccessToast("Buku berhasil diperbarui.");
+                showInfo("Buku berhasil diperbarui.");
             } catch (Exception exception) {
-                showError(resolveErrorMessage(exception));
+                showModalInlineError(errorToast, errorMessageLabel, resolveErrorMessage(exception));
             }
         });
 
         footer.getChildren().addAll(cancelButton, saveButton);
-        card.getChildren().addAll(buildModalBodyScroller(body), footer);
+        card.getChildren().addAll(buildModalBodyScroller(body), errorToast, footer);
         overlay.getChildren().add(card);
 
         return overlay;
@@ -784,6 +791,59 @@ public class BookManagementPanel {
         card.getChildren().add(header);
 
         return card;
+    }
+
+    private HBox createModalInlineErrorToast() {
+        Label iconLabel = new Label("✕");
+        iconLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: 700;");
+
+        Label closeLabel = new Label("✕");
+        closeLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-cursor: hand;");
+
+        Label messageLabel = new Label();
+        messageLabel.setWrapText(true);
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
+        messageLabel.setStyle("-fx-text-fill: #991b1b; -fx-font-size: 12px;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox toast = new HBox(10, iconLabel, messageLabel, spacer, closeLabel);
+        toast.setAlignment(Pos.CENTER_LEFT);
+        toast.setVisible(false);
+        toast.setManaged(false);
+        toast.setPrefWidth(ADD_BOOK_MODAL_WIDTH - 64);
+        toast.setMaxWidth(ADD_BOOK_MODAL_WIDTH - 64);
+        VBox.setMargin(toast, new Insets(6, 24, 2, 24));
+        toast.setStyle(
+                "-fx-background-color: #fef2f2; " +
+                "-fx-border-color: #fecaca; " +
+                "-fx-border-width: 1; " +
+                "-fx-border-radius: 12; " +
+                "-fx-background-radius: 12; " +
+                "-fx-padding: 10 12 10 12;"
+        );
+        toast.getProperties().put("messageLabel", messageLabel);
+        closeLabel.setOnMouseClicked(event -> hideModalInlineError(toast, messageLabel));
+        return toast;
+    }
+
+    private void showModalInlineError(HBox toast, Label messageLabel, String message) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText(message == null ? "" : message);
+        toast.setManaged(true);
+        toast.setVisible(true);
+    }
+
+    private void hideModalInlineError(HBox toast, Label messageLabel) {
+        if (toast == null || messageLabel == null) {
+            return;
+        }
+        messageLabel.setText("");
+        toast.setVisible(false);
+        toast.setManaged(false);
     }
 
     private HBox buildModalFooter() {
@@ -998,11 +1058,15 @@ public class BookManagementPanel {
     }
 
     private void showInfo(String message) {
-        showAlert(Alert.AlertType.INFORMATION, message);
+        FxFeedback.showSuccessToast(
+                FxFeedback.resolveHost(root),
+                message,
+                new Insets(84, 24, 0, 0)
+        );
     }
 
     private void showError(String message) {
-        showAlert(Alert.AlertType.ERROR, message);
+        FxFeedback.showErrorToast(FxFeedback.resolveHost(root), message);
     }
 
     private void showAlert(Alert.AlertType type, String message) {
