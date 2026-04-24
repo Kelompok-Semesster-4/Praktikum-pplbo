@@ -63,6 +63,12 @@
   -fx-text-fill: #dbe6ff;
 }
 
+.sidebar-badge-icon-svg {
+  -fx-fill: #dbe6ff;
+  -fx-scale-x: 0.68;
+  -fx-scale-y: 0.68;
+}
+
 .sidebar-badge-text {
   -fx-font-size: 12px;
   -fx-font-weight: 700;
@@ -106,6 +112,22 @@
   -fx-font-weight: 700;
 }
 
+.menu-icon-wrap {
+  -fx-min-width: 24px;
+  -fx-min-height: 24px;
+  -fx-pref-width: 24px;
+  -fx-pref-height: 24px;
+  -fx-max-width: 24px;
+  -fx-max-height: 24px;
+  -fx-alignment: center;
+}
+
+.menu-icon-svg {
+  -fx-fill: #aab7d8;
+  -fx-scale-x: 0.68;
+  -fx-scale-y: 0.68;
+}
+
 .menu-caption {
   -fx-text-fill: #9eb0d8;
   -fx-font-size: 13px;
@@ -117,6 +139,11 @@
 .menu-item.active .menu-caption,
 .menu-item.active .menu-icon {
   -fx-text-fill: #ffffff;
+}
+
+.menu-item:hover .menu-icon-svg,
+.menu-item.active .menu-icon-svg {
+  -fx-fill: #ffffff;
 }
 
 .content-wrapper {

@@ -41,6 +41,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -240,8 +241,11 @@ class AdminDashboardFxApp extends Application {
         StackPane roleIconWrap = new StackPane();
         roleIconWrap.getStyleClass().add("sidebar-badge-icon-wrap");
 
-        Label roleIcon = new Label("\u2699");
-        roleIcon.getStyleClass().add("sidebar-badge-icon");
+        Node roleIcon = createSidebarSvgIcon(
+                "M12 4.2a3 3 0 1 1 0 6a3 3 0 0 1 0-6zm0 7.6c-2.7 0-5.1 1.36-6.55 3.44c-.33.47-.17 1.12.34 1.38A14.1 14.1 0 0 0 12 18.1c2.2 0 4.3-.5 6.2-1.48c.5-.26.66-.9.34-1.38A7.98 7.98 0 0 0 12 11.8zm6.4-5.4l.55 1.2l1.28.18l-.94.92l.23 1.3l-1.12-.63l-1.12.63l.23-1.3l-.94-.92l1.28-.18zm0 8.2l.55 1.2l1.28.18l-.94.92l.23 1.3l-1.12-.63l-1.12.63l.23-1.3l-.94-.92l1.28-.18z",
+                "sidebar-badge-icon-svg",
+                12
+        );
         roleIconWrap.getChildren().add(roleIcon);
 
         Label roleText = new Label("Administrator");
@@ -252,7 +256,11 @@ class AdminDashboardFxApp extends Application {
         VBox menuContainer = new VBox(6);
         menuContainer.getStyleClass().add("menu-container");
         menuContainer.getChildren().addAll(
-                createMenuButton("Dashboard", "\u25A6", true, () -> openFxSection("Dashboard")),
+                createMenuButton("Dashboard", createSidebarSvgIcon(
+                        "M4 4h7v7H4z M13 4h7v5h-7z M4 13h7v7H4z M13 11h7v9h-7z",
+                        "menu-icon-svg",
+                        15
+                ), true, () -> openFxSection("Dashboard")),
                 createMenuButton("Manajemen Buku", "\uD83D\uDCDA", false, () -> openFxSection("Manajemen Buku")),
                 createMenuButton("Manajemen Anggota", "\uD83D\uDC65", false, () -> openFxSection("Manajemen Anggota")),
                 createMenuButton("Peminjaman & Pengembalian", "\u21C4", false,
@@ -266,14 +274,26 @@ class AdminDashboardFxApp extends Application {
 
         VBox footerMenu = new VBox(6);
         footerMenu.getChildren().addAll(
-                createMenuButton("Mode Kiosk", "\uD83D\uDDA5", false, () -> openFxSection("Mode Kiosk")),
-                createMenuButton("Keluar", "\u238B", false, this::navigateToLogin));
+                createMenuButton("Mode Kiosk", createSidebarSvgIcon(
+                        "M4 6h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6v2h3v1.5H7V21h3v-2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2v9h16V8z",
+                        "menu-icon-svg",
+                        15
+                ), false, () -> openFxSection("Mode Kiosk")),
+                createMenuButton("Keluar", createSidebarSvgIcon(
+                        "M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4v-2H6V6h4zm3.2 3.8l1.4 1.4l-1.8 1.8H20v2h-7.2l1.8 1.8l-1.4 1.4L9 12z",
+                        "menu-icon-svg",
+                        15
+                ), false, this::navigateToLogin));
 
         sidebar.getChildren().addAll(brandBox, adminDivider, roleBadge, menuContainer, spacer, footerMenu);
         return sidebar;
     }
 
     private Button createMenuButton(String text, String iconText, boolean active, Runnable onAction) {
+        return createMenuButton(text, createSidebarTextIcon(iconText), active, onAction);
+    }
+
+    private Button createMenuButton(String text, Node iconNode, boolean active, Runnable onAction) {
         Button button = new Button(text);
         button.getStyleClass().add("menu-item");
         if (active) {
@@ -283,13 +303,10 @@ class AdminDashboardFxApp extends Application {
         HBox graphic = new HBox(10);
         graphic.setAlignment(Pos.CENTER_LEFT);
 
-        Label icon = new Label(iconText);
-        icon.getStyleClass().add("menu-icon");
-
         Label caption = new Label(text);
         caption.getStyleClass().add("menu-caption");
 
-        graphic.getChildren().addAll(icon, caption);
+        graphic.getChildren().addAll(iconNode, caption);
         button.setGraphic(graphic);
         button.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         button.setOnAction(event -> onAction.run());
@@ -297,6 +314,25 @@ class AdminDashboardFxApp extends Application {
 
         menuButtons.put(text, button);
         return button;
+    }
+
+    private Node createSidebarTextIcon(String iconText) {
+        Label icon = new Label(iconText);
+        icon.getStyleClass().add("menu-icon");
+        return icon;
+    }
+
+    private Node createSidebarSvgIcon(String pathData, String styleClass, double size) {
+        SVGPath icon = new SVGPath();
+        icon.setContent(pathData);
+        icon.getStyleClass().add(styleClass);
+
+        StackPane wrapper = new StackPane(icon);
+        wrapper.getStyleClass().add("menu-icon-wrap");
+        wrapper.setMinSize(size + 9, size + 9);
+        wrapper.setPrefSize(size + 9, size + 9);
+        wrapper.setMaxSize(size + 9, size + 9);
+        return wrapper;
     }
 
     private Node createContent(
