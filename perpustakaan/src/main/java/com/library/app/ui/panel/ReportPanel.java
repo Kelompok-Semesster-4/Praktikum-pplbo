@@ -3,6 +3,7 @@ package com.library.app.ui.panel;
 import com.library.app.model.OverdueLoanReportItem;
 import com.library.app.model.ReportSummary;
 import com.library.app.service.DashboardService;
+import com.library.app.ui.util.FxFeedback;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,7 +18,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -598,9 +598,9 @@ public class ReportPanel {
       return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
    }
 
-private String safeText(String value) {
-    return value == null || value.isBlank() ? "-" : value;
-}
+   private String safeText(String value) {
+      return value == null || value.isBlank() ? "-" : value;
+   }
 
    private String safe(String value) {
       return value == null || value.isBlank() ? "-" : value;
@@ -620,16 +620,10 @@ private String safeText(String value) {
    }
 
    private void showInfo(String message) {
-      Alert alert = new Alert(Alert.AlertType.INFORMATION);
-      alert.setHeaderText(null);
-      alert.setContentText(message);
-      alert.showAndWait();
+      FxFeedback.showSuccessToastCentered(FxFeedback.resolveHost(exportButton), message);
    }
 
    private void showError(String message) {
-      Alert alert = new Alert(Alert.AlertType.ERROR);
-      alert.setHeaderText(null);
-      alert.setContentText(message);
-      alert.showAndWait();
+      FxFeedback.showErrorToastCentered(FxFeedback.resolveHost(exportButton), message);
    }
 }
