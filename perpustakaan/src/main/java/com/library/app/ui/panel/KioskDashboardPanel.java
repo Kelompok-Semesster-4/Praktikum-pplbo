@@ -79,6 +79,7 @@ public class KioskDashboardPanel {
                 dateLabel);
 
         StackPane contentWrapper = new StackPane(content);
+        contentWrapper.setAlignment(Pos.CENTER);
         contentWrapper.setPadding(new Insets(20, 16, 22, 16));
         return contentWrapper;
     }

@@ -63,8 +63,10 @@ public class KioskProcurementFxPanel {
 
     private Node buildFormCard(Runnable onBack, ScrollPane scrollPane) {
         VBox wrapper = new VBox(18);
-        wrapper.setAlignment(Pos.TOP_CENTER);
+        wrapper.setAlignment(Pos.CENTER);
         wrapper.setPadding(new Insets(10, 0, 24, 0));
+        scrollPane.viewportBoundsProperty()
+                .addListener((observable, oldBounds, bounds) -> wrapper.setMinHeight(bounds.getHeight()));
 
         VBox card = new VBox(16);
         card.getStyleClass().add("procurement-card");

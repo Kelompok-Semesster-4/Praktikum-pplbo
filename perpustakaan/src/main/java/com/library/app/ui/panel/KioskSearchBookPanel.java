@@ -195,6 +195,7 @@ public class KioskSearchBookPanel {
         content.getChildren().add(card);
 
         StackPane wrapper = new StackPane(content);
+        wrapper.setAlignment(Pos.CENTER);
         wrapper.setPadding(new Insets(20, 16, 22, 16));
 
         coverPreviewOverlay = buildCoverPreviewOverlay();

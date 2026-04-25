@@ -136,7 +136,10 @@ public class KioskVisitPanel {
         content.getChildren().add(formBox);
 
         StackPane wrapper = new StackPane(content);
+        wrapper.setAlignment(Pos.CENTER);
         wrapper.setPadding(new Insets(20, 16, 22, 16));
+        scrollPane.viewportBoundsProperty()
+                .addListener((observable, oldBounds, bounds) -> wrapper.setMinHeight(bounds.getHeight()));
         scrollPane.setContent(wrapper);
         return scrollPane;
     }
