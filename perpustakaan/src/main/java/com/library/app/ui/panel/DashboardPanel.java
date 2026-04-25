@@ -47,11 +47,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -60,56 +55,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
-
-public class DashboardPanel extends JPanel implements RefreshablePanel {
-    private final DashboardService dashboardService = new DashboardService();
-
-    private final JLabel totalBooksLabel = new JLabel();
-    private final JLabel totalCopiesLabel = new JLabel();
-    private final JLabel availableCopiesLabel = new JLabel();
-    private final JLabel totalMembersLabel = new JLabel();
-    private final JLabel visitsTodayLabel = new JLabel();
-    private final JLabel activeLoansLabel = new JLabel();
-    private final JLabel pendingRequestsLabel = new JLabel();
-
-    public DashboardPanel() {
-        setLayout(new GridLayout(0, 2, 12, 12));
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        add(createCard("Total Judul Buku", totalBooksLabel));
-        add(createCard("Total Eksemplar", totalCopiesLabel));
-        add(createCard("Stok Tersedia", availableCopiesLabel));
-        add(createCard("Total Anggota", totalMembersLabel));
-        add(createCard("Kunjungan Hari Ini", visitsTodayLabel));
-        add(createCard("Pinjaman Aktif", activeLoansLabel));
-        add(createCard("Request Pending", pendingRequestsLabel));
-        refreshData();
-    }
-
-    private JPanel createCard(String title, JLabel valueLabel) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
-        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 24f));
-        panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(valueLabel, BorderLayout.CENTER);
-        return panel;
-    }
-
-    @Override
-    public void refreshData() {
-        DashboardSummary summary = dashboardService.getSummary();
-        totalBooksLabel.setText(String.valueOf(summary.getTotalBooks()));
-        totalCopiesLabel.setText(String.valueOf(summary.getTotalCopies()));
-        availableCopiesLabel.setText(String.valueOf(summary.getAvailableCopies()));
-        totalMembersLabel.setText(String.valueOf(summary.getTotalMembers()));
-        visitsTodayLabel.setText(String.valueOf(summary.getVisitsToday()));
-        activeLoansLabel.setText(String.valueOf(summary.getActiveLoans()));
-        pendingRequestsLabel.setText(String.valueOf(summary.getPendingRequests()));
-    }
-}
 
 class AdminDashboardFxApp extends Application {
     private static final int MONTH_RANGE = 7;
@@ -125,7 +70,7 @@ class AdminDashboardFxApp extends Application {
             "Feedback",
             "Lainnya");
 
-    private final com.library.app.service.DashboardService dashboardService = new com.library.app.service.DashboardService();
+    private final DashboardService dashboardService = new DashboardService();
     private final NotificationService notificationService = new NotificationService();
     private final UserDAO userDAO = new UserDAO();
     private final Map<String, Button> menuButtons = new LinkedHashMap<>();

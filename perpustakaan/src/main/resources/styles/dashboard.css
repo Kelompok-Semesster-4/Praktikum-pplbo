@@ -1583,11 +1583,18 @@
   -fx-text-fill: #6a768c;
   -fx-font-size: 12px;
   -fx-font-weight: 700;
+  -fx-alignment: CENTER;
 }
 
-.loan-table .column-header.loan-col-member .label {
+.loan-table .column-header.loan-col-member .label,
+.loan-table .column-header.loan-col-leading .label {
   -fx-alignment: CENTER-LEFT;
   -fx-padding: 0 0 0 18;
+}
+
+.loan-table .column-header.loan-col-centered .label {
+  -fx-alignment: CENTER;
+  -fx-padding: 0;
 }
 
 .loan-table .table-row-cell {
@@ -1608,7 +1615,7 @@
   -fx-border-color: transparent;
   -fx-text-fill: #344257;
   -fx-padding: 0 10 0 10;
-  -fx-alignment: CENTER-LEFT;
+  -fx-alignment: CENTER;
 }
 
 .loan-title-text {

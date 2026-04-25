@@ -29,6 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -40,6 +41,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 public class LoanManagementPanel {
 
@@ -60,6 +62,7 @@ public class LoanManagementPanel {
     private static final DateTimeFormatter VISIT_TABLE_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     private static final double MODAL_WIDTH = 560;
     private static final double MODAL_HEIGHT = 360;
+    private static final double LEADING_CELL_LEFT_PADDING = 16;
 
     private final LoanService loanService = new LoanService();
     private final LoanDAO loanDAO = new LoanDAO();
@@ -435,11 +438,14 @@ public class LoanManagementPanel {
 
         TableColumn<Object, LoanRow> memberColumn = new TableColumn<>("PEMINJAM");
         memberColumn.getStyleClass().add("loan-col-member");
+        alignLeadingHeader(memberColumn);
         memberColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((LoanRow) cell.getValue()));
         memberColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(LoanRow item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER_LEFT);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -451,7 +457,7 @@ public class LoanManagementPanel {
                 code.getStyleClass().add("loan-meta-text");
                 VBox wrapper = new VBox(2, name, code);
                 wrapper.setAlignment(Pos.CENTER_LEFT);
-                wrapper.setPadding(new Insets(0, 0, 0, 8));
+                wrapper.setPadding(new Insets(0, 0, 0, LEADING_CELL_LEFT_PADDING));
                 setGraphic(wrapper);
                 setText(null);
             }
@@ -459,11 +465,14 @@ public class LoanManagementPanel {
         memberColumn.setPrefWidth(200);
 
         TableColumn<Object, String> titleColumn = new TableColumn<>("BUKU");
+        alignCenteredColumn(titleColumn);
         titleColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).bookTitle()));
         titleColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -472,6 +481,7 @@ public class LoanManagementPanel {
                 Label label = new Label(item);
                 label.getStyleClass().add("loan-book-text");
                 label.setWrapText(true);
+                label.setTextAlignment(TextAlignment.CENTER);
                 HBox wrapper = new HBox(label);
                 wrapper.setAlignment(Pos.CENTER);
                 setGraphic(wrapper);
@@ -481,12 +491,14 @@ public class LoanManagementPanel {
         titleColumn.setPrefWidth(210);
 
         TableColumn<Object, String> loanDateColumn = new TableColumn<>("TGL PINJAM");
+        alignCenteredColumn(loanDateColumn);
         loanDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).loanDate()));
         loanDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
         loanDateColumn.setPrefWidth(105);
 
         if (currentMode == LoanViewMode.ACTIVE) {
             TableColumn<Object, String> dueDateColumn = new TableColumn<>("JATUH TEMPO");
+            alignCenteredColumn(dueDateColumn);
             dueDateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).dueDate()));
             dueDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
             dueDateColumn.setPrefWidth(110);
@@ -495,11 +507,14 @@ public class LoanManagementPanel {
             statusColumn.setPrefWidth(100);
 
             TableColumn<Object, String> fineColumn = new TableColumn<>("DENDA");
+            alignCenteredColumn(fineColumn);
             fineColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).fineAmount()));
             fineColumn.setCellFactory(column -> new TableCell<>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null) {
                         setGraphic(null);
                         setText(null);
@@ -522,6 +537,7 @@ public class LoanManagementPanel {
             fineColumn.setPrefWidth(100);
 
             TableColumn<Object, LoanRow> actionColumn = new TableColumn<>("AKSI");
+            alignCenteredColumn(actionColumn);
             actionColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((LoanRow) cell.getValue()));
             actionColumn.setSortable(false);
             actionColumn.setReorderable(false);
@@ -529,6 +545,8 @@ public class LoanManagementPanel {
                 @Override
                 protected void updateItem(LoanRow item, boolean empty) {
                     super.updateItem(item, empty);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null) {
                         setGraphic(null);
                         setText(null);
@@ -549,17 +567,21 @@ public class LoanManagementPanel {
                     memberColumn, titleColumn, loanDateColumn, dueDateColumn, statusColumn, fineColumn, actionColumn);
         } else {
             TableColumn<Object, String> returnDateColumn = new TableColumn<>("TGL KEMBALI");
+            alignCenteredColumn(returnDateColumn);
             returnDateColumn
                     .setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).returnDate()));
             returnDateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
             returnDateColumn.setPrefWidth(110);
 
             TableColumn<Object, String> fineColumn = new TableColumn<>("DENDA");
+            alignCenteredColumn(fineColumn);
             fineColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).fineAmount()));
             fineColumn.setCellFactory(column -> new TableCell<>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                    setAlignment(Pos.CENTER);
                     if (empty || item == null) {
                         setGraphic(null);
                         setText(null);
@@ -591,11 +613,14 @@ public class LoanManagementPanel {
 
     private TableColumn<Object, String> createLoanStatusColumn() {
         TableColumn<Object, String> statusColumn = new TableColumn<>("STATUS");
+        alignCenteredColumn(statusColumn);
         statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(((LoanRow) cell.getValue()).status()));
         statusColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -620,33 +645,40 @@ public class LoanManagementPanel {
         mainTable.getColumns().clear();
 
         if (currentMode == LoanViewMode.MEMBER_VISIT) {
-            TableColumn<Object, String> visitorColumn = new TableColumn<>("PENGUNJUNG");
-            visitorColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
-            visitorColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-            visitorColumn.setCellFactory(column -> leftAlignedVisitTextCell("loan-title-text"));
+            TableColumn<Object, VisitRow> visitorColumn = new TableColumn<>("PENGUNJUNG");
+            visitorColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((VisitRow) cell.getValue()));
+            alignLeadingHeader(visitorColumn);
+            visitorColumn.setCellFactory(column -> leadingVisitTextCell(
+                    VisitRow::name,
+                    this::buildMemberVisitMeta));
             visitorColumn.setPrefWidth(220);
 
             TableColumn<Object, String> nimColumn = new TableColumn<>("NIM");
+            alignCenteredColumn(nimColumn);
             nimColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).identifier()));
             nimColumn.setCellFactory(column -> centeredTextCell("loan-code-text"));
             nimColumn.setPrefWidth(150);
 
             TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
+            alignCenteredColumn(dateColumn);
             dateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).date()));
             dateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
             dateColumn.setPrefWidth(140);
 
             TableColumn<Object, String> inColumn = new TableColumn<>("MASUK");
+            alignCenteredColumn(inColumn);
             inColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkIn()));
             inColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
             inColumn.setPrefWidth(120);
 
             TableColumn<Object, String> outColumn = new TableColumn<>("KELUAR");
+            alignCenteredColumn(outColumn);
             outColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkOut()));
             outColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
             outColumn.setPrefWidth(120);
 
             TableColumn<Object, String> statusColumn = new TableColumn<>("STATUS");
+            alignCenteredColumn(statusColumn);
             statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).status()));
             statusColumn.setCellFactory(column -> createVisitStatusCell());
             statusColumn.setPrefWidth(130);
@@ -658,39 +690,47 @@ public class LoanManagementPanel {
             return;
         }
 
-        TableColumn<Object, String> nameColumn = new TableColumn<>("NAMA");
-        nameColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).name()));
-        nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-        nameColumn.setCellFactory(column -> leftAlignedVisitTextCell("loan-title-text"));
+        TableColumn<Object, VisitRow> nameColumn = new TableColumn<>("NAMA");
+        nameColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>((VisitRow) cell.getValue()));
+        alignLeadingHeader(nameColumn);
+        nameColumn.setCellFactory(column -> leadingVisitTextCell(
+                VisitRow::name,
+                this::buildGuestVisitMeta));
         nameColumn.setPrefWidth(190);
 
         TableColumn<Object, String> institutionColumn = new TableColumn<>("INSTANSI");
+        alignCenteredColumn(institutionColumn);
         institutionColumn
                 .setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).institution()));
         institutionColumn.setCellFactory(column -> centeredWrappedTextCell("loan-book-text"));
         institutionColumn.setPrefWidth(160);
 
         TableColumn<Object, String> purposeColumn = new TableColumn<>("KEPERLUAN");
+        alignCenteredColumn(purposeColumn);
         purposeColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).purpose()));
         purposeColumn.setCellFactory(column -> centeredWrappedTextCell("loan-book-text"));
         purposeColumn.setPrefWidth(180);
 
         TableColumn<Object, String> dateColumn = new TableColumn<>("TANGGAL");
+        alignCenteredColumn(dateColumn);
         dateColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).date()));
         dateColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
         dateColumn.setPrefWidth(120);
 
         TableColumn<Object, String> inColumn = new TableColumn<>("MASUK");
+        alignCenteredColumn(inColumn);
         inColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkIn()));
         inColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
         inColumn.setPrefWidth(110);
 
         TableColumn<Object, String> outColumn = new TableColumn<>("KELUAR");
+        alignCenteredColumn(outColumn);
         outColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).checkOut()));
         outColumn.setCellFactory(column -> centeredTextCell("loan-date-text"));
         outColumn.setPrefWidth(110);
 
         TableColumn<Object, String> statusColumn = new TableColumn<>("STATUS");
+        alignCenteredColumn(statusColumn);
         statusColumn.setCellValueFactory(cell -> new SimpleStringProperty(((VisitRow) cell.getValue()).status()));
         statusColumn.setCellFactory(column -> createVisitStatusCell());
         statusColumn.setPrefWidth(110);
@@ -699,6 +739,70 @@ public class LoanManagementPanel {
                 nameColumn, institutionColumn, purposeColumn, dateColumn, inColumn, outColumn, statusColumn);
 
         updateMainTableItems();
+    }
+
+    private void alignLeadingHeader(TableColumn<?, ?> column) {
+        column.setStyle("-fx-alignment: CENTER-LEFT;");
+        column.getStyleClass().add("loan-col-leading");
+    }
+
+    private void alignCenteredColumn(TableColumn<?, ?> column) {
+        column.setStyle("-fx-alignment: CENTER;");
+        column.getStyleClass().add("loan-col-centered");
+    }
+
+    private TableCell<Object, VisitRow> leadingVisitTextCell(
+            Function<VisitRow, String> titleProvider,
+            Function<VisitRow, String> metaProvider) {
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(VisitRow item, boolean empty) {
+                super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER_LEFT);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
+
+                Label title = new Label(titleProvider.apply(item));
+                title.getStyleClass().add("loan-title-text");
+                title.setWrapText(true);
+
+                Label meta = new Label(metaProvider.apply(item));
+                meta.getStyleClass().add("loan-meta-text");
+                meta.setWrapText(true);
+
+                VBox wrapper = new VBox(2, title, meta);
+                wrapper.setAlignment(Pos.CENTER_LEFT);
+                wrapper.setPadding(new Insets(0, 0, 0, LEADING_CELL_LEFT_PADDING));
+
+                setGraphic(wrapper);
+                setText(null);
+            }
+        };
+    }
+
+    private String buildMemberVisitMeta(VisitRow row) {
+        return hasDisplayValue(row.identifier()) ? "NIM: " + row.identifier() : row.type();
+    }
+
+    private String buildGuestVisitMeta(VisitRow row) {
+        if (hasDisplayValue(row.institution()) && hasDisplayValue(row.purpose())) {
+            return row.institution() + " - " + row.purpose();
+        }
+        if (hasDisplayValue(row.institution())) {
+            return row.institution();
+        }
+        if (hasDisplayValue(row.purpose())) {
+            return row.purpose();
+        }
+        return row.type();
+    }
+
+    private boolean hasDisplayValue(String value) {
+        return value != null && !value.isBlank() && !"-".equals(value);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -717,6 +821,8 @@ public class LoanManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -775,6 +881,8 @@ public class LoanManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -783,54 +891,10 @@ public class LoanManagementPanel {
 
                 Label label = new Label(item);
                 label.getStyleClass().add(styleClass);
+                label.setTextAlignment(TextAlignment.CENTER);
 
                 HBox wrapper = new HBox(label);
                 wrapper.setAlignment(Pos.CENTER);
-
-                setGraphic(wrapper);
-                setText(null);
-            }
-        };
-    }
-
-    private TableCell<Object, String> visitTextCell(String styleClass) {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-
-                Label label = new Label(item);
-                label.getStyleClass().add(styleClass);
-                label.setWrapText(true);
-
-                setGraphic(label);
-                setText(null);
-            }
-        };
-    }
-
-    private TableCell<Object, String> leftAlignedVisitTextCell(String styleClass) {
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                    setText(null);
-                    return;
-                }
-
-                Label label = new Label(item);
-                label.getStyleClass().add(styleClass);
-                label.setWrapText(true);
-
-                HBox wrapper = new HBox(label);
-                wrapper.setAlignment(Pos.CENTER_LEFT);
 
                 setGraphic(wrapper);
                 setText(null);
@@ -843,6 +907,8 @@ public class LoanManagementPanel {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setAlignment(Pos.CENTER);
                 if (empty || item == null) {
                     setGraphic(null);
                     setText(null);
@@ -852,6 +918,7 @@ public class LoanManagementPanel {
                 Label label = new Label(item);
                 label.getStyleClass().add(styleClass);
                 label.setWrapText(true);
+                label.setTextAlignment(TextAlignment.CENTER);
 
                 HBox wrapper = new HBox(label);
                 wrapper.setAlignment(Pos.CENTER);
